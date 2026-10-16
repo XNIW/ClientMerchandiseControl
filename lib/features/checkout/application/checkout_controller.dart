@@ -8,7 +8,10 @@ import '../../../core/observability/observability_providers.dart';
 import '../../../core/time/app_scheduler.dart';
 import '../../account/application/customer_account_providers.dart';
 import '../../account/domain/customer_account_models.dart';
+import '../../cart/application/cart_state.dart';
 import '../../cart/domain/cart_models.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_state.dart';
 import '../../delivery_context/application/delivery_context_controller.dart';
 import '../../delivery_context/domain/delivery_context_models.dart';
 import '../domain/checkout_failure.dart';
@@ -25,6 +28,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
   String? _ownerSubjectId;
   String? _shopSlug;
   Future<void>? _operation;
+  var _preparingCheckout = false;
   var _generation = 0;
   var _disposed = false;
 
@@ -35,8 +39,52 @@ final class CheckoutController extends Notifier<CheckoutState> {
       _disposed = true;
       _generation++;
     });
+    ref.listen(authControllerProvider, (previous, next) {
+      String? owner(AuthState? value) => switch (value) {
+        AuthAuthenticated(:final customer) => customer.subjectId,
+        _ => null,
+      };
+      if (owner(previous) != owner(next)) {
+        // Ogni confine Auth invalida anche A-B-A prima del rebuild successivo.
+        ++_generation;
+        _ownerSubjectId = null;
+        _shopSlug = null;
+        _contextKey = null;
+        _lastState = null;
+        state = CheckoutState.loading();
+        ref.invalidateSelf();
+      }
+    });
+    ref.listen(
+      appConfigProvider.select((config) => config.storefrontShopSlug),
+      (previous, next) {
+        if (previous == next) return;
+        ++_generation;
+        _ownerSubjectId = null;
+        _shopSlug = null;
+        _contextKey = null;
+        _lastState = null;
+        state = CheckoutState.loading();
+        ref.invalidateSelf();
+      },
+    );
     final config = ref.watch(appConfigProvider);
-    final identity = ref.watch(customerAccountIdentityProvider);
+    final subjectId = ref.watch(
+      customerAccountIdentityProvider.select((identity) => identity?.subjectId),
+    );
+    final identity = subjectId == null
+        ? null
+        : ref.read(customerAccountIdentityProvider);
+    final nextOwner = identity?.subjectId;
+    final nextShop = config.storefrontShopSlug;
+    if (_ownerSubjectId != nextOwner || _shopSlug != nextShop) {
+      // Anche i rami loading/guest/config invalida devono chiudere lo scope.
+      ++_generation;
+      _ownerSubjectId = nextOwner;
+      _shopSlug = nextShop;
+      _contextKey = null;
+      _lastState = null;
+    }
     final cartState = ref.watch(checkoutCartStateProvider);
     final accountState = ref.watch(checkoutAccountStateProvider);
     final deliveryContextState = ref.watch(
@@ -45,6 +93,46 @@ final class CheckoutController extends Notifier<CheckoutState> {
     final deliveryContext = deliveryContextState.context;
     final shopSlug = config.storefrontShopSlug;
     final cart = cartState.snapshot;
+    final remembered = _lastState;
+    final rememberedOrder = remembered?.order;
+    final sameOwnerShop =
+        identity != null &&
+        shopSlug != null &&
+        _ownerSubjectId == identity.subjectId &&
+        _shopSlug == shopSlug &&
+        (_contextKey?.startsWith('$shopSlug|${identity.subjectId}|') ?? false);
+    if (sameOwnerShop &&
+        rememberedOrder != null &&
+        rememberedOrder.shopSlug == shopSlug) {
+      // La receipt resta definitiva finché l'utente avvia una nuova spesa.
+      return remembered!;
+    }
+
+    final rememberedPending = remembered?.pendingOperation;
+    if (sameOwnerShop &&
+        rememberedPending?.kind == CheckoutPendingOperationKind.order) {
+      // Un cambio del nuovo cart non avvia un replay parallelo dell'intent.
+      final active = _operation;
+      final recovery = remembered!.copyWith(
+        cart: cart?.shopSlug == shopSlug && cart?.source == CartSource.account
+            ? cart
+            : remembered.cart,
+        isBusy: active != null,
+        failureKind: active == null
+            ? CheckoutFailureKind.timeout
+            : remembered.failureKind,
+      );
+      _lastState = recovery;
+      final recoveryContext = _captureContext();
+      if (active != null && recoveryContext != null) {
+        _finishOrderTransport(
+          active,
+          recoveryContext,
+          rememberedPending!.idempotencyKey,
+        );
+      }
+      return recovery;
+    }
 
     if (shopSlug == null) {
       return _remember(
@@ -54,7 +142,29 @@ final class CheckoutController extends Notifier<CheckoutState> {
         ),
       );
     }
-    if (cart == null) {
+    if (identity != null &&
+        (cart == null ||
+            cart.shopSlug != shopSlug ||
+            cart.source != CartSource.account)) {
+      // Il journal ordine è owner/shop scoped e non richiede un nuovo cart.
+      // Uno snapshot guest non diventa il cart account dell'intent precedente.
+      final nextContext =
+          '$shopSlug|${identity.subjectId}|journal|'
+          '${cartState.status.name}|${cartState.failureKind?.name}|'
+          '${cart?.shopSlug}|${cart?.source.name}|${cart?.version}';
+      if (_contextKey == nextContext && _lastState != null) {
+        return _lastState!;
+      }
+      _contextKey = nextContext;
+      final loading = CheckoutState.loading();
+      _lastState = loading;
+      final generation = ++_generation;
+      scheduleMicrotask(
+        () => _loadReceipt(generation, cart: null, preflightOnly: true),
+      );
+      return loading;
+    }
+    if (cart == null || cart.shopSlug != shopSlug) {
       return _remember(CheckoutState.loading());
     }
     if (cart.isEmpty && identity == null) {
@@ -76,7 +186,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
     }
     _ownerSubjectId = identity.subjectId;
     _shopSlug = shopSlug;
-    if (cart.isEmpty) {
+    if (cart.isEmpty || cart.unavailableItemCount > 0) {
       final rememberedOrder = _lastState?.order;
       if (rememberedOrder != null &&
           rememberedOrder.shopSlug == shopSlug &&
@@ -96,23 +206,12 @@ final class CheckoutController extends Notifier<CheckoutState> {
       scheduleMicrotask(() => _loadReceipt(generation, cart: cart));
       return loading;
     }
-    if (cart.unavailableItemCount > 0) {
-      return _remember(
-        CheckoutState.failure(
-          failureKind: CheckoutFailureKind.cartUnavailable,
-          cart: cart,
-        ),
-      );
-    }
     final accountSnapshot = accountState.snapshot;
-    if (accountSnapshot == null) {
-      return _remember(CheckoutState.loading(cart: cart));
-    }
-    final addresses = accountSnapshot.addresses;
-    if (deliveryContextState.status == DeliveryContextViewStatus.loading &&
-        deliveryContext == null) {
-      return _remember(CheckoutState.loading(cart: cart));
-    }
+    final checkoutContextReady =
+        accountSnapshot != null &&
+        !(deliveryContextState.status == DeliveryContextViewStatus.loading &&
+            deliveryContext == null);
+    final addresses = accountSnapshot?.addresses ?? const <CustomerAddress>[];
     final addressRevision = [
       for (final address in addresses) '${address.id}:${address.updatedAt}',
     ].join('|');
@@ -123,7 +222,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
               '${deliveryContext.serviceabilityStatus.name}';
     final nextContext =
         '$shopSlug|${identity.subjectId}|${cart.version}|$addressRevision|'
-        '$deliveryRevision';
+        '$deliveryRevision|$checkoutContextReady';
     if (_contextKey == nextContext && _lastState != null) {
       return _lastState!;
     }
@@ -140,6 +239,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
         addresses: addresses,
         deliveryContext: deliveryContext,
         restoreNotice: true,
+        checkoutContextReady: checkoutContextReady,
       ),
     );
     return loading;
@@ -168,16 +268,33 @@ final class CheckoutController extends Notifier<CheckoutState> {
         return;
       }
       final cart = state.cart;
-      if (cart == null) return;
+      if (cart == null) {
+        await _loadReceipt(
+          ++_generation,
+          cart: null,
+          preflightOnly: true,
+          ownsOperation: true,
+        );
+        return;
+      }
       await _load(
         ++_generation,
         cart: cart,
         addresses: state.addresses,
         deliveryContext: state.deliveryContext,
         restoreNotice: false,
+        checkoutContextReady:
+            ref.read(checkoutAccountStateProvider).snapshot != null &&
+            !(ref.read(checkoutDeliveryContextStateProvider).status ==
+                    DeliveryContextViewStatus.loading &&
+                ref.read(checkoutDeliveryContextStateProvider).context == null),
+        ownsOperation: true,
       );
     });
   }
+
+  bool get _hasPendingOrder =>
+      state.pendingOperation?.kind == CheckoutPendingOperationKind.order;
 
   Future<void> selectMode(CheckoutFulfillmentMode mode) async {
     final options = state.options;
@@ -194,6 +311,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
   }
 
   Future<void> selectPickupPoint(String pointId) async {
+    if (_hasPendingOrder) return;
     final options = state.options;
     final mode = state.selection.mode;
     if (state.isBusy ||
@@ -225,6 +343,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
   }
 
   Future<void> selectAddress(String addressId) async {
+    if (_hasPendingOrder) return;
     if (state.isBusy ||
         state.selection.mode != CheckoutFulfillmentMode.delivery ||
         !state.addresses.any((address) => address.id == addressId)) {
@@ -310,6 +429,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
     if (context == null) return Future<void>.value();
     return _serialize(() async {
       if (!_isCurrentContext(context)) return;
+      if (_hasPendingOrder || state.hasOrder) return;
       final cart = state.cart;
       if (cart == null || !_selectionComplete(state)) return;
       final existing = state.pendingOperation;
@@ -338,6 +458,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
     if (context == null) return Future<void>.value();
     return _serialize(() async {
       if (!_isCurrentContext(context)) return;
+      if (_hasPendingOrder || state.hasOrder) return;
       final quote = state.quote;
       final cart = state.cart;
       if (quote == null || cart == null || quote.isExpired) return;
@@ -405,11 +526,132 @@ final class CheckoutController extends Notifier<CheckoutState> {
     });
   }
 
+  /// Prepara un ingresso dal carrello senza cancellarne le righe.
+  /// Un ordine in attesa conserva il draft e apre il percorso di recupero.
+  /// Una receipt locale viene chiusa soltanto dopo il clear scoped riuscito.
+  Future<bool> prepareCheckoutFromCart() async {
+    if (_disposed || _preparingCheckout) {
+      return false;
+    }
+    final context = _captureContext();
+    if (context == null) {
+      return state.status == CheckoutViewStatus.authRequired &&
+          ref.read(customerAccountIdentityProvider) == null &&
+          ref.read(appConfigProvider).storefrontShopSlug ==
+              state.cart?.shopSlug;
+    }
+    bool currentScope() {
+      if (_disposed) {
+        return false;
+      }
+      final owner = ref.read(customerAccountIdentityProvider)?.subjectId;
+      final shop = ref.read(appConfigProvider).storefrontShopSlug;
+      return _isCurrentContext(context) &&
+          owner == context.ownerSubjectId &&
+          shop == context.shopSlug;
+    }
+
+    bool usableCart(CartState cart) =>
+        cart.status == CartViewStatus.ready &&
+        !cart.isBusy &&
+        !cart.hasPendingRetry &&
+        cart.snapshot?.source == CartSource.account &&
+        cart.snapshot?.shopSlug == context.shopSlug;
+
+    if (!currentScope()) {
+      return false;
+    }
+    if (_hasPendingOrder) {
+      return true;
+    }
+    // Non interferisce con una richiesta corrente; Checkout ne mostra l'esito.
+    if (_operation != null) {
+      return !state.hasOrder;
+    }
+    _preparingCheckout = true;
+    var prepared = false;
+    try {
+      await _serialize(() async {
+        if (!currentScope()) {
+          return;
+        }
+        try {
+          // Legge anche il draft durabile: la receipt potrebbe non essere ancora
+          // ripristinata nel controller al primo ingresso dal carrello.
+          final draft = await ref
+              .read(checkoutDraftStoreProvider)
+              .read(
+                ownerSubjectId: context.ownerSubjectId,
+                shopSlug: context.shopSlug,
+              );
+          if (!currentScope()) {
+            return;
+          }
+          if (_hasPendingOrder ||
+              draft?.pendingOperation?.kind ==
+                  CheckoutPendingOperationKind.order) {
+            prepared = true;
+            return;
+          }
+          if (!state.hasOrder && draft?.orderId == null) {
+            prepared = true;
+            return;
+          }
+          if (!usableCart(ref.read(checkoutCartStateProvider))) {
+            return;
+          }
+          await ref
+              .read(checkoutDraftStoreProvider)
+              .clear(
+                ownerSubjectId: context.ownerSubjectId,
+                shopSlug: context.shopSlug,
+              );
+          if (!currentScope()) {
+            return;
+          }
+          final cart = ref.read(checkoutCartStateProvider);
+          final addresses =
+              ref.read(checkoutAccountStateProvider).snapshot?.addresses ??
+              const <CustomerAddress>[];
+          final deliveryContext = ref
+              .read(checkoutDeliveryContextStateProvider)
+              .context;
+          if (!currentScope() || !usableCart(cart)) {
+            return;
+          }
+          _contextKey = null;
+          _publish(
+            CheckoutState.loading(
+              cart: cart.snapshot,
+            ).copyWith(addresses: addresses, deliveryContext: deliveryContext),
+          );
+          // Un nuovo build rivalida opzioni e selezione con il cart corrente.
+          ref.invalidateSelf();
+          prepared = true;
+        } on Object {
+          if (!currentScope()) {
+            return;
+          }
+          _publish(
+            state.copyWith(
+              failureKind: CheckoutFailureKind.unexpected,
+              isBusy: false,
+            ),
+          );
+        }
+      });
+      return prepared;
+    } finally {
+      _preparingCheckout = false;
+    }
+  }
+
   Future<void> restart() {
     final context = _captureContext();
     if (context == null) return Future<void>.value();
     return _serialize(() async {
       if (!_isCurrentContext(context)) return;
+      if (_hasPendingOrder) return;
       try {
         await ref
             .read(checkoutDraftStoreProvider)
@@ -451,6 +693,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
     required List<CustomerAddress> addresses,
     required CustomerDeliveryContext? deliveryContext,
     required bool restoreNotice,
+    bool checkoutContextReady = true,
+    bool ownsOperation = false,
   }) async {
     final owner = _ownerSubjectId;
     final shop = _shopSlug;
@@ -460,46 +704,55 @@ final class CheckoutController extends Notifier<CheckoutState> {
       shopSlug: shop,
       generation: generation,
     );
+    if (!_isCurrentContext(context)) return;
     _publish(
       CheckoutState.loading(
         cart: cart,
       ).copyWith(addresses: addresses, deliveryContext: deliveryContext),
     );
     try {
+      final draft = await ref
+          .read(checkoutDraftStoreProvider)
+          .read(ownerSubjectId: owner, shopSlug: shop);
+      if (!_isCurrentContext(context)) return;
+      if (await _restorePendingOrder(
+        draft,
+        context: context,
+        cart: cart,
+        addresses: addresses,
+        options: null,
+        paymentOptions: null,
+        deliveryContext: deliveryContext,
+        serializeOrder: !ownsOperation,
+      )) {
+        return;
+      }
+      if (await _restoreConfirmedOrder(
+        draft,
+        context: context,
+        cart: cart,
+        addresses: addresses,
+        deliveryContext: deliveryContext,
+        restoreNotice: restoreNotice,
+      )) {
+        return;
+      }
+      if (!_isCurrentContext(context)) return;
+      if (!checkoutContextReady) {
+        _publish(
+          CheckoutState.loading(
+            cart: cart,
+          ).copyWith(addresses: addresses, deliveryContext: deliveryContext),
+        );
+        return;
+      }
       final results = await Future.wait<Object?>([
         ref.read(checkoutRepositoryProvider).loadOptions(shopSlug: shop),
         ref.read(checkoutRepositoryProvider).loadPaymentOptions(shopSlug: shop),
-        ref
-            .read(checkoutDraftStoreProvider)
-            .read(ownerSubjectId: owner, shopSlug: shop),
       ]);
       if (!_isCurrentContext(context)) return;
       final options = results[0]! as StorefrontFulfillmentOptions;
       final paymentOptions = results[1]! as StorefrontPaymentOptions;
-      final draft = results[2] as CheckoutLocalDraft?;
-      if (draft?.orderId != null) {
-        final response = await ref
-            .read(checkoutRepositoryProvider)
-            .readOrder(shopSlug: shop, orderId: draft!.orderId!);
-        if (!_isCurrentContext(context)) return;
-        final order = response.order;
-        if (response.status == CheckoutOrderRemoteStatus.ok && order != null) {
-          final receipt = CheckoutState(
-            status: CheckoutViewStatus.ready,
-            step: CheckoutStep.confirmation,
-            selection: draft.selection,
-            addresses: addresses,
-            cart: cart,
-            options: options,
-            paymentOptions: paymentOptions,
-            order: order,
-            notice: restoreNotice ? CheckoutNoticeKind.restored : null,
-          );
-          if (!await _persist(receipt, context: context)) return;
-          _publish(receipt);
-          return;
-        }
-      }
       if (options.status != FulfillmentOptionsStatus.ok ||
           !options.modes.any((mode) => mode.enabled) ||
           paymentOptions.status != PaymentOptionsStatus.ok ||
@@ -591,7 +844,9 @@ final class CheckoutController extends Notifier<CheckoutState> {
 
   Future<void> _loadReceipt(
     int generation, {
-    required CustomerCartSnapshot cart,
+    required CustomerCartSnapshot? cart,
+    bool preflightOnly = false,
+    bool ownsOperation = false,
   }) async {
     final owner = _ownerSubjectId;
     final shop = _shopSlug;
@@ -601,59 +856,46 @@ final class CheckoutController extends Notifier<CheckoutState> {
       shopSlug: shop,
       generation: generation,
     );
+    if (!_isCurrentContext(context)) return;
     try {
-      final restored = await Future.wait<Object?>([
-        ref
-            .read(checkoutDraftStoreProvider)
-            .read(ownerSubjectId: owner, shopSlug: shop),
-        ref.read(checkoutRepositoryProvider).loadOptions(shopSlug: shop),
-        ref.read(checkoutRepositoryProvider).loadPaymentOptions(shopSlug: shop),
-      ]);
-      final draft = restored[0] as CheckoutLocalDraft?;
-      final options = restored[1] as StorefrontFulfillmentOptions;
-      final paymentOptions = restored[2] as StorefrontPaymentOptions;
+      final draft = await ref
+          .read(checkoutDraftStoreProvider)
+          .read(ownerSubjectId: owner, shopSlug: shop);
       if (!_isCurrentContext(context)) return;
-      if (draft?.orderId case final String orderId) {
-        final response = await ref
-            .read(checkoutRepositoryProvider)
-            .readOrder(shopSlug: shop, orderId: orderId);
-        if (!_isCurrentContext(context)) return;
-        final order = response.order;
-        if (response.status == CheckoutOrderRemoteStatus.ok && order != null) {
-          final receipt = CheckoutState(
-            status: CheckoutViewStatus.ready,
-            step: CheckoutStep.confirmation,
-            selection: draft!.selection,
-            addresses: const [],
-            cart: cart,
-            options: options,
-            paymentOptions: paymentOptions,
-            order: order,
-            notice: CheckoutNoticeKind.restored,
-          );
-          if (!await _persist(receipt, context: context)) return;
-          _publish(receipt);
-          return;
-        }
+      if (await _restorePendingOrder(
+        draft,
+        context: context,
+        cart: cart,
+        addresses: const [],
+        options: null,
+        paymentOptions: null,
+        deliveryContext: null,
+        serializeOrder: !ownsOperation,
+      )) {
+        return;
       }
-      final pending = draft?.pendingOperation;
-      if (pending?.kind == CheckoutPendingOperationKind.order &&
-          pending?.paymentMethod != null &&
-          pending?.paymentMethod == draft?.selection.paymentMethod) {
-        final recovery = CheckoutState(
-          status: CheckoutViewStatus.ready,
-          step: CheckoutStep.confirmation,
-          selection: draft!.selection,
-          addresses: const [],
-          cart: cart,
-          options: options,
-          paymentOptions: paymentOptions,
-          pendingOperation: pending,
-          failureKind: CheckoutFailureKind.timeout,
-          notice: CheckoutNoticeKind.restored,
+      if (await _restoreConfirmedOrder(
+        draft,
+        context: context,
+        cart: cart,
+        addresses: const [],
+        deliveryContext: null,
+        restoreNotice: true,
+      )) {
+        return;
+      }
+      if (!_isCurrentContext(context)) return;
+      if (preflightOnly) {
+        final currentCart = ref.read(checkoutCartStateProvider);
+        if (!_isCurrentContext(context)) return;
+        _publish(
+          currentCart.status == CartViewStatus.failure
+              ? CheckoutState.failure(
+                  failureKind: CheckoutFailureKind.cartUnavailable,
+                  cart: cart,
+                )
+              : CheckoutState.loading(cart: cart),
         );
-        _publish(recovery);
-        await _executeOrder(pending!, context);
         return;
       }
       _publish(
@@ -676,6 +918,122 @@ final class CheckoutController extends Notifier<CheckoutState> {
         );
       }
     }
+  }
+
+  void _finishOrderTransport(
+    Future<void> active,
+    _CheckoutContext context,
+    String pendingKey,
+  ) {
+    void finish() {
+      if (!_isCurrentContext(context) ||
+          state.pendingOperation?.kind != CheckoutPendingOperationKind.order ||
+          state.pendingOperation?.idempotencyKey != pendingKey ||
+          state.hasOrder) {
+        return;
+      }
+      // Il trasporto precedente è terminale. Un suo ACK invalidato non è
+      // una receipt: l'intent resta disponibile per Retry con la stessa key.
+      _publish(
+        state.copyWith(isBusy: false, failureKind: CheckoutFailureKind.timeout),
+      );
+    }
+
+    unawaited(
+      active.then<void>(
+        (_) => finish(),
+        onError: (Object error, StackTrace stackTrace) => finish(),
+      ),
+    );
+  }
+
+  Future<bool> _restoreConfirmedOrder(
+    CheckoutLocalDraft? draft, {
+    required _CheckoutContext context,
+    required CustomerCartSnapshot? cart,
+    required List<CustomerAddress> addresses,
+    required CustomerDeliveryContext? deliveryContext,
+    required bool restoreNotice,
+  }) async {
+    if (!_isCurrentContext(context)) return true;
+    final orderId = draft?.orderId;
+    if (orderId == null) return false;
+    final response = await ref
+        .read(checkoutRepositoryProvider)
+        .readOrder(shopSlug: context.shopSlug, orderId: orderId);
+    if (!_isCurrentContext(context)) return true;
+    final order = response.order;
+    if (response.status != CheckoutOrderRemoteStatus.ok || order == null) {
+      _publish(
+        CheckoutState.failure(
+          failureKind: _failureForOrder(response.status),
+          cart: cart,
+        ),
+      );
+      return true;
+    }
+    // La receipt contiene fulfillment e pagamento server-authoritative;
+    // non dipende dal discovery delle opzioni per un prossimo acquisto.
+    final receipt = CheckoutState(
+      status: CheckoutViewStatus.ready,
+      step: CheckoutStep.confirmation,
+      selection: draft!.selection,
+      addresses: addresses,
+      cart: cart,
+      deliveryContext: deliveryContext,
+      order: order,
+      notice: restoreNotice ? CheckoutNoticeKind.restored : null,
+    );
+    if (await _persist(receipt, context: context)) {
+      _publish(receipt);
+    }
+    return true;
+  }
+
+  Future<bool> _restorePendingOrder(
+    CheckoutLocalDraft? draft, {
+    required _CheckoutContext context,
+    required CustomerCartSnapshot? cart,
+    required List<CustomerAddress> addresses,
+    required StorefrontFulfillmentOptions? options,
+    required StorefrontPaymentOptions? paymentOptions,
+    required CustomerDeliveryContext? deliveryContext,
+    bool serializeOrder = true,
+  }) async {
+    if (!_isCurrentContext(context)) return false;
+    final pending = draft?.pendingOperation;
+    if (pending?.kind != CheckoutPendingOperationKind.order ||
+        pending?.paymentMethod == null ||
+        pending?.paymentMethod != draft?.selection.paymentMethod) {
+      return false;
+    }
+    _publish(
+      CheckoutState(
+        status: CheckoutViewStatus.ready,
+        step: CheckoutStep.confirmation,
+        selection: draft!.selection,
+        addresses: addresses,
+        cart: cart,
+        options: options,
+        paymentOptions: paymentOptions,
+        deliveryContext: deliveryContext,
+        pendingOperation: pending,
+        failureKind: CheckoutFailureKind.timeout,
+        notice: CheckoutNoticeKind.restored,
+      ),
+    );
+    Future<void> execute() async {
+      if (!_isCurrentContext(context)) return;
+      await _executeOrder(pending!, context);
+    }
+
+    if (serializeOrder) {
+      await _serialize(execute);
+    } else {
+      // retry() possiede già il mutex: non deve attendere la propria Future.
+      await execute();
+    }
+    return true;
   }
 
   Future<void> _executeCreate(
@@ -932,6 +1290,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
   }
 
   Future<void> _replaceDraftState(CheckoutState next) async {
+    if (_hasPendingOrder) return;
     final context = _captureContext();
     if (context != null && await _persist(next, context: context)) {
       _publish(next);
@@ -1067,7 +1426,10 @@ final class CheckoutController extends Notifier<CheckoutState> {
   bool _isCurrentContext(_CheckoutContext context) {
     return _isCurrent(context.generation) &&
         _ownerSubjectId == context.ownerSubjectId &&
-        _shopSlug == context.shopSlug;
+        _shopSlug == context.shopSlug &&
+        ref.read(customerAccountIdentityProvider)?.subjectId ==
+            context.ownerSubjectId &&
+        ref.read(appConfigProvider).storefrontShopSlug == context.shopSlug;
   }
 }
 

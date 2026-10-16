@@ -1,0 +1,218 @@
+{
+  "verdict": "APPROVED_SOURCE_CODE_ONLY",
+  "role": "CODEX_RE_REVIEWER read-only distinto dal writer",
+  "candidate": "7e7ecd2c9fe073665025cd88220648ca538bb7eb",
+  "baseline": "16e46817d9da5f4a5ce0fbca89137f2652f52b56",
+  "scope": [
+    ".github/workflows/ci.yml",
+    "scripts/check.sh",
+    "scripts/create-task054-ios-preview.py",
+    "scripts/test-task054-ios-preview.py"
+  ],
+  "findings": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0
+  },
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "9dd6c93303a4a36e3d938f185a55d29217a9c31871bacb9bd9db65daae4eed77",
+    "scripts/check.sh": "a8ddda685e0c4e7d3029cf593ddc18954e7c1ebe84065c61d064f554975c1c34",
+    "scripts/create-task054-ios-preview.py": "a9044d7157e77c2e3234f92e9c5ad0660a3c441228cfcdd255d620abaaa28461",
+    "scripts/test-task054-ios-preview.py": "6470d2201420352c8235e76c5a50e601881295e1907a5d590fba0a9c3e4bee24"
+  },
+  "autonomousChecks": {
+    "canonicalPreviewTests": {
+      "count": 16,
+      "exitCode": 0
+    },
+    "pngValidationTests": {
+      "count": 31,
+      "exitCode": 0
+    },
+    "ownedProcessTests": {
+      "count": 6,
+      "exitCode": 0
+    },
+    "actionPins": "PASS",
+    "shellSyntax": "PASS",
+    "pythonAstParse": "PASS",
+    "diffCheck": "PASS",
+    "security": {
+      "trackedFiles": 992,
+      "exitCode": 0,
+      "log": "security.log"
+    },
+    "workflowIsolationAndRawUploadBlock": "PASS",
+    "actualSipsSynthetic": {
+      "status": "PASS",
+      "exitCode": 0,
+      "syntheticFiles": 141,
+      "rawCounts": {
+        "visual": 137,
+        "os-visual": 4
+      },
+      "previewCounts": {
+        "visual": 137,
+        "os-visual": 4
+      },
+      "seconds": 7.4173068330000005,
+      "rawBytes": 3076110,
+      "previewBytes": 1321408,
+      "rawAllFilesByteIdentical": true,
+      "fourCornersPreservedForPortraitAndLandscape": true,
+      "smallFileByteIdentical": true,
+      "manifestAllHashesDimensionsAndRelativeAssociationsVerified": true,
+      "cornerChecks": [
+        {
+          "path": "visual/001-synthetic.png",
+          "rawRgb": [
+            [
+              220,
+              20,
+              20
+            ],
+            [
+              20,
+              220,
+              20
+            ],
+            [
+              20,
+              20,
+              220
+            ],
+            [
+              220,
+              220,
+              20
+            ]
+          ],
+          "previewRgb": [
+            [
+              216,
+              20,
+              20
+            ],
+            [
+              20,
+              216,
+              20
+            ],
+            [
+              20,
+              20,
+              216
+            ],
+            [
+              216,
+              216,
+              20
+            ]
+          ],
+          "maximumChannelDelta": 4
+        },
+        {
+          "path": "os-visual/000-synthetic.png",
+          "rawRgb": [
+            [
+              220,
+              20,
+              20
+            ],
+            [
+              20,
+              220,
+              20
+            ],
+            [
+              20,
+              20,
+              220
+            ],
+            [
+              220,
+              220,
+              20
+            ]
+          ],
+          "previewRgb": [
+            [
+              220,
+              20,
+              20
+            ],
+            [
+              20,
+              220,
+              20
+            ],
+            [
+              20,
+              20,
+              220
+            ],
+            [
+              220,
+              220,
+              20
+            ]
+          ],
+          "maximumChannelDelta": 0
+        }
+      ],
+      "sourceRevision": "7e7ecd2c9fe073665025cd88220648ca538bb7eb",
+      "nativeProof": "NOT_RUN: exclusively generated synthetic PNG"
+    },
+    "independentSecondaryPocs": {
+      "count": 5,
+      "exitCode": 0,
+      "receipt": "secondary/source-review.json"
+    }
+  },
+  "caseNotRun": "No captures yields manifest status NOT_RUN, reason and zero entries; diagnostic exit0 does not promote native UX status",
+  "ownershipAndToolTimeout": "Only start_new_session own PGID; actual inherited-pipe timeout and post-leader descendants drain verified by distinct child; primary/cleanup errors sanitized and fail closed",
+  "budget": {
+    "measuredBeforeVisual": 1097,
+    "visualCommand": 900,
+    "sum": 1997,
+    "job": 2100,
+    "nominalRemainder": 103,
+    "previewSoftTotal": 45,
+    "previewStepCap": 60,
+    "observedEarlierCleanupRawUploadPost": 22
+  },
+  "limits": [
+    "Approval restricted to four source files and proposed finite35-minute job budget; no app/fixture/native behavior approval",
+    "45seconds checked before frames and after work; tool5seconds bounds communicate, spawn/cleanup separately; workflow step60seconds is external cap",
+    "CI43 remains prior UI/fixture FAIL; budget is not UI fix or guarantee of future completion",
+    "Synthetic141-PNG test only; actual iOS native137+4 captures, OS metrics and pixel acceptance remain NOT_VERIFIED/NOT_RUN",
+    "No push, CI dispatch/retry, build, app/device/simulator or download performed"
+  ],
+  "reviewTestCorrection": {
+    "initialOwnPoc": "Exact RGB corner equality after resampling invalid strict expectation; initial failure retained in independent-test-initial-red.log",
+    "correctedOwnPoc": "Decoded four corners match spatial color quadrants with maximum channel delta4 portrait/0 landscape; source documents changed preview pixels",
+    "implementationChange": "NONE"
+  },
+  "allOwnCommandsTerminal": true,
+  "worktreeCleanAndFrozenHashesRechecked": true,
+  "evidenceFiles": {
+    "diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gates.json": "cadfc0afa02489bf466c0e418ad5605f873c06da46028ee5572f1bfc14733a41",
+    "independent-sips.json": "acfe3d19c04df3791b344f37888c489372a6b24b1134e19672bb628098b22079",
+    "independent-test-initial-red.log": "a861b7000a72092ecb557dd0e17e1fc18406852e036e46645da34988a03ae832",
+    "owner-unit.log": "b9f4fe491780b02aee20b900e751c9e6d689042a6551ab2ebc0350b590d9774d",
+    "pins.log": "528c56a006b77baa260244882fc5b05e65405fffecc19ded2f1c4a38c61cf552",
+    "png-unit.log": "5a3bd31310552d858fa515a55be1f11a8f67158a7e9a32a716f78d13adce86dc",
+    "preview-unit.log": "19c5fc0fcd4d1de39bd24e82165bb5dc47966610efc945dce776a2ade97d4ba2",
+    "review-independent.py": "64e27b8428dcae482ba319dbde617548d9ce133eb7cfc6fed201c4dbbd909d8d",
+    "secondary/independent-tests.json": "a7ed7dc7cb0dc0df2233eb3e463a399f0ccd575a5b2167b2866b56d1c5aee74a",
+    "secondary/independent-tests.log": "acde1d5f5b5cd69232dde342593efe791aeb090264988b7e46edea73aaf253f1",
+    "secondary/review-independent.py": "9811a27892e5b7f9b87dfe1a00d75ee947b315fe46d0524c49e6e23858bc58a6",
+    "secondary/source-review.json": "322142daf4855854b332af6f6a2dd383d0cc69b15fa2eee35d0a2ba8077a9507",
+    "security.log": "fbd0aef8bda52cc5a3e54077742e5b0aef740c4a300ddaf9ae33dd01016e495e",
+    "shell-syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source-workflow-audit.json": "c4f1d73f1e3ddf4147ea942ea50abd26d9f398a074cf493c48563702476ec5d6",
+    "synthetic-preview-manifest.json": "26971f2c9795b18bdc542d4faef1b4bae59fc7b67b4b4263b861c910a06a9d2b"
+  }
+}

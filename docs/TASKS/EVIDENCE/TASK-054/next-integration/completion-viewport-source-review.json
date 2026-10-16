@@ -1,0 +1,456 @@
+{
+  "schema": "task054.viewport-harness-source-review.v1",
+  "created_at_utc": "2026-10-08T21:27:04.097621+00:00",
+  "reviewer": "/root/client_ux/journal_source_review",
+  "independent_from_writer": true,
+  "base": "9fe418a95defd0a5b595e4c2b5604d5c70ac509f",
+  "revision": "bf9be0591621f2540a1c10a053e835e6dd0e6b88",
+  "checkout": "/private/tmp/task054-viewport-review-checkout-20261008",
+  "scope": "SOURCE_CODE_ONLY_HARNESS",
+  "outcome": "APPROVED",
+  "task_final_approval": false,
+  "new_findings": [],
+  "acceptance": {
+    "result": "PASS",
+    "pass": 32,
+    "fail": 0,
+    "breakdown": {
+      "permanent_geometry": 8,
+      "independent_DPR_landscape_asymmetric_geometry": 6,
+      "host_fixture_matrix": 18
+    }
+  },
+  "separate_synthetic_diagnostic": {
+    "result": "FAIL",
+    "expected_red": true,
+    "exit_code": 1,
+    "pass": 2,
+    "fail": 2,
+    "uses_real_candidate_helper": true,
+    "baseline_wrapper_byte_exact": true,
+    "synthetic_inset397_origin": "568-48-123; non misura IME iOS",
+    "observations": {
+      "centered-original-123": {
+        "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+        "id": "centered-original-123",
+        "projected": false,
+        "globalSyntheticInset": 397.0,
+        "parentWidth": 400.0,
+        "parentHeight": 900.0,
+        "localInset": 397.0,
+        "dialogColumns": [
+          {
+            "width": 240.0,
+            "height": 123.0,
+            "constraints": "BoxConstraints(w=240.0, 0.0<=h<=123.0)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "stretch"
+          },
+          {
+            "width": 240.0,
+            "height": 564.0,
+            "constraints": "BoxConstraints(w=240.0, 0.0<=h<=Infinity)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "stretch"
+          },
+          {
+            "width": 224.0,
+            "height": 388.0,
+            "constraints": "BoxConstraints(w=224.0, 0.0<=h<=Infinity)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "center"
+          }
+        ],
+        "error": "A RenderFlex overflowed by 29 pixels on the bottom.",
+        "fieldHitTestableBeforeReveal": false,
+        "themePlatform": "android",
+        "fieldHitTestableAfterReveal": false,
+        "draftPreserved": true,
+        "submitHitTestable": true,
+        "submitHeight": 80.0
+      },
+      "centered-projected-289": {
+        "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+        "id": "centered-projected-289",
+        "projected": true,
+        "globalSyntheticInset": 397.0,
+        "parentWidth": 400.0,
+        "parentHeight": 900.0,
+        "localInset": 231.0,
+        "dialogColumns": [
+          {
+            "width": 240.0,
+            "height": 289.0,
+            "constraints": "BoxConstraints(w=240.0, 0.0<=h<=289.0)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "stretch"
+          },
+          {
+            "width": 240.0,
+            "height": 564.0,
+            "constraints": "BoxConstraints(w=240.0, 0.0<=h<=Infinity)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "stretch"
+          },
+          {
+            "width": 224.0,
+            "height": 388.0,
+            "constraints": "BoxConstraints(w=224.0, 0.0<=h<=Infinity)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "center"
+          }
+        ],
+        "error": null,
+        "fieldHitTestableBeforeReveal": false,
+        "themePlatform": "android",
+        "fieldHitTestableAfterReveal": true,
+        "draftPreserved": true,
+        "submitHitTestable": true,
+        "submitHeight": 80.0
+      },
+      "small-fullscreen-123": {
+        "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+        "id": "small-fullscreen-123",
+        "projected": true,
+        "globalSyntheticInset": 397.0,
+        "parentWidth": 320.0,
+        "parentHeight": 568.0,
+        "localInset": 397.0,
+        "dialogColumns": [
+          {
+            "width": 240.0,
+            "height": 123.0,
+            "constraints": "BoxConstraints(w=240.0, 0.0<=h<=123.0)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "stretch"
+          },
+          {
+            "width": 240.0,
+            "height": 564.0,
+            "constraints": "BoxConstraints(w=240.0, 0.0<=h<=Infinity)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "stretch"
+          },
+          {
+            "width": 224.0,
+            "height": 388.0,
+            "constraints": "BoxConstraints(w=224.0, 0.0<=h<=Infinity)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "center"
+          }
+        ],
+        "error": "A RenderFlex overflowed by 29 pixels on the bottom.",
+        "fieldHitTestableBeforeReveal": false,
+        "themePlatform": "android",
+        "fieldHitTestableAfterReveal": false,
+        "draftPreserved": true,
+        "submitHitTestable": true,
+        "submitHeight": 80.0
+      },
+      "small-fullscreen-220": {
+        "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+        "id": "small-fullscreen-220",
+        "projected": true,
+        "globalSyntheticInset": 300.0,
+        "parentWidth": 320.0,
+        "parentHeight": 568.0,
+        "localInset": 300.0,
+        "dialogColumns": [
+          {
+            "width": 240.0,
+            "height": 220.0,
+            "constraints": "BoxConstraints(w=240.0, 0.0<=h<=220.0)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "stretch"
+          },
+          {
+            "width": 240.0,
+            "height": 564.0,
+            "constraints": "BoxConstraints(w=240.0, 0.0<=h<=Infinity)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "stretch"
+          },
+          {
+            "width": 224.0,
+            "height": 388.0,
+            "constraints": "BoxConstraints(w=224.0, 0.0<=h<=Infinity)",
+            "mainAxisSize": "min",
+            "crossAxisAlignment": "center"
+          }
+        ],
+        "error": null,
+        "fieldHitTestableBeforeReveal": false,
+        "themePlatform": "android",
+        "fieldHitTestableAfterReveal": true,
+        "draftPreserved": true,
+        "submitHitTestable": true,
+        "submitHeight": 80.0
+      }
+    },
+    "stress397_status": "Diagnostica conservata, non nuovo finding app né causa certificata del native24px."
+  },
+  "geometry_review": {
+    "result": "PASS",
+    "DPRs": [
+      1,
+      3
+    ],
+    "orientations": [
+      "portrait",
+      "landscape"
+    ],
+    "asymmetric_four_edges": true,
+    "complete_occlusion_preserved": true,
+    "small_fullscreen_insets_preserved": true,
+    "text_scale": 2,
+    "scope_precondition": "Caller corrente MaterialApp.builder fullscreen, origine0 e constraints=MediaQuery.size. Non helper generale per ancestor traslati."
+  },
+  "privacy_logger": {
+    "result": "PASS",
+    "observed_event_count": 2,
+    "data_allowlist": [
+      "bodyFontFamily",
+      "devicePixelRatio",
+      "fieldRect",
+      "globalPadding",
+      "globalSize",
+      "globalViewInsets",
+      "globalViewPadding",
+      "labelFontFamily",
+      "localPadding",
+      "localSize",
+      "localViewInsets",
+      "localViewPadding",
+      "physicalSize",
+      "physicalViewInsets",
+      "platform",
+      "stage",
+      "viewportRect"
+    ],
+    "no_customer_text_identity_secret_or_URI_reads": true,
+    "only_first_review_focus": true,
+    "evidence": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-review-static-privacy.json"
+  },
+  "harness_invariants": {
+    "capture_call_sites": 29,
+    "capture_sequence_byteidentical": true,
+    "testWidgets_calls": [
+      11,
+      11
+    ],
+    "await_count": [
+      251,
+      251
+    ],
+    "duration_count": [
+      4,
+      4
+    ],
+    "skip_count": [
+      0,
+      0
+    ],
+    "unchanged_production_and_native_trees": {
+      "lib": true,
+      ".github": true,
+      "android": true,
+      "ios": true
+    }
+  },
+  "capture_contract": {
+    "expected_count": 137,
+    "new_capture_or_interaction_or_wait_or_skip": false,
+    "actual_capture_after_fix": "NOT_RUN",
+    "host_captures_disabled": true
+  },
+  "peer_static_review": {
+    "reviewer": "/root/client_ux/journal_source_review/viewport_privacy_diff",
+    "outcome": "APPROVED",
+    "finding_count": 0,
+    "limitation": "Caller fullscreen origin0/constraints=MediaQuery.size; non helper generale per ancestor traslati o SafeArea esterna."
+  },
+  "changed_files": [
+    {
+      "path": "integration_test/support/compact_viewport.dart",
+      "sha256": "6beec945c179553085af21251d3191bb19ca024585c360834bcd65a25812a258"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "sha256": "e468956971c99cf67457170dee75629523892e5652e7a96069b0d7c3c3f1a5f0"
+    },
+    {
+      "path": "test/integration_support/task054_compact_viewport_test.dart",
+      "sha256": "d085cc26adadfa2ac26bb27ab53d684e6454aad924955bbe0cf989ba0ac88703"
+    }
+  ],
+  "external_review_files": [
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport_prepare_host_harness_review.py",
+      "sha256": "7f7c31e8f8d6e7914a5a2f098e88f08cd2f61f93b0c359f75f8edb662edb0310"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport_host_harness_review_test.dart",
+      "sha256": "23d07120692c18d7e7367da34f727224d8f3fc22d87a9687fe432ca78f670165"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport_dpr_landscape_review_test.dart",
+      "sha256": "c23fc6fedf86356a378ec56fe3a399b13ea26543ec451a2e95dbc7c5fdc86b44"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport_reviews_real_helper_review_test.dart",
+      "sha256": "4c09dc24eb445a88a0472687671e3361734c0ce4948f5f3d3b3a609cee9bfd1a"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-review-static-privacy.json",
+      "sha256": "3d58fb33fe0819b3ade1b5edeb6bf3e1f911a2a6f15da0f0cfcd25e9a692069e"
+    }
+  ],
+  "commands": [
+    {
+      "lane": "dependencies",
+      "command": "flutter pub get --offline",
+      "exit_code": 0,
+      "result": "PASS",
+      "log": "viewport-review-pub-get.log",
+      "cwd": "/private/tmp/task054-viewport-review-checkout-20261008"
+    },
+    {
+      "lane": "permanent_geometry",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded test/integration_support/task054_compact_viewport_test.dart",
+      "exit_code": 0,
+      "result": "PASS",
+      "pass": 8,
+      "fail": 0,
+      "log": "viewport-review-permanent.log",
+      "cwd": "/private/tmp/task054-viewport-review-checkout-20261008"
+    },
+    {
+      "lane": "independent_geometry",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded /Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport_dpr_landscape_review_test.dart",
+      "exit_code": 0,
+      "result": "PASS",
+      "pass": 6,
+      "fail": 0,
+      "log": "viewport-review-independent-geometry.log",
+      "cwd": "/private/tmp/task054-viewport-review-checkout-20261008"
+    },
+    {
+      "lane": "host_matrix",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded /Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport_host_harness_review_test.dart --name 'address editor focus|journal illeggibile|inbox destinazione assistenza|recensione submit'",
+      "exit_code": 0,
+      "result": "PASS",
+      "pass": 18,
+      "fail": 0,
+      "log": "viewport-review-host-matrix.log",
+      "cwd": "/private/tmp/task054-viewport-review-checkout-20261008"
+    },
+    {
+      "lane": "synthetic_diagnostic_separate_from_acceptance",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded /Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport_reviews_real_helper_review_test.dart",
+      "exit_code": 1,
+      "result": "FAIL",
+      "expected_red": true,
+      "pass": 2,
+      "fail": 2,
+      "log": "viewport-review-real-helper-diagnostic.log",
+      "meaning": "RED baseline originale centrata e stress fullscreen397; centro con helper reale e fullscreen300 PASS. Non nuovo finding app e non prova della causa iOS.",
+      "cwd": "/private/tmp/task054-viewport-review-checkout-20261008"
+    },
+    {
+      "lane": "analysis",
+      "command": "flutter analyze --no-pub integration_test/support/compact_viewport.dart integration_test/task054_next_integration_surfaces_test.dart test/integration_support/task054_compact_viewport_test.dart",
+      "exit_code": 0,
+      "result": "PASS",
+      "log": "viewport-review-analyze.log",
+      "cwd": "/private/tmp/task054-viewport-review-checkout-20261008"
+    },
+    {
+      "lane": "format",
+      "command": "dart format --output=none --set-exit-if-changed integration_test/support/compact_viewport.dart integration_test/task054_next_integration_surfaces_test.dart test/integration_support/task054_compact_viewport_test.dart",
+      "exit_code": 0,
+      "result": "PASS",
+      "files": 3,
+      "changed": 0,
+      "log": "viewport-review-format.log",
+      "cwd": "/private/tmp/task054-viewport-review-checkout-20261008"
+    },
+    {
+      "lane": "diff_check",
+      "command": "git diff --check 9fe418a95defd0a5b595e4c2b5604d5c70ac509f bf9be0591621f2540a1c10a053e835e6dd0e6b88",
+      "exit_code": 0,
+      "result": "PASS",
+      "cwd": "/private/tmp/task054-viewport-review-checkout-20261008"
+    },
+    {
+      "lane": "working_tree",
+      "command": "git status --porcelain=v1",
+      "exit_code": 0,
+      "result": "PASS",
+      "output": "",
+      "cwd": "/private/tmp/task054-viewport-review-checkout-20261008"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-review-pub-get.log",
+      "sha256": "aa1812eea2efe25dcdc83af7e5a242e3434dce5c1fe2756d0e49059d1b5bc837"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-review-permanent.log",
+      "sha256": "c710811d71f04b9085fc739f4746d5d0d22db260580e4107c2eebd26e1016ff2"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-review-independent-geometry.log",
+      "sha256": "e159ecab8db451748ede52c7fc8095fb04d9327ddc41637494e4ba1c83793691"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-review-host-matrix.log",
+      "sha256": "1d5d70611c41e4e36650bdbfca49ca482ee23950f2f63f0ad12a41ece797fff5"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-review-real-helper-diagnostic.log",
+      "sha256": "13c4b2fe6e8b124d14de7d1933a541aa8a7ec23aaa7683426da07b993b36b1cf"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-review-analyze.log",
+      "sha256": "8c4bb1de0ced35edfa2ca8a3ea5fc4d97ec904faebd5e4d2bbc50842e611c46d"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-review-format.log",
+      "sha256": "45677745de22edb703c8d6f33aa97667c853d61fd53a4d91027d6116d8b5d32f"
+    }
+  ],
+  "preserved_diagnostic_receipt": {
+    "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-projection/receipt.json",
+    "sha256": "3c0025c3fbb69017546e8b5c99b2064ee1a67cd211aa1de4f9f8d25710db7404"
+  },
+  "remaining_lanes": [
+    {
+      "lane": "native_CI_after_fix",
+      "result": "NOT_RUN",
+      "reason": "Review host/read-only; runner e composizione appartengono al coordinatore."
+    },
+    {
+      "lane": "native_pixel_after_fix",
+      "result": "NOT_RUN",
+      "reason": "Nessun nuovo artifact nativo acquisito o ispezionato in questa lane."
+    },
+    {
+      "lane": "native_iOS_24px_causal_attribution",
+      "result": "NOT_RUN",
+      "verification": "NOT_VERIFIED",
+      "reason": "Log storico privo di IME/DPR; raw397 sintetico e overflow29 host non dimostrano la causa24px iOS."
+    },
+    {
+      "lane": "IME_AT_physical_profile_AUTH_TEST_live",
+      "result": "NOT_RUN",
+      "reason": "Geometria e fixture host non sono acceptance nativa, assistiva, autenticata o live."
+    }
+  ],
+  "source_edits_by_reviewer": false,
+  "unresolved_processes": false,
+  "permissions": {
+    "directory": "0700",
+    "files": "0600"
+  }
+}

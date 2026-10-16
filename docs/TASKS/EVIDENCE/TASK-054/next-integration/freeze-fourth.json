@@ -1,0 +1,201 @@
+{
+  "schema": "task054-fourth-freeze-source-gates-v1",
+  "sourceSha": "1bf2e98a59d7c27e566e0640ca9591c573798b9b",
+  "baselineMain": "bfbfc0b6a7122f29b8d8f6e2c2263d77b252749c",
+  "sourceFiles": {
+    "lib/features/reviews/presentation/customer_reviews.dart": "fd39fd7ea8cdcbac473ad3e4cf6f34c9150a63597114b4ebe9054a966ea30dd3",
+    "test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart": "d16dbaf62f8cc49421af6b03fa10913fcefdff0dcb17d21769082a510237fc02",
+    ".github/workflows/ci.yml": "d2516b4627dc7f7319a9d6d5c2798f1448fd77baeb2f1cc2e0a864af80eeaa60",
+    "integration_test/task054_next_integration_surfaces_test.dart": "be55bc82ef5f2dd0d7b922c44852a113a296e0d4a4d4b9d00d62420524a57180",
+    "scripts/run-task054-ios-owned.py": "93d3dff87f07fae2692672e7b8bbce75f7d4918b74423f8e7cd5bfe99c40580a",
+    "scripts/run-task054-android-visual.py": "7fa8d65d9233ae59e15b7946d0e3be4458ef0a9d6ac015cbec1574dba04440cb"
+  },
+  "analyzeFormat": [
+    {
+      "sourceSha": "1bf2e98a59d7c27e566e0640ca9591c573798b9b",
+      "command": [
+        "flutter",
+        "analyze",
+        "--no-pub"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "logSha256": "6a353f7d5a987b3119d2d7ffbb8dae42fbdee34de74b79c74dd538730b9e792e",
+      "output": "Analyzing ClientMerchandiseControl...                           \nNo issues found! (ran in 1.8s)\n"
+    },
+    {
+      "sourceSha": "1bf2e98a59d7c27e566e0640ca9591c573798b9b",
+      "command": [
+        "dart",
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "lib",
+        "test",
+        "integration_test",
+        "test_driver"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "logSha256": "7700014b4c3036e88ee6649ffa7d79a0373a12ae67bed34dda2323312c9b619c",
+      "output": "Formatted 365 files (0 changed) in 0.95 seconds.\n"
+    }
+  ],
+  "canonicalFormat": {
+    "sourceSha": "1bf2e98a59d7c27e566e0640ca9591c573798b9b",
+    "command": [
+      "dart",
+      "format",
+      "--output=none",
+      "--set-exit-if-changed",
+      "."
+    ],
+    "exitCode": 0,
+    "result": "PASS",
+    "logSha256": "8fd9514ecc0f5f4bc0697d0b2002a605436b8ad8b792cbdc60a3756dc5cce74e",
+    "output": "Formatted 374 files (0 changed) in 1.01 seconds.\n"
+  },
+  "static": [
+    {
+      "command": [
+        "bash",
+        "scripts/check-action-pins.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "logSha256": "38138780865f2a7928e0418586e6074f6cb89a16a2733965627e36bca9235149",
+      "output": "Action pin verificati in 1 workflow.\n"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-architecture-boundaries.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "logSha256": "da205cb7b3c8e3a5d67d97dd855433c0e182e607166674fbc2a6a022c68f88f4",
+      "output": "Running build hooks...Running build hooks...Boundary architetturali coerenti: ownership, TASK-012, Auth, DAG e RPC Storefront Home/Categories/Catalog/Search/Detail verificati.\n"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-user-facing-localization.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "logSha256": "3327d2169a76cf880d2cf28a6be01c3a7570273b2468a83e9627240da6e1717f",
+      "output": "LOCALIZATION_SCAN_PASS: no direct user-facing string literals detected.\n"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-telemetry-privacy.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "logSha256": "8dc5be66d3a66c21fb097b146ab7877431210e60354f0de45fac562ae23052d9",
+      "output": "Telemetry privacy scan: 12 eventi allowlisted, logger/export confinati, zero attributi sensibili.\n"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check-backend-compatibility.py",
+        "--source-only"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "logSha256": "033391da95196ca84fa807661160b4e2e8bdb0c956fe74dba3b45bf5b20117d5",
+      "output": "BACKEND_CONTRACT_SOURCE PASS rpcs=55 runtime=NOT_RUN\n"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-governance-state.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "logSha256": "24c86382c8115b024c7e880321e2aa15005e9ebdef84b94ddb2c01a0ce2fa7e8",
+      "output": "Governance coerente: TASK-054 / BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW.\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": ""
+    }
+  ],
+  "initialAnalyzerArtifactFailure": {
+    "sourceSha": "feda593fcc301686226c0bf6246affa7a891ebe8",
+    "command": [
+      "flutter",
+      "analyze",
+      "--no-pub"
+    ],
+    "result": "FAIL",
+    "exitCode": 1,
+    "observedOutput": "warning invalid_use_of_visible_for_testing_member AppConfig.authFlowTest at build/task054/reviewer-public-auth-d9da-20261005/reviews_public_router_auth_test.dart:139:43; 1 issue found (2.8s)",
+    "qualification": "Output osservato dal comando root session15511; PoC reviewer ignored fuori dal percorso test, nessun finding sorgente tracciata. Preservare FAIL e bytes/hash, spostare artifact del reviewer fuori dal repository e rieseguire il controllo globale senza esclusioni."
+  },
+  "writerCleanupReceiptSha256": "493a856ff78977d863f781ca57298f48be74bf760c5ece68cdf88bfe1072c4cb",
+  "writerCleanupTests": {
+    "result": "PASS",
+    "exitCode": 0,
+    "reviews": 46,
+    "openingPoc": 1,
+    "cleanupPoc": 1
+  },
+  "securityStaged": {
+    "command": [
+      "bash",
+      "scripts/check-client-security.sh"
+    ],
+    "result": "PASS",
+    "exitCode": 0,
+    "output": "Security scan client: 874 file tracciati, zero secret/config/artifact vietati.\n",
+    "logSha256": "26469745d31cfea4a2a6e7ecc867098ee735d97c40a4e308906e921fad54bb46"
+  },
+  "developmentReview": {
+    "client": "APPROVED SOURCE_CODE_ONLY",
+    "sourceSha": "1bf2e98a59d7c27e566e0640ca9591c573798b9b",
+    "testsPassed": 72,
+    "reviewer": "/root/review_client_delta",
+    "originalReceiptSha256": "2e61d7ca035aa873e93e8e77a6f0fbf37763306741e8529912ee980b79b581d7",
+    "backendCI": "NOT_RUN sul freeze documentale finale; diagnostiche e BECI source-only già verificate separatamente",
+    "aggregate": "BLOCKED per CI/native/live non verificati"
+  },
+  "newCI": {
+    "result": "NOT_RUN",
+    "reason": "Push del nuovo candidato dopo stage/statiche e gate reali"
+  },
+  "preservedFailedRuns": [
+    37229533852,
+    37346144008,
+    37352605356
+  ],
+  "nativeExpectedPerPlatform": {
+    "cases": 67,
+    "flutterPNG": 105,
+    "osPNG": 4
+  },
+  "task": {
+    "status": "BLOCKED",
+    "phase": "REVIEW",
+    "handoff": "CODEX_FIX_BLOCKED_TO_RE_REVIEW"
+  },
+  "qualification": "I test widget e i controlli source non attestano auth/live/authoring/physical/distribution. Root source immutabile dopo questo freeze; commit documentale successivo deve avere soli file docs. FAIL originali, P3 e before reali conservati.",
+  "securityStagedPriorSnapshot": {
+    "command": [
+      "bash",
+      "scripts/check-client-security.sh"
+    ],
+    "result": "PASS",
+    "exitCode": 0,
+    "output": "Security scan client: 873 file tracciati, zero secret/config/artifact vietati.\n",
+    "logSha256": "190ebffde9feead938511dae87e1cd746a41f752952b06740553899dda475148"
+  }
+}

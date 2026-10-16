@@ -148,6 +148,26 @@ void main() {
     expect(find.textContaining('supplier'), findsNothing);
   });
 
+  testWidgets('righe indisponibili non generano sconto nel subtotal', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildApp(
+        store: _FakeGuestCartStore(
+          snapshot: _cartSnapshot(
+            availability: StorefrontAvailability.unavailable,
+            compareAtPriceClp: 1800,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final l10n = AppLocalizations.of(tester.element(find.byType(CartScreen)));
+    expect(find.text(l10n.cartSavingsLabel), findsNothing);
+    expect(find.byKey(const ValueKey('cart-subtotal')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('incremento e remove aggiornano lo storage locale', (
     tester,
   ) async {
@@ -394,6 +414,7 @@ AppConfig _config() => AppConfig.fromValues(
 CustomerCartSnapshot _cartSnapshot({
   int quantity = 1,
   StorefrontAvailability availability = StorefrontAvailability.available,
+  int? compareAtPriceClp,
 }) {
   final unavailable = availability == StorefrontAvailability.unavailable;
   final line = CartLine(
@@ -401,6 +422,7 @@ CustomerCartSnapshot _cartSnapshot({
     publicName: 'Café público',
     quantity: quantity,
     priceClp: 1200,
+    compareAtPriceClp: compareAtPriceClp,
     snapshotPriceClp: 1200,
     availability: availability,
     status: unavailable ? CartLineStatus.unavailable : CartLineStatus.available,

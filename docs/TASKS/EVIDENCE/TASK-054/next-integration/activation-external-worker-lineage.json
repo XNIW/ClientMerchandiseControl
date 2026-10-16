@@ -1,0 +1,109 @@
+{
+  "schema": "task054-postPOS-lineage-and-Client-delta-v1",
+  "observed_at_utc": "2026-10-10T20:49:33.139392+00:00",
+  "channel": "MCP execute_sql BEGIN READ ONLY timeout5s",
+  "project_ref": "jpgoimipbothfgkokyvm",
+  "snapshot_sha256": "c25a2ac059f99d885da2df4450cb41dc3b7cc3cbcce008a9fafdb285de8eae44",
+  "query_sha256": "078a09b037264ca23da953e77a10f820cce3d80a5ab6932a80398d8afb5d5ed2",
+  "readback_result": "PASS_CATALOG_LINEAGE_ONLY",
+  "process_exit_code": null,
+  "local_evaluation_exit_code": 0,
+  "rpc_conform": 32,
+  "rpc_required": 57,
+  "indexes_present": 1,
+  "indexes_required": 2,
+  "history_count": 158,
+  "lineage": {
+    "history_count": 158,
+    "latest": {
+      "version": "20261010201137",
+      "name": "pos_catalog_import_recovery_multipart",
+      "statement_count": 1,
+      "joined_sql_md5": "e9a462a1062634d679d0b844a5110aa9"
+    },
+    "first155_version_names_md5": "1afe5dd6b88cfc5b79b6671f2b495f2c",
+    "first155_latest_statement": {
+      "version": "20261002180757",
+      "name": "wechat_010_admin_identity_case",
+      "joined_sql_md5": "9e4741b64d7b0999b3000f06990e922f"
+    },
+    "additions": [
+      {
+        "version": "20261010200917",
+        "name": "pos_catalog_import_receipt_and_retirement",
+        "statement_count": 1,
+        "joined_sql_md5": "6e20fda8238365f1350f27baca709ec2"
+      },
+      {
+        "version": "20261010201015",
+        "name": "pos_catalog_import_linked_correction",
+        "statement_count": 1,
+        "joined_sql_md5": "5af529f0471870a38d31c1fd41b2afa0"
+      },
+      {
+        "version": "20261010201137",
+        "name": "pos_catalog_import_recovery_multipart",
+        "statement_count": 1,
+        "joined_sql_md5": "e9a462a1062634d679d0b844a5110aa9"
+      }
+    ]
+  },
+  "checks": {
+    "readonly_transaction": true,
+    "history158": true,
+    "first155_version_name_digest_matches_1911": true,
+    "prefix_latest_statement_matches_1911": true,
+    "three_POS_additions_exact": true,
+    "expected_Client_delta": true
+  },
+  "schema_errors": [
+    "missing_rpc:customer_address_create_reconcile_v3",
+    "missing_rpc:customer_address_create_v3",
+    "missing_rpc:customer_address_delete_v2",
+    "missing_rpc:customer_address_upsert_v2",
+    "missing_rpc:customer_addresses_read_v2",
+    "missing_rpc:customer_after_sales_cancel_v1",
+    "missing_rpc:customer_after_sales_create_v1",
+    "missing_rpc:customer_after_sales_evidence_register_v1",
+    "missing_rpc:customer_after_sales_evidence_upload_ticket_v1",
+    "missing_rpc:customer_after_sales_list_v1",
+    "missing_rpc:customer_after_sales_order_lines_v1",
+    "missing_rpc:customer_checkout_quote_create_v2",
+    "missing_rpc:customer_delivery_context_read_v1",
+    "missing_rpc:customer_delivery_context_select_v1",
+    "missing_rpc:customer_notification_mark_read_v1",
+    "missing_rpc:customer_notifications_list_v1",
+    "missing_rpc:customer_notifications_mark_all_read_v1",
+    "missing_rpc:customer_order_reorder_apply_v1",
+    "missing_rpc:customer_order_reorder_preview_v1",
+    "missing_rpc:customer_review_submit_v1",
+    "missing_rpc:customer_review_update_v1",
+    "missing_rpc:customer_reviews_list_v1",
+    "missing_rpc:storefront_delivery_context_preview_v1",
+    "missing_rpc:storefront_product_reviews_v1",
+    "missing_rpc:storefront_search_suggestions_v1",
+    "missing_migration:20260823023037",
+    "missing_migration:20260823150000",
+    "missing_migration:20260928200000",
+    "missing_migration:20261008151018",
+    "missing_index:customer_notification_events_safe_dedup_idx"
+  ],
+  "unexpected_contract_errors": [],
+  "schema_compatibility": "FAIL",
+  "expected_Client_delta": "PASS",
+  "expected_postapply_history_if_no_further_change": 162,
+  "MCP_SQL_remote_calls": 1,
+  "local_parser_attempts": 3,
+  "local_parser_negatives": [
+    "Parsed wrapper object without extracting result string; no snapshot fields extracted.",
+    "Untrusted block search on wrapper JSON instead of decoded result; no snapshot extracted."
+  ],
+  "limits": [
+    "Nessun SQL apply/history/cron, RPC business, export di dati o deployment.",
+    "Il digest prefisso155 verifica version/name e digest del singolo statement pi\u00f9 recente, non tutti i precedenti statement n\u00e9 dati.",
+    "Nessuna attestazione di uguaglianza/recuperabilit\u00e0 secret da root.",
+    "La recovery corrente e i profili PG baseline devono essere riconciliati a158 prima di qualsiasi apply; nessun aggiornamento automatico del batch.",
+    "CanaleMCP readonly catalogo distinto da PostgreSQL TLS operatore, AuthClient e C04.",
+    "Schema57 ancora FAIL; WorkerPOSacb3 non prova il candidato selettivo root96758b89."
+  ]
+}

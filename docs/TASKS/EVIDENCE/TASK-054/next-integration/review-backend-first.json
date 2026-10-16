@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "reviewer": "/root/review_evidence_ci",
+  "independent_edge_reviewer": "/root/review_evidence_ci/runner_edge_review",
+  "candidate": "8360eab6c962892c98ff61833d7478961fa2d1c9",
+  "scope": "backend evidence, config/Auth/security, CI lifecycle; no implementation writer",
+  "delta_review": "CHANGES_REQUIRED",
+  "full_task_review": "BLOCKED",
+  "ci": {
+    "run_id": 37229533852,
+    "status": "in_progress",
+    "terminal_result": "NOT_RUN"
+  },
+  "findings": [
+    {
+      "id": "BECI-01",
+      "severity": "P2",
+      "status": "OPEN",
+      "file": "scripts/run-task054-android-visual.py",
+      "start": 29,
+      "end": 38,
+      "trigger": "Leader di gruppo proprio termina su SIGTERM, discendente nello stesso PGID ignora SIGTERM. stop_owned_process ritorna dopo wait del leader senza SIGKILL al gruppo.",
+      "reproduction_command": "PYTHONDONTWRITEBYTECODE=1 python3 build/task054/review-evidence-ci/group_cleanup_repro_8360eab6.py",
+      "reproduction_exit_code": 1,
+      "observed": {
+        "runner_exit": 0,
+        "cleanup": "PASS",
+        "leader_exit": -15,
+        "owned_descendant_alive": true,
+        "descendant_state": "S"
+      },
+      "impact": "Il runner puo attestare cleanup PASS e cancellare AVD con processi propri ancora attivi; il timeout/interruption lascia lavoro irrisolto.",
+      "required_fix": "Accertare e terminare l intero gruppo proprio anche se il leader e uscito, escalation bounded, preserving primary exit; test reale leader+figlio resistenteTERM.",
+      "ownership_limit": "PGID assegnato al lancio start_new_session=True; nessun cleanup globale o processo altrui. Dopo gruppo vuoto evitare segnali tardivi o ritardi con possibile riusoPID/PGID.",
+      "repro_cleanup": "finally SIGKILL soltanto gruppo fake; nessuna risorsa native e nessun gruppo esterno",
+      "repro_sha256": "d865b3413aee5c4d8625529c61cacca4d6721cea876711f956d0b0a1e3099fae"
+    }
+  ],
+  "independent_verifications": [
+    {
+      "command": "python3 build/task054/backend-next/package/verify-package.py --admin-repo /Users/minxiang/Projects/merchandise-control-admin-web",
+      "exit_code": 0,
+      "result": "PASS",
+      "scope": "16 static package checks; no remote apply/content equivalence of all155"
+    },
+    {
+      "command": "Verifier su copia temporanea con byte aggiunto al payload dedup",
+      "exit_code": 1,
+      "result": "PASS",
+      "scope": "Negative verification rejects altered bytes; originals unchanged"
+    },
+    {
+      "command": "python3 scripts/check-backend-compatibility.py --snapshot build/task054/backend-next/remote-contract-snapshot.json",
+      "exit_code": 1,
+      "result": "FAIL",
+      "scope": "23RPC+3migration+safe_dedup index missing"
+    },
+    {
+      "command": "python3 scripts/check-backend-compatibility.py --snapshot build/task054/backend-next/local-contract-snapshot-applied.json",
+      "exit_code": 0,
+      "result": "PASS",
+      "scope": "snapshot_only; authenticated behavior NOT_RUN"
+    },
+    {
+      "command": "python3 scripts/test-backend-compatibility.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "count": 13
+    },
+    {
+      "command": "python3 scripts/test-auth-entitlements.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "count": 4
+    },
+    {
+      "command": "Independent Python TAP plans/count/source-hash and receipt-hash review",
+      "exit_code": 0,
+      "result": "PASS",
+      "scope": "23 suites1035assertions,23pinned Admin SQL hashes,16receipt hashes; no SQL rerun after own containers cleaned"
+    },
+    {
+      "command": "Independent comparison of history155/6rowdigests/catalog before and restored",
+      "exit_code": 0,
+      "result": "PASS",
+      "scope": "byte-identical; all rows/history synthetic, not remote recovery"
+    },
+    {
+      "command": "git cat-file tree and seven commerce paths vs Admin82af",
+      "exit_code": 0,
+      "result": "PASS",
+      "scope": "Worker annotation tree is not commit; source-to-remote binary NOT_RUN"
+    },
+    {
+      "command": "gh run view 37176343496 --repo XNIW/merchandise-control-admin-web --json databaseId,headSha,status,conclusion,jobs",
+      "exit_code": 0,
+      "result": "PASS",
+      "scope": "exact82af build15success steps; staging/production deploy SKIPPED"
+    },
+    {
+      "command": "python3 scripts/test-task054-visual-runner.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "count": 11,
+      "scope": "fakes only"
+    },
+    {
+      "command": "python3 scripts/test-task054-android-runner.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "count": 14,
+      "scope": "fakes only; do not detect BECI-01 realprocess"
+    },
+    {
+      "command": "bash scripts/check-client-security.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "scope": "803tracked files at preparation stage;9durable JSON scanned separately. Final frozen CI still pending"
+    },
+    {
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "bash scripts/check-governance-state.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "scope": "frozen BLOCKED/REVIEW/CODEX_FIX_BLOCKED_TO_RE_REVIEW"
+    },
+    {
+      "command": "git diff --check bfbfc0b6 8360eab6c962892c98ff61833d7478961fa2d1c9",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "MCP Supabase execute_sql BEGIN READ ONLY/statement_timeout5s/ROLLBACK",
+      "result": "PASS",
+      "scope": "metadata only 2026-10-04T19:45:23Z;155history,32/55RPC names,1/2indices,threecanonicals absent; direct cron inventory4active. First guessedcron names count0 invalid and discarded; no TLS/auth behavior claim"
+    }
+  ],
+  "forbidden_or_not_run": [
+    "No repository implementation/docs edits by reviewer",
+    "No remote mutations or new credentials",
+    "No device/emulator/native build",
+    "No approval, merge, DONE or task activation",
+    "No authenticated staging/R24/distribution/physical acceptance"
+  ],
+  "current_report_review": "R01-R30 titles unchanged;130multistatement and8rawMD5 mismatches explicitly not attested; fixture/native/live and Worker tree/commit distinctions preserved; no new secret or real data found in durable9JSON",
+  "pending_owned_processes": false
+}

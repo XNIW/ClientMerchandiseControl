@@ -4,10 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../auth/application/auth_controller.dart';
+import '../../../core/config/app_config.dart';
 import '../../auth/domain/auth_state.dart';
 import '../../auth/domain/authenticated_customer.dart';
 import '../data/supabase_customer_account_repository.dart';
 import '../domain/customer_account_repository.dart';
+
+final customerAccountShopSlugProvider = Provider<String?>((ref) {
+  return ref.watch(appConfigProvider).storefrontShopSlug;
+});
 
 typedef CustomerIdempotencyKeyFactory = String Function();
 

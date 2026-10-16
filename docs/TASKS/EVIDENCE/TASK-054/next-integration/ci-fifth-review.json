@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "role": "CODEX_RE_REVIEWER",
+  "scope": "CI5_TERMINAL_PROVENANCE_AND_GATE_REVIEW",
+  "observedUtc": "2026-10-05T20:52:49.945842+00:00",
+  "sourceRevision": "50a3123e9b81e2a2c5490808aaf6056a1fa1e7ef",
+  "candidateRevision": "c796526a799c959408257f4c89c36a4439515b23",
+  "reviewOutcome": "BLOCKED",
+  "handoff": "CODEX_REVIEW_BLOCKED",
+  "newSourceFindings": [],
+  "priorScopedAssessments": {
+    "kernelSource": "APPROVED; 47 canonical + 6 independent PASS, no repeat here",
+    "documentaryFreeze": "APPROVED; zero findings, exact c796526 docs-only freeze",
+    "clientC09Source": "Distinct source-only approval preserved; native acceptance remains unproved"
+  },
+  "ci": {
+    "run": 37369690043,
+    "attempt": 1,
+    "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37369690043",
+    "status": "completed",
+    "conclusion": "failure",
+    "jobCount": 5,
+    "actualCheckoutCount": 3,
+    "checkoutNotRunCount": 2,
+    "stepsInspected": 44,
+    "annotationCounts": {
+      "failure": 4,
+      "warning": 1,
+      "notice": 11
+    },
+    "jobs": [
+      {
+        "id": 111963462599,
+        "name": "Android debug build",
+        "conclusion": "failure",
+        "runnerId": 1000004341,
+        "stepsCount": 13,
+        "actualCheckout": "c796526a799c959408257f4c89c36a4439515b23",
+        "checkoutStatus": "PASS",
+        "receiptSha256": "3dd10b2180f45cb4ecc55533e96e8f2ed25cf8b220eb65c924276d93a4915702"
+      },
+      {
+        "id": 111963462747,
+        "name": "iOS Simulator debug build",
+        "conclusion": "failure",
+        "runnerId": 1000004336,
+        "stepsCount": 16,
+        "actualCheckout": "c796526a799c959408257f4c89c36a4439515b23",
+        "checkoutStatus": "PASS",
+        "receiptSha256": "3f0cf1195fe6af4c22143dd9db594e193006f00a43c8fcb4130875bc47ad58cb"
+      },
+      {
+        "id": 111963462788,
+        "name": "Android release candidate",
+        "conclusion": "cancelled",
+        "runnerId": 0,
+        "stepsCount": 0,
+        "actualCheckout": null,
+        "checkoutStatus": "NOT_RUN: no allocated runner, no checkout step/log",
+        "receiptSha256": "1e6b1cfa2816f6c7af5392302727fb762f69b651268f67f7be3d335fa50749ae"
+      },
+      {
+        "id": 111963462898,
+        "name": "Quality",
+        "conclusion": "cancelled",
+        "runnerId": 0,
+        "stepsCount": 0,
+        "actualCheckout": null,
+        "checkoutStatus": "NOT_RUN: no allocated runner, no checkout step/log",
+        "receiptSha256": "8096d50877d94a28c433aeda4076ae12bf7de89c3920dbefb162e89ad415e976"
+      },
+      {
+        "id": 111963462899,
+        "name": "iOS release candidate",
+        "conclusion": "success",
+        "runnerId": 1000004337,
+        "stepsCount": 15,
+        "actualCheckout": "c796526a799c959408257f4c89c36a4439515b23",
+        "checkoutStatus": "PASS",
+        "receiptSha256": "62d03da5c9baa2496f3a7abe1cefcf0d6e6363bb9b606a8872654b5793ee3a59"
+      }
+    ]
+  },
+  "gates": {
+    "iosRelease": {
+      "result": "PASS",
+      "kind": "unsigned build/archive/release validator",
+      "adversarialFixtures": "89/89 PASS",
+      "limits": "Does not prove signed distribution, physical-device acceptance or iOS14 runtime smoke"
+    },
+    "macosGoldens": {
+      "result": "PASS",
+      "count": 2,
+      "limits": "Flutter surface checks on macOS, not native iOS screenshots"
+    },
+    "iosSimulatorBuildAndSecurity": "PASS",
+    "iosPreparation": {
+      "result": "FAIL",
+      "exitCode": 124,
+      "timeoutSeconds": 300,
+      "lastObservedPhase": "Data Migration / com.apple.locationd.migrator / Status2 nonterminal",
+      "cause": "Internal provider cause not established; no new process-probe failure"
+    },
+    "iosOwnedCleanup": {
+      "result": "PASS",
+      "attempts": "1 PASS + 2 PASS",
+      "processCleanupFailed": false,
+      "qualification": "Receipt/log/source readback association; no independent query of destroyed CI host"
+    },
+    "iosNativeSmoke": "NOT_RUN: preparation failed",
+    "iosNativeVisual": "NOT_RUN: skipped, zero PNG",
+    "androidBuildAndSecurity": "PASS",
+    "androidNativeVisual": {
+      "result": "BLOCKED",
+      "rawJobConclusion": "failure",
+      "rawCaptureStep": "cancelled",
+      "observed": "runner shutdown signal during drive assembleDebug; no tests/PNG/receipt artifact",
+      "cleanup": "NOT_RUN: final owned receipt/readback unavailable; GitHub orphan termination logged",
+      "cause": "Runner interruption observed; exclusive/manual cause not established"
+    },
+    "androidRelease": "BLOCKED CI_EXTERNAL: no hosted runner acquired, 0 steps, checkout NOT_RUN",
+    "qualityLinux": "BLOCKED CI_EXTERNAL: no hosted runner acquired, 0 steps, checkout NOT_RUN",
+    "localIOSReadiness": "BLOCKED: checked recipe/toolchain prerequisites incompatible or absent; no build/compiler failure asserted",
+    "configuration": {
+      "result": "PASS metadata/provenance only",
+      "presentFiles": 1,
+      "absentFiles": 6,
+      "unknownPathLabels": "4 NOT_RUN",
+      "acceptance": "NOT_RUN",
+      "backendLive": "NOT_RUN this probe; prior prerequisite BLOCKED"
+    }
+  },
+  "artifacts": {
+    "iosOnlyArtifactId": 11370475890,
+    "zipSha256": "144cf207744e25770636b0bd99616ecbbe2011f0537dff51c2d99cc1d2a73b63",
+    "files": 2,
+    "pngCount": 0,
+    "androidArtifact": "BLOCKED: absent; one root metadata attempt exit1 preserved, no ZIP/retry",
+    "ci4Reuse": "No CI4 PNG or test outcome promoted to CI5"
+  },
+  "blockedPrerequisites": [
+    "Hosted runner allocation for Quality and Android release",
+    "Stable Android runner and complete capture/owned cleanup evidence",
+    "Owned iOS boot reaches terminal readiness within approved budget, followed by smoke/visual",
+    "Compatible current local toolchain/build before any local native recovery"
+  ],
+  "evidence": [
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/terminal-independent-result.json",
+      "sha256": "1e7183d77078d7dd8c61e6b567d82843cff4c1a39202ffe3da0d28a178bdc8a1"
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/ios-artifact-independent-result.json",
+      "sha256": "e61532ccd40408bd8cf22f6917480a8f8456c2b54bd1b41bd2c699a15d6f7c12"
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/config-terminal-independent-result.json",
+      "sha256": "176af0f364e4624b8907c6fe5da87c86a6c6fec5678aa490db119cc5aa667b47"
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/ios-local-readiness-20261005/receipt.json",
+      "sha256": "f5a4d63d0e1f412e30edad0bb2459d6cc2042b00ca48de0096cacd9c4761bbe2"
+    },
+    {
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/ci-fifth/android-artifact-unavailable.json",
+      "sha256": "36a9c646a3e95223ea2fee60699a71cad1b4b22c080d4483b3286491966e7998"
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/github-incident-3q1yb5m7ltvb.json",
+      "sha256": "e885895ad9ac5017cf62579418871f98108466c8eccb554c3b0b6027d6831f2a"
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/RE_REVIEW_DOC_C796_APPROVED.json",
+      "sha256": "477a86d991abd909491a50b0319608a767865a10dfff481d22119485e05b5f4b"
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exitCode": 0,
+      "stdout": "c796526a799c959408257f4c89c36a4439515b23"
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "exitCode": 0,
+      "stdout": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "50a3123e9b81e2a2c5490808aaf6056a1fa1e7ef",
+        "c796526a799c959408257f4c89c36a4439515b23"
+      ],
+      "exitCode": 0,
+      "stdout": "docs/AI_WORKLOG.md\ndocs/MASTER-PLAN.md\ndocs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/backend-final-current.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/ci-fourth-partial-visual.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/ci-fourth-review.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/config-final-current.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/coordination-final-current.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/documentary-path-fix.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/freeze-fifth.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/fulfillment-reveal-fix.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/ios-kernel-probe-fix.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/review-client-cleanup-first.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/review-client-error-viewport-finding.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/review-client-error-viewport.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/review-client-fourth-association.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/review-error-viewport-fix.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/review-fulfillment-reveal-fix.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/review-ios-kernel-probe.json\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/flutter-88-review-submit-failure-comment-preserved-compact200.png\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/flutter-90-review-edit-failure-comment-preserved-compact200.png\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/os-62-address-editor-focus-compact200.png\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/os-63-search-field-focus-compact200.png\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/os-86-review-comment-focus-compact200.png\ndocs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/os-93-assistance-note-focus.png\ndocs/TASKS/EVIDENCE/TASK-054/residuals.md\ndocs/TASKS/TASK-054-integrated-staging-e2e-closeout.md"
+    },
+    {
+      "command": [
+        "python3",
+        "ci5_terminal_collect.py"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "python3",
+        "config_terminal_review.py"
+      ],
+      "exitCode": 0
+    },
+    {
+      "command": [
+        "python3",
+        "ci5_terminal_assessment.py"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "privacy": {
+    "secretOrConfigBodiesRead": false,
+    "realDataRetained": false,
+    "onlySyntheticNativeReceiptRead": true
+  },
+  "hygiene": {
+    "allOwnLocalCommandsTerminal": true,
+    "noRepositoryOrGitOrPRMutations": true,
+    "noNativeHeavyRun": true,
+    "noRetryOrTimeoutOrTargetChange": true,
+    "parentLocalGlobalTest": "Separate executor evidence, not inferred PASS here"
+  },
+  "limits": [
+    "No whole TASK approval, DONE, merge or native acceptance",
+    "External blockers and FAIL/NOT_RUN retained; source/document approvals do not discharge real CI gates",
+    "Incident corroborates explicit allocation annotations; iOS migration not attributed to that incident"
+  ],
+  "originalReceipt": {
+    "path": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/RE_REVIEW_CI5_C796_BLOCKED.json",
+    "sha256": "996bb8b8ba6aef6583fa9e718fa238fd239f19ae270d29e1cb42f0a8a5c00c2a"
+  },
+  "durableQualification": "Ricevuta di TASK-054 copiata con outcome e limiti conservati; log completi e artifact locali fuori Git. Il candidato CI è c796526, source50a immutabile. Questo branch documentale non è un nuovo candidato applicativo o una prova di CI sul suo HEAD."
+}

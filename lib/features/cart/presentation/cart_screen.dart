@@ -11,12 +11,16 @@ import '../../../app/design_system/widgets/storefront_page.dart';
 import '../../../app/design_system/widgets/storefront_section.dart';
 import '../../../app/design_system/widgets/storefront_status_banner.dart';
 import '../../../app/router/app_routes.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../home/presentation/storefront_product_card.dart';
 import '../../home/application/home_controller.dart';
 import '../../account/application/customer_account_controller.dart';
+import '../../account/application/customer_account_providers.dart';
 import '../../account/domain/customer_account_models.dart';
+import '../../checkout/application/checkout_controller.dart';
+import '../../checkout/domain/checkout_failure.dart';
 import '../../delivery_context/domain/delivery_context_models.dart';
 import '../../reservations/presentation/reservation_hold_panel.dart';
 import '../../storefront/domain/storefront_models.dart';
@@ -612,7 +616,7 @@ class _CartSummary extends ConsumerWidget {
     final savingsClp = snapshot.items.fold<int>(0, (total, line) {
       final compareAt = line.compareAtPriceClp;
       return total +
-          (compareAt != null && compareAt > line.priceClp
+          (line.isAvailable && compareAt != null && compareAt > line.priceClp
               ? (compareAt - line.priceClp) * line.quantity
               : 0);
     });
@@ -721,8 +725,46 @@ class _CartSummary extends ConsumerWidget {
                     key: const ValueKey('cart-checkout'),
                     onPressed: state.isBusy
                         ? null
+                        : state.hasPendingRetry
+                        ? ref.read(cartControllerProvider.notifier).retry
                         : contextReady
-                        ? () => context.push(AppRoutes.checkoutLocation)
+                        ? () async {
+                            final owner = ref
+                                .read(customerAccountIdentityProvider)
+                                ?.subjectId;
+                            final shop = ref
+                                .read(appConfigProvider)
+                                .storefrontShopSlug;
+                            final prepared = await ref
+                                .read(checkoutControllerProvider.notifier)
+                                .prepareCheckoutFromCart();
+                            if (!context.mounted) return;
+                            if (!prepared) {
+                              final sameScope =
+                                  owner != null &&
+                                  owner ==
+                                      ref
+                                          .read(customerAccountIdentityProvider)
+                                          ?.subjectId &&
+                                  shop ==
+                                      ref
+                                          .read(appConfigProvider)
+                                          .storefrontShopSlug;
+                              if (sameScope &&
+                                  ref
+                                          .read(checkoutControllerProvider)
+                                          .failureKind ==
+                                      CheckoutFailureKind.unexpected) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.checkoutUnexpectedError),
+                                  ),
+                                );
+                              }
+                              return;
+                            }
+                            context.push(AppRoutes.checkoutLocation);
+                          }
                         : () => context.push(AppRoutes.deliveryContextLocation),
                     icon: state.isGlobalBusy
                         ? const SizedBox.square(
@@ -731,7 +773,9 @@ class _CartSummary extends ConsumerWidget {
                           )
                         : const Icon(Icons.shopping_bag_outlined),
                     label: Text(
-                      !contextReady
+                      state.hasPendingRetry
+                          ? l10n.cartRetryAction
+                          : !contextReady
                           ? l10n.cartChooseDelivery
                           : state.isAuthenticated
                           ? l10n.cartCheckoutAction

@@ -1,0 +1,164 @@
+{
+  "backend_acceptance": "NOT_RUN",
+  "candidate_commit": null,
+  "commands": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-android.py",
+      "exit_code": 0,
+      "tests": 13
+    },
+    {
+      "checks": 11,
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 <external-package>/native-journal-independent-poc.py",
+      "exit_code": 0,
+      "script_sha256": "7c1b7de650644291df42c014a13199e6b679e082c03e19a6e66b8bb7e6454071"
+    }
+  ],
+  "commit_association_reason": "Hash delle sorgenti da associare al commit finale e alla relativa CI dopo il freeze.",
+  "commit_association_result": "NOT_RUN",
+  "dart_analyze": "NOT_RUN",
+  "dart_analyze_reason": "Verifica globale serializzata dal root; nessun Flutter avviato in questa lane.",
+  "evidence_scope": "SOURCE_CODE_ONLY",
+  "files_sha256": {
+    ".github/workflows/ci.yml": "a77f2b12fb097116d5e8f5c511b1f570b803e379d582279e85cf7549763a1533",
+    "integration_test/address_creation_journal_native_test.dart": "8009c84b866450a2fb99e27a5c5170979a4a238604e94f8189f0b70d6162a763",
+    "scripts/run-address-journal-android.py": "62ec418916e058b74d9ee0cf42e6e05ce02d628632285a885d0e481377084b65",
+    "scripts/run-task054-android-visual.py": "b6ee1bb0294bc5a2bc0b89c7e686d7bfbe7539e90371a00b184a0d3deac9b246",
+    "scripts/test-address-journal-android.py": "c81119518d5773a5702d52e61ebe3d5739654d26852800b697b6fb30b21aad47",
+    "test_driver/address_creation_journal.dart": "5971c8af0ac6df5c85712f6b73cc94e32b1ae588ff30aa30649e40b3173114c8"
+  },
+  "finding_P2_signal_exit": "RESOLVED",
+  "independent_poc": {
+    "checks": [
+      {
+        "case": "extra-field",
+        "result": "PASS"
+      },
+      {
+        "case": "foreign-run",
+        "result": "PASS"
+      },
+      {
+        "case": "same-process",
+        "result": "PASS"
+      },
+      {
+        "case": "seed-replayed",
+        "result": "PASS"
+      },
+      {
+        "case": "missing-cleanup",
+        "result": "PASS"
+      },
+      {
+        "case": "backend-overclaim",
+        "result": "PASS"
+      },
+      {
+        "case": "driver-zero-with-missing-receipt",
+        "result": "PASS"
+      },
+      {
+        "case": "process-changed-after-receipt",
+        "result": "PASS"
+      },
+      {
+        "case": "preexisting-output",
+        "result": "PASS"
+      },
+      {
+        "case": "real-signal-9",
+        "cleanup": "FAIL",
+        "process_exit": 137,
+        "receipt_exit": 137,
+        "restart": "NOT_RUN",
+        "result": "PASS"
+      },
+      {
+        "case": "real-signal-15",
+        "cleanup": "FAIL",
+        "process_exit": 143,
+        "receipt_exit": 143,
+        "restart": "NOT_RUN",
+        "result": "PASS"
+      }
+    ],
+    "evidence_scope": "SOURCE_CODE_ONLY",
+    "exit_code": 0,
+    "native_runtime": "NOT_RUN",
+    "result": "PASS",
+    "runner_sha256": "62ec418916e058b74d9ee0cf42e6e05ce02d628632285a885d0e481377084b65"
+  },
+  "independent_real_process_signal_checks": [
+    {
+      "cleanup": "FAIL",
+      "process_exit": 137,
+      "receipt_exit": 137,
+      "restart": "NOT_RUN",
+      "result": "PASS",
+      "signal": 9
+    },
+    {
+      "cleanup": "FAIL",
+      "process_exit": 143,
+      "receipt_exit": 143,
+      "restart": "NOT_RUN",
+      "result": "PASS",
+      "signal": 15
+    }
+  ],
+  "native_android_runtime": "NOT_RUN",
+  "native_android_runtime_reason": "Gate non avviato su device; runner Linux/KVM richiesto, slot/runtime affidati alla CI.",
+  "prior_independent_negative_cases_pass": 9,
+  "red_before_fix": {
+    "expected_and_observed_after_fix": [
+      137,
+      143
+    ],
+    "finding": "P2 signal exit correlation",
+    "original_runner_sha256": "ea97e1791410dfd4159473ce5c4dfa04ea685f1b600585923ca7c2d8f219df88",
+    "process_exit_before": [
+      247,
+      241
+    ],
+    "raw_driver_signal_returncode": [
+      -9,
+      -15
+    ],
+    "receipt_exit_before": [
+      -9,
+      -15
+    ],
+    "review": "CHANGES_REQUIRED"
+  },
+  "repository_edits": false,
+  "review": "APPROVED",
+  "review_scope": "Solo delta sorgente del gate, driver, fixture e confini runner; non review integrata del prodotto",
+  "reviewed_against_base_commit": "39624143955f0329b3ac85e27a51d722a6884ad8",
+  "reviewer_role": "Independent read-only re-review; not author",
+  "static_invariants": {
+    "abi": "x86_64",
+    "android_api": 35,
+    "ci_budget_minutes": 25,
+    "flutter_version": "3.44.8",
+    "new_owned_avd_only": true,
+    "new_process_pid_required": true,
+    "no_app_data_clear_or_reinstall_between_phases": true,
+    "no_backend_claim": true,
+    "one_build_one_install": true,
+    "owned_forwards_cleanup": true,
+    "owned_process_group_cleanup_reused": true,
+    "run_id_and_seed_pid_binding": true,
+    "same_apk_digest_and_uid_before_after": true,
+    "seed_and_recover_receipts_strict": true,
+    "seed_force_stop_and_proc_absent": true,
+    "visual_extraction_order_preserved": true,
+    "vm_uri_is_transport_only": true
+  },
+  "trace_directory": "external protected package task054-operational-backend-20261008",
+  "unit_suite": {
+    "exit_code": 0,
+    "seconds": 0.225,
+    "tests": 13
+  }
+}

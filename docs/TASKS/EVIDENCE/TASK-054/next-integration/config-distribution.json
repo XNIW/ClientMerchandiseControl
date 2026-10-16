@@ -1,0 +1,81 @@
+{
+  "checked_at_utc": "2026-10-04T19:21:54.517737+00:00",
+  "client_commit": "21d28238aeb678311e81e15f87db3c19a91a847c",
+  "dedicated_env_present_count": 0,
+  "diagnostic_failed_attempt": {
+    "exit_code": 252,
+    "reason": "FLUTTER_LINKED_IMPORTS_FFI_TRANSFORMER",
+    "replacement": "flutter_tester_1_PASS_exit0",
+    "tool": "dart_standalone_AppConfig"
+  },
+  "evidence": [
+    "auth-recovery-readonly.json",
+    "cli-residue-provenance.json",
+    "config-distribution-result.md"
+  ],
+  "github_environment_count": 0,
+  "github_repo_secret_count": 0,
+  "github_repo_variable_count": 0,
+  "helper_path_correction": {
+    "format_exit_code": 0,
+    "initial_analyze_filename_failure_preserved": true,
+    "new_paths": [
+      "check_legacy_staging_config.dart",
+      "check_legacy_staging_config_test.dart"
+    ],
+    "parser_rerun_after_rename_count": 1,
+    "parser_rerun_after_rename_exit_code": 0,
+    "parser_rerun_after_rename_result": "PASS"
+  },
+  "modifications": {
+    "external": 0,
+    "implementation": 0,
+    "original_config": 0,
+    "owned_local_artifacts_only": true
+  },
+  "native_versions": {
+    "adb": "37.0.1",
+    "cocoapods": "1.17.0",
+    "dart": "3.12.2",
+    "flutter": "3.44.8",
+    "java": "25.0.3",
+    "macos": "27.0.1",
+    "psql": "18.6",
+    "supabase": "2.119.0",
+    "xcode": "27.0",
+    "xcode_build": "27A266a"
+  },
+  "original_staging_config": {
+    "current_parser_rejects": true,
+    "exists": true,
+    "google_enabled": false,
+    "key_count": 5,
+    "modified": false,
+    "parser_test_count": 1,
+    "parser_test_exit_code": 0,
+    "parser_test_result": "PASS",
+    "shop_slug_present": false,
+    "verified_host_present": false
+  },
+  "readonly_pgservice_available": false,
+  "required_env_fields": [
+    "CMC_BACKEND_PGSERVICE",
+    "AUTH_CALLBACK_VERIFIED_HOST",
+    "AUTH_REDIRECT_URI",
+    "IOS_EXPECTED_TEAM_ID",
+    "IOS_EXPECTED_SIGNING_CERT_SHA256",
+    "IOS_RELEASE_RUNTIME_CONFIG_PATH",
+    "ANDROID_RELEASE_RUNTIME_CONFIG_PATH",
+    "ANDROID_SIGNING_CERT_SHA256",
+    "PLAY_SERVICE_ACCOUNT_JSON_PATH",
+    "APP_STORE_CONNECT_API_KEY_PATH"
+  ],
+  "scope": "config_distribution_readonly",
+  "signature_inputs_available": false,
+  "source_sha256": {
+    "android/app/build.gradle.kts": "922deadbabfb5cc3d47b5831fb499c0bb8802d37c6ec2f6d809ba083ffcb26dd",
+    "lib/core/config/app_config.dart": "9775a5fd54d63f2e0e2540b1db5a124c6150e6c2e1cc8ff871a79a0d62123c82",
+    "lib/core/config/release_config_attestation.dart": "9685b8f097a3177b61de1e81bb1fcc2f07c2177238f7ab0da3d17cf37b40acb0",
+    "scripts/check-backend-compatibility.py": "b42fc17b4ea16191c2602dfc845c993f6bc4e4cfb978f4615ca1f80c5e6b3d2c"
+  }
+}

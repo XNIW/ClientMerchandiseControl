@@ -1,0 +1,188 @@
+{
+  "commit": "bf9be0591621f2540a1c10a053e835e6dd0e6b88",
+  "base": "9fe418a95defd0a5b595e4c2b5604d5c70ac509f",
+  "scope": "HARNESS_GEOMETRY_SOURCE_HOST_ONLY",
+  "status": "PASS source/host; independent review APPROVED SOURCE_CODE_ONLY_HARNESS; native after NOT_RUN",
+  "baseline_red_receipt": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-projection/receipt.json",
+  "baseline_red_receipt_sha256": "3c0025c3fbb69017546e8b5c99b2064ee1a67cd211aa1de4f9f8d25710db7404",
+  "baseline_red": {
+    "geometry": {
+      "pass": 4,
+      "fail": 1,
+      "exit_code": 1
+    },
+    "reviews_counterfactual": {
+      "pass": 2,
+      "fail": 2,
+      "exit_code": 1
+    }
+  },
+  "verified_geometry": {
+    "parent400x900_inset300": {
+      "viewport_rect": [
+        40,
+        166,
+        360,
+        734
+      ],
+      "old_local_inset": 300,
+      "intersection_inset": 134
+    },
+    "parent400x900_raw397_derived": {
+      "old_dialog": [
+        240,
+        123
+      ],
+      "projected_inset": 231,
+      "projected_dialog": [
+        240,
+        289
+      ],
+      "old_host_overflow": 29,
+      "projected_input_and_cta": "PASS"
+    },
+    "fullwindow320x568_inset300": "preserved300; app diagnosticPASS",
+    "fullwindow320x568_inset397": "preserved397; app stress diagnosticFAIL, not an authorized app finding or measured iOSIME",
+    "full_occlusion": "all568 covered; no usable height invented"
+  },
+  "ios_native_failure": {
+    "revision": "43fd7afc806404e667573734b2c4b3b3ffe8cc29",
+    "overflow_px": 24,
+    "constraints": [
+      240,
+      123
+    ],
+    "measured_IME_height": "NOT_VERIFIED",
+    "DPR": "NOT_VERIFIED",
+    "causal_attribution_to_projection": "NOT_VERIFIED",
+    "raw": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ios/raw/ci43-review-ui-failure-exact.log"
+  },
+  "diagnostic_log": "TASK054_REVIEW_GEOMETRY before/after first focus scroll: numeric physicalSize/DPR/global and local inset/padding/viewportRect/fieldRect/platform/font only; no text, customer IDs or secrets; uses existing pump, no new wait or weak assertions",
+  "source_files": [
+    {
+      "path": "integration_test/support/compact_viewport.dart",
+      "sha256": "6beec945c179553085af21251d3191bb19ca024585c360834bcd65a25812a258",
+      "blob": "5afaac6eb22c81e66f556d940f294f0b5ca85e2c",
+      "change": "added"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "sha256": "e468956971c99cf67457170dee75629523892e5652e7a96069b0d7c3c3f1a5f0",
+      "blob": "73270313594dfbe9b76a780bf475cbb25bc755b4",
+      "change": "modified"
+    },
+    {
+      "path": "test/integration_support/task054_compact_viewport_test.dart",
+      "sha256": "d085cc26adadfa2ac26bb27ab53d684e6454aad924955bbe0cf989ba0ac88703",
+      "blob": "90b48b5b618a4bced1b322d568339489001f8080",
+      "change": "added"
+    }
+  ],
+  "application_files_unchanged_from_badge": {
+    "lib/features/account/presentation/customer_account_panel.dart": true,
+    "lib/features/reviews/presentation/customer_reviews.dart": true
+  },
+  "checks": [
+    {
+      "check": "FINAL_GEOMETRY",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": 8,
+      "command": "flutter test --no-pub test/integration_support/task054_compact_viewport_test.dart --concurrency=1 --reporter expanded",
+      "log": "viewport-projection-green-final.log",
+      "sha256": "7f210242c7e77d2012ec0dae9be72ad45ed9cc152adccf25209da90248311ea9",
+      "qualification": null
+    },
+    {
+      "check": "FINAL_HOST_MATRIX",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": 18,
+      "command": "flutter test --no-pub /private/tmp/task054-client-ux-20261008/journal_host_harness_test.dart --name 'journal illeggibile|inbox destinazione assistenza|recensione submit busy|address editor focus' --concurrency=1 --reporter expanded",
+      "log": "viewport-projection-host-matrix-final.log",
+      "sha256": "7e2affc5167bf5a7b4709ae6464af1fdf3727a7f6afe1633fccc916fb3e19be2",
+      "qualification": null
+    },
+    {
+      "check": "FINAL_ANALYZE",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": null,
+      "command": "flutter analyze --no-pub integration_test/support/compact_viewport.dart integration_test/task054_next_integration_surfaces_test.dart test/integration_support/task054_compact_viewport_test.dart",
+      "log": "viewport-projection-analyze.log",
+      "sha256": "b75cef94cb72c195332f1ee4df40055bd99010e12ec436862ec60b46fa667f4b",
+      "qualification": null
+    },
+    {
+      "check": "FINAL_FORMAT",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": null,
+      "command": "dart format --output=none --set-exit-if-changed integration_test/support/compact_viewport.dart integration_test/task054_next_integration_surfaces_test.dart test/integration_support/task054_compact_viewport_test.dart",
+      "log": "viewport-projection-format.log",
+      "sha256": "40dda0d6720d5d81c116c7d712e568c462af50b3eb2133b082b66cd05745759b",
+      "qualification": null
+    },
+    {
+      "check": "FINAL_DIFFCHECK",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": null,
+      "command": "git diff --check; also git diff --cached --check executed exit0 before commit",
+      "log": "viewport-projection-diffcheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qualification": null
+    },
+    {
+      "check": "PREVIOUS_HOST_MIRROR_PROFILE",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": 18,
+      "command": "Previous generator: multiline reviews callback retained default800×600DPR3; not final320×640 profile",
+      "log": "viewport-projection-host-matrix.log",
+      "sha256": "acb39f9af6ea343c597d46a73574010385f42d090e9cb5b2ac4aa7a3ef0436d1",
+      "qualification": "diagnostic profile retained; final host profile is separate"
+    },
+    {
+      "check": "INTERMEDIATE_GEOMETRY",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": 6,
+      "command": "Initial6geometry cases before adding397counterfactual cases",
+      "log": "viewport-projection-green.log",
+      "sha256": "5f49a7def58af7fcf56fe4e19d73002a3c65f5e8874ce90ac7af92c0390b8de6",
+      "qualification": null
+    }
+  ],
+  "fixture_capture_count": 137,
+  "added_native_captures": 0,
+  "capture_or_hit_test_weakening": false,
+  "text_scale_reduction": false,
+  "new_unit_test_count": 8,
+  "source_manifest_invalidations": [
+    "new fixture helper",
+    "new permanent geometry test",
+    "existing harness blob and SHA changed"
+  ],
+  "pixel_association": "Previous native137 captures keep revision43fd; compare byte hashes on next native run, inspect impacted/changed compact frames. No nativeafterPASS inferred.",
+  "independent_source_review": {
+    "outcome": "APPROVED",
+    "scope": "SOURCE_CODE_ONLY_HARNESS",
+    "revision": "bf9be0591621f2540a1c10a053e835e6dd0e6b88",
+    "acceptance_pass": 32,
+    "acceptance_fail": 0,
+    "synthetic_diagnostic": "2 PASS / 2 FAIL attesi, exit1; preservati RED baseline e stress397",
+    "receipt": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-source-review.json",
+    "receipt_sha256": "d0a7532fdc905e73880a87f5b737e9cc429abaf26c406cd7e11bb94d7336dd42",
+    "review": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/viewport-source-review.md",
+    "review_sha256": "a64a6be3b45299aecbed717e889417564b261b3bd9604d14a13846bd596b64d6"
+  },
+  "native_after": "NOT_RUN",
+  "authenticated_TEST": "NOT_RUN",
+  "assistive_AT": "NOT_RUN",
+  "physical_profile": "NOT_RUN",
+  "writer_worktree_clean": true,
+  "remote_push": false,
+  "writer_processes_terminal": true,
+  "observed_at_utc": "2026-10-08T21:27:47.610101+00:00"
+}

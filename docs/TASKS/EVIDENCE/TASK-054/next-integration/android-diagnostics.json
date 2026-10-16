@@ -1,0 +1,66 @@
+{
+  "baseline": "a97778697051f93380ace9d6181a226c7f79ca77",
+  "fixRevision": "75b3926b6fc3efea98ce98bc5dbb3fe7c6c4f464",
+  "role": "CODEX_FIXER; nuova review CI distinta richiesta",
+  "branch": "codex/task054-android-transport-diagnostic",
+  "scope": "Solo emulator.poll non bloccante prima del cleanup emulator nel ramo native-fixture-capture FAIL; receipt/fixture, nessuna correzione della causa transport.",
+  "results": [
+    {
+      "command": "python3 scripts/test-task054-android-runner.py [fixture estesa, runner baseline]",
+      "exitCode": 1,
+      "result": "FAIL",
+      "tests": 27,
+      "detail": "5 errori subtest: campo emulator_before_cleanup assente; primario capture7 già verificato prima della KeyError",
+      "log": "runner-before.log"
+    },
+    {
+      "command": "python3 scripts/test-task054-android-runner.py [runner fix]",
+      "exitCode": 0,
+      "result": "PASS",
+      "tests": 27,
+      "detail": "6 stati nella fixture failure: alive,exit0,exit19,signal9→137,OSError,Failure(signal); primario7/cleanupFAIL/delete invariati, snapshot prima del TERM",
+      "log": "runner-after.log"
+    },
+    {
+      "command": "git diff --check; git status --short --branch",
+      "exitCode": 0,
+      "result": "PASS",
+      "detail": "Due file previsti, tracked WT pulito dopo commit"
+    }
+  ],
+  "nativeAfter": {
+    "result": "NOT_RUN",
+    "reason": "Nessun emulatore locale; nuova CI del candidato composto gestita dal coordinatore"
+  },
+  "diagnosisResult": "BLOCKED: mancano dati precleanup della CI3; la patch non inferisce causa da alive/exited",
+  "files": [
+    {
+      "path": "scripts/run-task054-android-visual.py",
+      "blob": "6a602e5fa77191c899e9f93a4b7ec0aa534ccccb",
+      "sha256": "7fa8d65d9233ae59e15b7946d0e3be4458ef0a9d6ac015cbec1574dba04440cb"
+    },
+    {
+      "path": "scripts/test-task054-android-runner.py",
+      "blob": "7f3a39743242dc2294223aa37a8a630ac48b36b5",
+      "sha256": "92ccb12e7fc6dbde619af10c2415921bc7930907d0eb15e0d341010da8895901"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "locale:runner-before.log",
+      "sha256": "0b2c406fcecff3b336477bffc3481a0faddbc99161f463d7c7a42643c63da677"
+    },
+    {
+      "path": "locale:runner-after.log",
+      "sha256": "6902b1b57800bf4fc0a091c309a3c9c095dfd54ba75068c284e9fb322db193ee"
+    },
+    {
+      "path": "locale:ci-third-diagnosis.json",
+      "sha256": "39077eeabb4c7412bbfb2d6d6c682da9e7020f2794cde902bdbbd760814e5b2e"
+    },
+    {
+      "path": "locale:ci-third-excerpt.log",
+      "sha256": "08bbcc3e7138fd6e38a84d3e467993ae2fcb03ebe6565bb588a4a84b6704cd71"
+    }
+  ]
+}

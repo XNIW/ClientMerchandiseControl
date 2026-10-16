@@ -1,0 +1,204 @@
+{
+  "observed_utc": "2026-10-08T18:45:20.355191+00:00",
+  "client": {
+    "pull_request": 29,
+    "head": "e7b194cea8bb53b23d3e994268d5cd47e67d085e",
+    "run": 37822118836,
+    "run_state": "completed",
+    "evidence_branch": "codex/task054-operational-evidence-20261008",
+    "source_frozen": true,
+    "ios_journal_delta": "APPROVED SOURCE_CODE_ONLY: 21 independent unit tests + 8 independent PoCs; exact nine source hashes associated to e7b194c",
+    "run_result": "FAIL",
+    "job_results": {
+      "quality": "PASS",
+      "android_debug": "PASS",
+      "android_release": "PASS",
+      "android_journal": "PASS",
+      "ios_debug": "FAIL",
+      "ios_journal": "FAIL",
+      "ios_release": "PASS"
+    },
+    "ios_failure": {
+      "phase": "prepare after bootstatus success",
+      "inventory_timeout_seconds": 30,
+      "kernel_probe": "PermissionError errno 1",
+      "ps_probe": "TimeoutExpired 2 seconds",
+      "resource_cleanup": "PASS",
+      "process_cleanup": "FAIL: quiescence not attested, not proof of remaining processes",
+      "smoke_visual_journal": "NOT_RUN",
+      "unchanged_reruns_planned": 0
+    },
+    "application_source_unchanged_since": "bb53892393710d3ed6d2574053fe1206561b87f0",
+    "previous_run": {
+      "head": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+      "run": 37817219242,
+      "run_state": "completed",
+      "run_result": "FAIL",
+      "job_results": {
+        "quality": "PASS",
+        "android_debug": "PASS",
+        "android_release": "PASS",
+        "ios_release_unsigned": "PASS",
+        "android_address_journal_restart": "PASS",
+        "ios_debug_smoke": "FAIL"
+      },
+      "ios_failure": {
+        "exit_code": 124,
+        "phase": "Waiting for VM Service port to be available",
+        "wait_seconds": 719,
+        "build": "PASS",
+        "simctl_launch_pid": 31543,
+        "tests_ran": 0,
+        "captured_images": 0,
+        "cleanup": "PASS",
+        "product_defect_demonstrated": false
+      },
+      "scope": "PREVIOUS_CANDIDATE_62980D2"
+    },
+    "summary": {
+      "passed_jobs": 5,
+      "failed_jobs": 2,
+      "quality_passed": 1043,
+      "quality_skipped": 1,
+      "performance_passed": 11,
+      "android_native_tests": 76,
+      "android_flutter_pngs": 113,
+      "android_os_pngs": 4,
+      "native_ios_tests": 0,
+      "native_ios_pngs": 0
+    },
+    "visual_review": "APPROVED scoped association: 109 identical Flutter PNGs + 8 changed Flutter/OS PNGs independently inspected",
+    "scope": "CURRENT_PR29_CANDIDATE_E7B194C"
+  },
+  "W_review": {
+    "thread": "01a0d946-6dd0-70f1-9146-e65e8d3f6020",
+    "candidate": "96758b899aac2ccde1a70aeda4bbe7983007fb18",
+    "tree": "b75fe609cda8f53067cfe1cf1cb7782a9dba757b",
+    "parent": "34ed0c504ed99a179d76a36b3edee6d793c7d165",
+    "result": "PASS",
+    "scope": "STATIC_SELECTION_ONLY",
+    "independent_reads": 2,
+    "new_file": "scripts/security-checks.mjs",
+    "added_lines": 27,
+    "hunks": 2,
+    "distinct_Rpcs": 7,
+    "path_rpc_pairs": 12,
+    "canonical_source": "82af13ef0005ecfb767809bd362327e91692b5ba",
+    "canonical_scanner_sha256": "3865c3fc8fbcb188ca6d2fdcad169fba44d1ebc59dadd7039c836d15cefba6d9",
+    "application_sources_unchanged": 13,
+    "selected_source_and_support": 14,
+    "manifest_files": 2,
+    "application_import_closure": 38,
+    "application_dependencies_unchanged": 25,
+    "new_verify_build_smoke": "PASS, exit 0; independent regular-file manifest and cleanup review APPROVED",
+    "TEST_deploy": "NOT_RUN",
+    "shared_SQL": "NOT_RUN",
+    "verify_seconds": 35.364,
+    "opennext_seconds": 26.929,
+    "smoke_seconds": 4.57,
+    "smoke_passed": 29,
+    "artifact": {
+      "files": 2012,
+      "bytes": 40142604,
+      "manifest_sha256": "c905fde55da03cfc0dca100ee6c8313b0a689e41b1f65ad87c204eda4a208b64"
+    },
+    "cleanup": {
+      "port_8794_closed": true,
+      "own_preview_processes_absent": true,
+      "opennext_handler_restored": true,
+      "candidate_source_clean": true,
+      "W_foreign_staged_preserved": true
+    },
+    "packaging_graph": "PASS local network-denied dry-run; independent receipt/payload review APPROVED",
+    "packaging": {
+      "input_files": 11,
+      "virtual_wrappers": 31,
+      "symlinks_inventoried": 4,
+      "symlinks_packaged": 0,
+      "multipart_parts": [
+        "metadata",
+        "worker.js"
+      ],
+      "worker_bytes": 11307949,
+      "worker_sha256": "e1b2f30e3e1413e0404543cf2ddf21bb14157b9aa339121d8b3ba47d01542997",
+      "asset_files": 53,
+      "asset_directories": 5,
+      "runtime_external_references": "NOT_RUN"
+    },
+    "candidate_with_evidence": "a771cee43b0c43ec844e60282ea764646905996e",
+    "remote_final_readback": {
+      "utc": "2026-10-08T17:52:53Z",
+      "version": "22107a6f-f515-44c4-8392-a8e5653ff0b8",
+      "percentage": 100,
+      "deployment": "f726de06-fb79-46f5-a1b3-1d35fdc9de69",
+      "own_deploys": 0
+    }
+  },
+  "N_resource_observation": {
+    "thread": "01a0e903-0c9d-7583-8d62-4c25da6785e1",
+    "source": "read_thread current turn outputs",
+    "android_local_gate": {
+      "result": "PASS",
+      "passed": 1237,
+      "skipped": 7,
+      "exit_code": 0,
+      "release_utc": "2026-10-08T17:38:53.533933+00:00",
+      "qualification": "Native Android own canonical local gate; not R24 authenticated acceptance"
+    },
+    "ios_full_suite": {
+      "passed": 1540,
+      "skipped": 36,
+      "failed": 0,
+      "total": 1576,
+      "receipt_sha256": "6c15c2ddff54677699804ac3672423e6ea6e2e148fb5254f493f1357bf0ed137"
+    },
+    "worker_heavy_lease": "released after terminal Worker verify/build/smoke and cleanup; N notified",
+    "primary_TEST_acceptance": "BLOCKED",
+    "primary_TEST_reason": "N reports new Android APK installed/launched with 19 table datasets and preferences preserved; network unavailable/scope checking, four publication events still queued. Mac locked again, manual unlock required. No terminal authenticated recovery/ACK or R24.",
+    "R24": "NOT_RUN",
+    "ios_builds": {
+      "result": "PASS",
+      "actions": [
+        "debug",
+        "release",
+        "analyze"
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "finished_utc": "2026-10-08T17:42:47.097124+00:00",
+      "owned_process_groups_gone": true,
+      "receipt_sha256": "70b06d5bc86822343f034301928ed5b2a6a323c1353e45dd1629e3acd9de8f59",
+      "preexisting_analysis_warnings": 34,
+      "new_warnings": 0,
+      "source_head": "a8980fe5dd0850fe1dd505d51034fe6304a1c08b",
+      "source_note": "48-file source freeze includes uncommitted N changes; not installed primary runtime SHA"
+    },
+    "native_source_refresh": {
+      "android_pr": "https://github.com/XNIW/MerchandiseControlSplitView/pull/23",
+      "android_head": "ad7293d76fe725f9dd9b7eef6d020a15f1af9a5e",
+      "android_merge": "9d5c270b9c4ab2e62866e24364c0646fa5aa186a",
+      "android_merged_utc": "2026-10-08T18:02:58Z",
+      "ios_pr": "https://github.com/XNIW/iOSMerchandiseControl/pull/21",
+      "ios_head": "3212799ea870a977a53d85570a9c61bd8bc80a91",
+      "ios_state": "OPEN; CI full suite failed after successful build, cause under N investigation",
+      "installed_apps": "New Android TEST APK installation and launch reported by N/C; iOS package prepared, new iOS install not attested.",
+      "verification": "gh pr view readonly plus N/C current summaries; not a device operation",
+      "android_main_ci": "PASS per N: 1244 cases, 1237 passed and 7 unchanged skips",
+      "checked_utc": "2026-10-08T18:38:08.442260+00:00"
+    }
+  },
+  "resource_scope": {
+    "own_heavy_jobs_serialized": true,
+    "global_host_quiescence_attested": false,
+    "Client_local_host_benchmarks_not_physical_profile": true,
+    "N_devices_modified_by_root": false,
+    "TEST_writer_cron_exclusive_window_confirmed": false
+  },
+  "limitations": [
+    "No inference from static review or canonical local tests to deployed or authenticated runtime",
+    "Readiness must be refreshed in the effective TEST apply window"
+  ]
+}

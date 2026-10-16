@@ -1,0 +1,25 @@
+{
+  "observed_utc": "2026-10-08T19:55:51.668560+00:00",
+  "status": "BLOCKED",
+  "source_worker_config_sha256": "33f0fcd20d3f227b053dbff1048b5935324e1f0c5649e20ecffc4d16490d4f42",
+  "source_legacy_config_sha256": "9121e1effdea043dce81702594338b3dffa86220159229f5e02d8dbb0bd04319",
+  "same_approved_public_backend_values": true,
+  "prepared_config": "/Users/minxiang/.codex/outputs/task054-completion-20261008/app_config.test.prepared.json",
+  "prepared_config_sha256": "8773989c4430fae3a5678cdd90e3f00b19ca05efcca01329399d0768b07450d9",
+  "config_mode": "0o600",
+  "fixture_manifest": "/Users/minxiang/.codex/outputs/task054-completion-20261008/fixture-manifest.prepared.json",
+  "fixture_manifest_sha256": "eb24e3b80f1dca5a97adbc24be9b6ed65c046d48133858426dbd0745c5601770",
+  "shop_slug_present": false,
+  "oauth_enabled": false,
+  "owned_callback_verified": false,
+  "maps_enabled": false,
+  "missing_inputs": [
+    "approved_pilot_shop_slug",
+    "protected_owner_A_and_B_session_references",
+    "owned_https_callback_and_native_association_receipts",
+    "signing_and_TEST_distribution_channel_references"
+  ],
+  "limitation": "Prepared configuration deliberately incomplete; no live parser, login, build or install inferred",
+  "public_values_emitted": false,
+  "secret_values_emitted": false
+}

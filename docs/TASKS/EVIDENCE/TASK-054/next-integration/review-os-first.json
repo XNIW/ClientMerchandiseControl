@@ -1,0 +1,116 @@
+{
+  "reviewer": "/root/review_evidence_ci",
+  "revision": "163b9c246ee4e8ead06f4fd097228a649aa3e217",
+  "scope": "OS bridge delta; independent known-defect review only, composed candidate/new CI not frozen",
+  "deltaVerdict": "CHANGES_REQUIRED",
+  "taskLiveVerdict": "BLOCKED",
+  "findings": [
+    {
+      "id": "BECI-02",
+      "priority": "P2",
+      "status": "OPEN",
+      "file": "scripts/capture-task054-os-frame.py",
+      "lines": [
+        137,
+        144
+      ],
+      "description": "save_png accetta signature PNG + un byte senza IHDR/IDAT/IEND; receipt frame_status PASS e exit 0 non dimostrano un frame decodificabile.",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 /Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/review-evidence-ci/ni054-osframe-truncated-png-repro.py",
+      "exitCode": 1,
+      "reproScope": "fake Android/iOS SDK commands only; temporary outputs; no native tools",
+      "observed": [
+        {
+          "platform": "android",
+          "pngBytes": 9,
+          "exitCode": 0,
+          "frame_status": "PASS",
+          "probe_status": "PASS"
+        },
+        {
+          "platform": "ios",
+          "pngBytes": 9,
+          "exitCode": 0,
+          "frame_status": "PASS",
+          "probe_status": "NOT_RUN"
+        }
+      ],
+      "impact": "Evidence transport can persist corrupt/truncated files as successful OS frames. No actual native screenshot failure claimed.",
+      "requiredFix": "Validare PNG strutturalmente decodificabile prima di scrivere frame_status PASS; negativi per header-only/truncation/CRC/zlib invalidi e corpus artificiale valido standard library. IME acceptance rimane NOT_RUN."
+    },
+    {
+      "id": "BECI-03",
+      "priority": "P2",
+      "status": "OPEN",
+      "file": "scripts/capture-task054-os-frame.py",
+      "lines": [
+        129,
+        135,
+        233,
+        238
+      ],
+      "description": "Primo SIGTERM durante stop_owned_process interrompe il cleanup prima di KILL; il proprio discendente TERM-resistant rimane vivo.",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 /Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/review-evidence-ci/ni054-osframe-cleanup-signal-repro.py",
+      "exitCode": 1,
+      "reproScope": "real temporary Python leader/child only; child inherits own PGID; signal sent only to reviewing process with custom handler; finally kills only owned PGID",
+      "observed": {
+        "primaryPhase": "signal",
+        "primaryCode": 143,
+        "cleanup_status": "FAIL",
+        "ownedDescendantAlive": true,
+        "descendantState": "S"
+      },
+      "impact": "Receipt FAIL conserva la causa ma lo step può terminare lasciando processi propri irrisolti. No native acceptance or job PASS inflated by this repro.",
+      "requiredFix": "Completare cleanup bounded del solo gruppo proprio anche dopo primo segnale durante cleanup, preservando exit 143/130 e fallendo chiuso se quiescenza non attestata; regressioni reali TERM/INT."
+    }
+  ],
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-os-frame.py",
+      "exitCode": 0,
+      "tests": 25
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/dart scripts/test-task054-os-sync.dart",
+      "exitCode": 0,
+      "tests": 14
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-owned-process.py",
+      "exitCode": 0,
+      "tests": 1,
+      "scope": "real owned Python processes only"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-visual-runner.py",
+      "exitCode": 0,
+      "tests": 14
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-android-runner.py",
+      "exitCode": 0,
+      "tests": 23
+    }
+  ],
+  "dependencyCheck": {
+    "lockedPackageEntriesBefore": 188,
+    "lockedPackageEntriesAfter": 188,
+    "namesSame": true,
+    "onlyLockDelta": "flutter_driver dependency transitive to direct dev; source/version unchanged",
+    "resolvedGraph190": "author-provided resolved graph count, not independent lock entry count"
+  },
+  "constraints": {
+    "localNativeBuildOrEmulator": "NOT_RUN per mandato",
+    "aggregateCI": "NOT_RUN new composed candidate not frozen",
+    "jobMinutes": {
+      "androidDebug": 25,
+      "iosDebug": 30
+    },
+    "visualDriveSeconds": 900,
+    "sdkRevision": "058e0af2c2b57e369d905a03ac9748b0ebf543c6"
+  },
+  "sha256": {
+    "scripts/capture-task054-os-frame.py": "b8c59f06a9be633548dcfc4998b3de07787f6914b2f5b35326d1d39242555b89",
+    "build/task054/review-evidence-ci/ni054-osframe-truncated-png-repro.py": "abdff4329aa4bddcc276176e681304ec372ec3349153d6769ad693fd90b16c82",
+    "build/task054/review-evidence-ci/ni054-osframe-cleanup-signal-repro.py": "c62366095e0647bb9cca3220bb04ef8254693930653da5f6a2389d727626d649"
+  }
+}

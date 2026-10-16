@@ -1,0 +1,84 @@
+{
+  "observedUtc": "2026-10-05T20:43:37.717618+00:00",
+  "scope": "CI5_IOS_RECEIPT_ASSOCIATION_AND_TERMINAL_OUTCOMES",
+  "run": 37369690043,
+  "jobId": 111963462747,
+  "actualCheckout": "c796526a799c959408257f4c89c36a4439515b23",
+  "githubShaContext": "02d0a7cbe5a6600e31e2f42e8b73f7aa16df1698",
+  "getters": {
+    "newRemoteDownloads": 0,
+    "method": "root single archive read-only, independently hashed"
+  },
+  "artifact": {
+    "id": 11370475890,
+    "zipSha256": "144cf207744e25770636b0bd99616ecbbe2011f0537dff51c2d99cc1d2a73b63",
+    "apiDigestMatches": true,
+    "files": [
+      {
+        "path": "build/task054/ci-fifth/ios/ios-owned-receipt.json",
+        "sha256": "bb47e64d603bda26180d9b15c508bedaa47a004be4fd94452f34b56fdf5ea203",
+        "bytes": 792
+      },
+      {
+        "path": "build/task054/ci-fifth/ios/ios-visual-step-result.json",
+        "sha256": "7ee9a1baa7db586d7f1c1e6e76cf35524a8af5da8f53931cdaab4ba26a0317b0",
+        "bytes": 141
+      }
+    ],
+    "pngCount": 0
+  },
+  "receipt": {
+    "schema": "PASS",
+    "ownerNonceUuidContext": "PASS",
+    "cleanup": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "result": "PASS",
+        "resourceCleanup": "PASS",
+        "processCleanupFailed": false
+      },
+      {
+        "attempt": 2,
+        "result": "PASS",
+        "resourceCleanup": "PASS",
+        "processCleanupFailed": false
+      }
+    ],
+    "processCleanupFailed": false,
+    "ready": "NOT_RUN: receipt has no ready attestation"
+  },
+  "providerPreparation": {
+    "result": "FAIL",
+    "exitCode": 124,
+    "timeoutSeconds": 300,
+    "lastObservedPhase": [
+      "2026-10-05T20:36:25.4129220Z [2026-10-05 20:36:25 +0000] Status=2, isTerminal=NO, Elapsed=05:15.",
+      "2026-10-05T20:36:25.4180920Z \tWaiting on Data Migration",
+      "2026-10-05T20:36:25.4182990Z \t\tReason:Running plugin com.apple.locationd.migrator (CoreLocationMigrator.migrator)",
+      "2026-10-05T20:36:25.4184010Z \t\tMigration Elapsed:05:05 seconds",
+      "2026-10-05T20:36:25.4184200Z ",
+      "2026-10-05T20:36:25.7191930Z DIAGNOSTIC: {\"errno\": 1, \"errorType\": \"PermissionError\", \"operation\": \"kernelGroupProbe\", \"ownedPgid\": 18334}"
+    ],
+    "cause": "Provider bootstatus did not reach terminal status; internal cause not established"
+  },
+  "kernelProbe": {
+    "phaseObserved": "EPERM diagnostic then original strict PS fallback; no PS failure",
+    "claimLimit": "Runtime process cleanup PASS only, not native smoke/visual acceptance"
+  },
+  "nativeSmoke": "NOT_RUN: preparation failed",
+  "nativeVisual": "NOT_RUN: skipped, zero PNG",
+  "resourceCleanup": "PASS: log shows shutdown/delete/after-list and receipt source checks UUID absence",
+  "limits": [
+    "No independent query against destroyed CI host; receipt source readback validated in exact checkout",
+    "GITHUB_SHA is context, not substituted for observed checkout",
+    "No whole task or CI5 approval"
+  ],
+  "localCommandExitCode": 0,
+  "result": "PASS_REVIEW_ASSOCIATION_ONLY",
+  "originalReceipt": {
+    "path": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/ios-artifact-independent-result.json",
+    "sha256": "e61532ccd40408bd8cf22f6917480a8f8456c2b54bd1b41bd2c699a15d6f7c12"
+  },
+  "durableQualification": "Ricevuta di TASK-054 copiata con outcome e limiti conservati; log completi e artifact locali fuori Git. Il candidato CI è c796526, source50a immutabile. Questo branch documentale non è un nuovo candidato applicativo o una prova di CI sul suo HEAD."
+}

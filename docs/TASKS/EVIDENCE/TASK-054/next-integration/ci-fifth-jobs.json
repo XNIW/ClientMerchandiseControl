@@ -1,0 +1,729 @@
+{
+  "observedUtc": "2026-10-05T20:50:41.639314+00:00",
+  "type": "CI_TERMINAL_METADATA_AND_PER_JOB_CHECKOUT",
+  "run": 37369690043,
+  "runAttempt": 1,
+  "runUrl": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37369690043",
+  "headSha": "c796526a799c959408257f4c89c36a4439515b23",
+  "status": "completed",
+  "conclusion": "failure",
+  "getters": [
+    {
+      "kind": "run",
+      "command": [
+        "gh",
+        "api",
+        "repos/XNIW/ClientMerchandiseControl/actions/runs/37369690043"
+      ],
+      "exitCode": 0,
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/run-terminal.json",
+      "sha256": "6568b45967082eaa1946be1e2a01291f2936ca3f5263cc8d8a444116d874870b"
+    },
+    {
+      "kind": "artifacts",
+      "command": [
+        "gh",
+        "api",
+        "repos/XNIW/ClientMerchandiseControl/actions/runs/37369690043/artifacts?per_page=100"
+      ],
+      "exitCode": 0,
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/artifacts-terminal.json",
+      "sha256": "ab54970f8c0750463f02a5708b8b1094f430947bd00048fe84ad4cd1ab5b5bfd"
+    }
+  ],
+  "jobsSnapshotSha256": "278063eedc0cfed315ae4eac6c8080e205ede2c8176a7650785ca207f7044be5",
+  "jobs": [
+    {
+      "jobId": 111963462599,
+      "name": "Android debug build",
+      "status": "completed",
+      "conclusion": "failure",
+      "runnerId": 1000004341,
+      "startedAt": "2026-10-05T20:36:12Z",
+      "completedAt": "2026-10-05T20:45:47Z",
+      "stepsCount": 13,
+      "allSteps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-05T20:36:13Z",
+          "completed_at": "2026-10-05T20:36:14Z"
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-05T20:36:14Z",
+          "completed_at": "2026-10-05T20:36:15Z"
+        },
+        {
+          "name": "Set up Flutter",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-05T20:36:15Z",
+          "completed_at": "2026-10-05T20:37:12Z"
+        },
+        {
+          "name": "Validate Flutter toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-05T20:37:12Z",
+          "completed_at": "2026-10-05T20:37:12Z"
+        },
+        {
+          "name": "Resolve dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-05T20:37:12Z",
+          "completed_at": "2026-10-05T20:37:23Z"
+        },
+        {
+          "name": "Build APK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-05T20:37:23Z",
+          "completed_at": "2026-10-05T20:42:12Z"
+        },
+        {
+          "name": "Validate Android bundle security",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-05T20:42:12Z",
+          "completed_at": "2026-10-05T20:43:54Z"
+        },
+        {
+          "name": "Enable runner access to KVM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-05T20:43:54Z",
+          "completed_at": "2026-10-05T20:43:54Z"
+        },
+        {
+          "name": "Capture commerce UI with synthetic fixtures on Android",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "number": 9,
+          "started_at": "2026-10-05T20:43:54Z",
+          "completed_at": "2026-10-05T20:45:46Z"
+        },
+        {
+          "name": "Save Android synthetic UI captures and runner receipt",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-10-05T20:45:46Z",
+          "completed_at": "2026-10-05T20:45:46Z"
+        },
+        {
+          "name": "Post Set up Flutter",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 19,
+          "started_at": "2026-10-05T20:45:46Z",
+          "completed_at": "2026-10-05T20:45:46Z"
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 20,
+          "started_at": "2026-10-05T20:45:46Z",
+          "completed_at": "2026-10-05T20:45:46Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-10-05T20:45:46Z",
+          "completed_at": "2026-10-05T20:45:46Z"
+        }
+      ],
+      "actualCheckout": "c796526a799c959408257f4c89c36a4439515b23",
+      "checkoutStatus": "PASS",
+      "annotationCounts": {
+        "failure": 1,
+        "warning": 0,
+        "notice": 3
+      },
+      "annotations": [
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 18,
+          "start_column": null,
+          "end_line": 18,
+          "end_column": null,
+          "annotation_level": "failure",
+          "title": "",
+          "message": "The operation was canceled.",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+          "raw_details": ""
+        }
+      ],
+      "receiptPath": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/proof-111963462599.json",
+      "receiptSha256": "3dd10b2180f45cb4ecc55533e96e8f2ed25cf8b220eb65c924276d93a4915702"
+    },
+    {
+      "jobId": 111963462747,
+      "name": "iOS Simulator debug build",
+      "status": "completed",
+      "conclusion": "failure",
+      "runnerId": 1000004336,
+      "startedAt": "2026-10-05T20:26:09Z",
+      "completedAt": "2026-10-05T20:36:47Z",
+      "stepsCount": 16,
+      "allSteps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-05T20:26:08Z",
+          "completed_at": "2026-10-05T20:26:10Z"
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-05T20:26:10Z",
+          "completed_at": "2026-10-05T20:26:12Z"
+        },
+        {
+          "name": "Set up Flutter",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-05T20:26:12Z",
+          "completed_at": "2026-10-05T20:27:08Z"
+        },
+        {
+          "name": "Validate Flutter toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-05T20:27:08Z",
+          "completed_at": "2026-10-05T20:27:08Z"
+        },
+        {
+          "name": "Resolve dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-05T20:27:08Z",
+          "completed_at": "2026-10-05T20:27:20Z"
+        },
+        {
+          "name": "Compare checkout and tracking goldens (required macOS surface)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-05T20:27:20Z",
+          "completed_at": "2026-10-05T20:27:42Z"
+        },
+        {
+          "name": "Build iOS Simulator",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-05T20:27:42Z",
+          "completed_at": "2026-10-05T20:29:56Z"
+        },
+        {
+          "name": "Validate iOS bundle security",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-05T20:29:56Z",
+          "completed_at": "2026-10-05T20:31:05Z"
+        },
+        {
+          "name": "Prepare one owned iOS Simulator for smoke and visual",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 9,
+          "started_at": "2026-10-05T20:31:05Z",
+          "completed_at": "2026-10-05T20:36:36Z"
+        },
+        {
+          "name": "Smoke iOS on the declared deployment target",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-10-05T20:36:36Z",
+          "completed_at": "2026-10-05T20:36:36Z"
+        },
+        {
+          "name": "Capture commerce UI with synthetic fixtures on iOS",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 11,
+          "started_at": "2026-10-05T20:36:36Z",
+          "completed_at": "2026-10-05T20:36:36Z"
+        },
+        {
+          "name": "Clean up the owned iOS Simulator",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-05T20:36:36Z",
+          "completed_at": "2026-10-05T20:36:37Z"
+        },
+        {
+          "name": "Save synthetic UI captures",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-05T20:36:37Z",
+          "completed_at": "2026-10-05T20:36:39Z"
+        },
+        {
+          "name": "Post Set up Flutter",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-10-05T20:36:39Z",
+          "completed_at": "2026-10-05T20:36:39Z"
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 26,
+          "started_at": "2026-10-05T20:36:39Z",
+          "completed_at": "2026-10-05T20:36:40Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 27,
+          "started_at": "2026-10-05T20:36:40Z",
+          "completed_at": "2026-10-05T20:36:45Z"
+        }
+      ],
+      "actualCheckout": "c796526a799c959408257f4c89c36a4439515b23",
+      "checkoutStatus": "PASS",
+      "annotationCounts": {
+        "failure": 1,
+        "warning": 1,
+        "notice": 1
+      },
+      "annotations": [
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 3,
+          "start_column": null,
+          "end_line": 3,
+          "end_column": null,
+          "annotation_level": "warning",
+          "title": "",
+          "message": "Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1151,
+          "start_column": null,
+          "end_line": 1151,
+          "end_column": null,
+          "annotation_level": "failure",
+          "title": "",
+          "message": "Process completed with exit code 124.",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+          "raw_details": ""
+        }
+      ],
+      "receiptPath": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/proof-111963462747.json",
+      "receiptSha256": "3f0cf1195fe6af4c22143dd9db594e193006f00a43c8fcb4130875bc47ad58cb"
+    },
+    {
+      "jobId": 111963462788,
+      "name": "Android release candidate",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "runnerId": 0,
+      "startedAt": "2026-10-05T20:25:57Z",
+      "completedAt": "2026-10-05T20:40:59Z",
+      "stepsCount": 0,
+      "allSteps": [],
+      "actualCheckout": null,
+      "checkoutStatus": "NOT_RUN: no allocated runner, no checkout step/log",
+      "annotationCounts": {
+        "failure": 1,
+        "warning": 0,
+        "notice": 3
+      },
+      "annotations": [
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "failure",
+          "title": "",
+          "message": "The job was not acquired by Runner of type hosted even after multiple attempts",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+          "raw_details": ""
+        }
+      ],
+      "receiptPath": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/proof-111963462788.json",
+      "receiptSha256": "1e6b1cfa2816f6c7af5392302727fb762f69b651268f67f7be3d335fa50749ae"
+    },
+    {
+      "jobId": 111963462898,
+      "name": "Quality",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "runnerId": 0,
+      "startedAt": "2026-10-05T20:25:57Z",
+      "completedAt": "2026-10-05T20:40:59Z",
+      "stepsCount": 0,
+      "allSteps": [],
+      "actualCheckout": null,
+      "checkoutStatus": "NOT_RUN: no allocated runner, no checkout step/log",
+      "annotationCounts": {
+        "failure": 1,
+        "warning": 0,
+        "notice": 3
+      },
+      "annotations": [
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "failure",
+          "title": "",
+          "message": "The job was not acquired by Runner of type hosted even after multiple attempts",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+          "raw_details": ""
+        }
+      ],
+      "receiptPath": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/proof-111963462898.json",
+      "receiptSha256": "8096d50877d94a28c433aeda4076ae12bf7de89c3920dbefb162e89ad415e976"
+    },
+    {
+      "jobId": 111963462899,
+      "name": "iOS release candidate",
+      "status": "completed",
+      "conclusion": "success",
+      "runnerId": 1000004337,
+      "startedAt": "2026-10-05T20:26:05Z",
+      "completedAt": "2026-10-05T20:48:10Z",
+      "stepsCount": 15,
+      "allSteps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-05T20:26:06Z",
+          "completed_at": "2026-10-05T20:26:07Z"
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-05T20:26:07Z",
+          "completed_at": "2026-10-05T20:26:09Z"
+        },
+        {
+          "name": "Set up Flutter",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-05T20:26:09Z",
+          "completed_at": "2026-10-05T20:27:24Z"
+        },
+        {
+          "name": "Validate Flutter toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-05T20:27:24Z",
+          "completed_at": "2026-10-05T20:27:25Z"
+        },
+        {
+          "name": "Resolve dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-05T20:27:25Z",
+          "completed_at": "2026-10-05T20:27:35Z"
+        },
+        {
+          "name": "Validate iOS release source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-05T20:27:35Z",
+          "completed_at": "2026-10-05T20:27:35Z"
+        },
+        {
+          "name": "Build production-like unsigned iOS app",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-05T20:27:35Z",
+          "completed_at": "2026-10-05T20:30:03Z"
+        },
+        {
+          "name": "Attest iOS reference build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-05T20:30:03Z",
+          "completed_at": "2026-10-05T20:30:05Z"
+        },
+        {
+          "name": "Archive production-like unsigned iOS app",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-05T20:30:05Z",
+          "completed_at": "2026-10-05T20:32:22Z"
+        },
+        {
+          "name": "Attest iOS archive Runner",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-05T20:32:22Z",
+          "completed_at": "2026-10-05T20:32:22Z"
+        },
+        {
+          "name": "Validate iOS release candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-05T20:32:22Z",
+          "completed_at": "2026-10-05T20:33:47Z"
+        },
+        {
+          "name": "Validate iOS adversarial release boundaries",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-05T20:33:47Z",
+          "completed_at": "2026-10-05T20:48:06Z"
+        },
+        {
+          "name": "Post Set up Flutter",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-10-05T20:48:06Z",
+          "completed_at": "2026-10-05T20:48:06Z"
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 24,
+          "started_at": "2026-10-05T20:48:06Z",
+          "completed_at": "2026-10-05T20:48:07Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-10-05T20:48:07Z",
+          "completed_at": "2026-10-05T20:48:08Z"
+        }
+      ],
+      "actualCheckout": "c796526a799c959408257f4c89c36a4439515b23",
+      "checkoutStatus": "PASS",
+      "annotationCounts": {
+        "failure": 0,
+        "warning": 0,
+        "notice": 1
+      },
+      "annotations": [
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/c796526a799c959408257f4c89c36a4439515b23/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+          "raw_details": ""
+        }
+      ],
+      "receiptPath": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/proof-111963462899.json",
+      "receiptSha256": "62d03da5c9baa2496f3a7abe1cefcf0d6e6363bb9b606a8872654b5793ee3a59"
+    }
+  ],
+  "actualCheckoutProvedCount": 3,
+  "checkoutNotRunCount": 2,
+  "stepsCount": 44,
+  "annotationCounts": {
+    "failure": 4,
+    "warning": 1,
+    "notice": 11
+  },
+  "artifacts": [
+    {
+      "id": 11370475890,
+      "name": "task054-ios-visual-fixtures",
+      "size_in_bytes": 810,
+      "digest": "sha256:144cf207744e25770636b0bd99616ecbbe2011f0537dff51c2d99cc1d2a73b63",
+      "expired": false,
+      "created_at": "2026-10-05T20:36:39Z",
+      "updated_at": "2026-10-05T20:36:39Z",
+      "workflow_run": {
+        "id": 37369690043,
+        "repository_id": 1316800935,
+        "head_repository_id": 1316800935,
+        "head_branch": "codex/task054-next-integration",
+        "head_sha": "c796526a799c959408257f4c89c36a4439515b23"
+      }
+    }
+  ],
+  "result": "PASS_COLLECTION_ONLY",
+  "reviewOutcome": "BLOCKED",
+  "handoff": "CODEX_REVIEW_BLOCKED",
+  "qualification": "Terminale CI con gate mancanti/falliti; nessun APPROVED complessivo, nessun checkout inferito per job senza runner. Nessun download ZIP aggiuntivo.",
+  "originalReceipt": {
+    "path": "/Users/minxiang/.codex/review-artifacts/task054/review-documents-fifth-20261005/ci5/terminal-independent-result.json",
+    "sha256": "1e7183d77078d7dd8c61e6b567d82843cff4c1a39202ffe3da0d28a178bdc8a1"
+  },
+  "durableQualification": "Ricevuta di TASK-054 copiata con outcome e limiti conservati; log completi e artifact locali fuori Git. Il candidato CI è c796526, source50a immutabile. Questo branch documentale non è un nuovo candidato applicativo o una prova di CI sul suo HEAD."
+}

@@ -1,0 +1,72 @@
+{
+  "scope": "TASK054 Worker selective candidate qualification; no source mutation or remote deploy",
+  "source_sha": "96758b899aac2ccde1a70aeda4bbe7983007fb18",
+  "docs_only_sha": "a771cee43b0c43ec844e60282ea764646905996e",
+  "artifact_manifest_sha256": "c905fde55da03cfc0dca100ee6c8313b0a689e41b1f65ad87c204eda4a208b64",
+  "packaged_worker_sha256": "e1b2f30e3e1413e0404543cf2ddf21bb14157b9aa339121d8b3ba47d01542997",
+  "runtime_local": "PASS",
+  "independent_review_local": "PASS",
+  "original_artifacts_verified": 2012,
+  "source_clean": true,
+  "source_mutations": 0,
+  "symlink_mutations": 0,
+  "build_rerun": "NOT_RUN",
+  "deploy": "BLOCKED",
+  "authenticated_TEST": "BLOCKED",
+  "active_version": "22107a6f-f515-44c4-8392-a8e5653ff0b8",
+  "active_percent": 100,
+  "rollback_available": "PASS",
+  "deployment_blocker": "Backend TEST apply/TLS/auth and concrete coordinated W window",
+  "evidence_files": [
+    {
+      "name": "worker-completion.md",
+      "bytes": 4963,
+      "sha256": "0ab1aeebd5f5eec29d66ce32e2482546322c10acc37625a6547dc004dd0dfffa"
+    },
+    {
+      "name": "runtime-receipt.json",
+      "bytes": 16482,
+      "sha256": "6f912c597fe64ea4e34f286162248b893e427dc9d2a7e2cf1f62780d3a54e51e"
+    },
+    {
+      "name": "runtime-probe.mjs",
+      "bytes": 10465,
+      "sha256": "dc42d043d87ee62c3c4df520d2cf2f84f9d2ab6f0f22c4b8dae67cde267ccbdf"
+    },
+    {
+      "name": "external-reachability.json",
+      "bytes": 12348,
+      "sha256": "b86c27387e51f4a1c208c25e2c188d3ce1fd8f8730e2800b4dce14495cabb73d"
+    },
+    {
+      "name": "remote-readback.json",
+      "bytes": 6256,
+      "sha256": "3c4932462d5dcc020b08df452818af7f3b33918420a3f5b2c62238c46700a7d2"
+    },
+    {
+      "name": "exact-package-receipt.json",
+      "bytes": 956,
+      "sha256": "b0fea5a156aa7b6fda0bf7c7d0c85e4d051a2dc3407daeb7e164cc72662c6dd8"
+    },
+    {
+      "name": "exact-package-closure.json",
+      "bytes": 806,
+      "sha256": "c1480c38e7456a2dce6f5c4a19f4c14dcae786934df082aff2fb7096688a666a"
+    },
+    {
+      "name": "wrangler-deploy-exact.json",
+      "bytes": 1391,
+      "sha256": "7794c8aefafc5db05752833c7f017034a598dbc563cef671c21a16f46eacddaa"
+    },
+    {
+      "name": "deployment-plan.json",
+      "bytes": 3001,
+      "sha256": "e6f2a61862672f9050e8960e06fd9f708ebfecbe03308eb10b52c3c1774c652e"
+    },
+    {
+      "name": "final-readonly-review.json",
+      "bytes": 7331,
+      "sha256": "e8b9f6a1faea5f71a04842bf0347977bb30a203986b93183bd4344cd01900ed9"
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+{
+  "kind": "independent_readonly_client_approved_source_association",
+  "reviewer": "/root/review_client_delta",
+  "revision": "302857a558fe2d309172f5061542106443b45cfb",
+  "approved_source_revision": "1bf2e98a59d7c27e566e0640ca9591c573798b9b",
+  "outcome": "APPROVED",
+  "scope": "SOURCE_CODE_ONLY association and Client functional doc-claim review; not CI/native/live/aggregate/TASK054 approval",
+  "source_review_receipt": {
+    "path": "/Users/minxiang/.codex/worktrees/task054-review-client/ClientMerchandiseControl/build/task054/review_client/RE_REVIEW_CLIENT_1BF_SOURCE_APPROVED.json",
+    "sha256": "2e61d7ca035aa873e93e8e77a6f0fbf37763306741e8529912ee980b79b581d7",
+    "autonomous_passed_tests": 72
+  },
+  "current_tests_rerun": 0,
+  "rerun_reason": "Only22docs changed; all approved code/test/integration/dependency Git objects and hashes identical. No redundant host or native checks run.",
+  "source_file_hashes": [
+    {
+      "path": "lib/features/reviews/presentation/customer_reviews.dart",
+      "sha256": "fd39fd7ea8cdcbac473ad3e4cf6f34c9150a63597114b4ebe9054a966ea30dd3",
+      "git_blob": "ee7f6cfcc8a34a8dd8ba351c6563bfa3a48a5b71"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart",
+      "sha256": "d16dbaf62f8cc49421af6b03fa10913fcefdff0dcb17d21769082a510237fc02",
+      "git_blob": "498482ea5ce94bb49d71745ec088089b32bb5142"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_feedback_test.dart",
+      "sha256": "bf94a36ca3a4cbd344d6d7f6441aa6799b860706e5266f0c9714b9dec39c12e4",
+      "git_blob": "4bfd2c4cb64d9dba04636eed97f1c556c1bb4bf2"
+    },
+    {
+      "path": "integration_test/support/visual_capture.dart",
+      "sha256": "de6a13f82053cf4807f5b88f3634a680636d47cb748f11b35e8144eb3ba8e68f",
+      "git_blob": "9c8689c2cbd388cad1e90a92d4f0a7523784cf56"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "sha256": "be55bc82ef5f2dd0d7b922c44852a113a296e0d4a4d4b9d00d62420524a57180",
+      "git_blob": "025e8594be1399f720033919c47a930657a4a1e1"
+    },
+    {
+      "path": "lib/features/account/application/customer_account_controller.dart",
+      "sha256": "caac38f9aab34a9be5258f23b3d4a6109dea777a58a634a36b35b02c34ecbd49",
+      "git_blob": "f967210a2aadef27eab228b4a9a948aaf1c8f7e5"
+    },
+    {
+      "path": "lib/features/account/presentation/customer_account_panel.dart",
+      "sha256": "ccebee050fda8afe2a2c5501aa8d2a4ad02b90b7779bab65df4454a0a111e90e",
+      "git_blob": "c69db6ecc6cf7ab5b1c582216e78019d2fe92c15"
+    },
+    {
+      "path": "lib/features/delivery_context/presentation/delivery_context_screen.dart",
+      "sha256": "d0db1874661ed382799d80dfa686b76a8f516ddd939f084e4ac0797f2a543874",
+      "git_blob": "2eae21e15fc041919a2af97a2df64d120b3fa979"
+    },
+    {
+      "path": "integration_test/support/os_frame_sync.dart",
+      "sha256": "366674393468f1b44cd3a806ba08db3c71592a3c3c0e47bcdbf8eaa250dcfea7",
+      "git_blob": "3e6c8a606f68fafc663b3c85efabf8caca213599"
+    },
+    {
+      "path": "test_driver/task054_visual.dart",
+      "sha256": "94f63d570000719fdb4261ee9350df874cae6178d8581eea4906ce21f939c2a8",
+      "git_blob": "640b22529abbd0b726ce5a67c1e76e10ecda9a17"
+    },
+    {
+      "path": "pubspec.yaml",
+      "sha256": "fd185361646fcaec1d543b20dfd6e3430dc5656a7252c93c09309cb09184ea55",
+      "git_blob": "3aea140ff63b8b882313f68549ae67b4ea075306"
+    },
+    {
+      "path": "pubspec.lock",
+      "sha256": "360f0222bb529970e33dd5d83e52a0a7313e3323044095626156cd009b42a75e",
+      "git_blob": "28c22cf39b68707d679652ccc388650e0bf7d0c1"
+    }
+  ],
+  "doc_hashes": [
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/review-client-fourth-source.json",
+      "sha256": "c2a34a8a5d3c354f417fc6e57864f850abf6de2d58e7958da69a0edce61552a6"
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/freeze-fourth.json",
+      "sha256": "4217952aa1174c19e5a964c7762581d2aa7543e255aa7795f38489f4281e32eb"
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md",
+      "sha256": "1d7c5f562e11767969c797b65ff8e02ff23a70b5235c06eed31d52255f8efa0e"
+    },
+    {
+      "path": "docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md",
+      "sha256": "87f3ad1ce0b4f2a22ad571805f8cd9a0d5d8eda50d01b9bf991d311bdee5c1c4"
+    },
+    {
+      "path": "docs/MASTER-PLAN.md",
+      "sha256": "0f8a708f1105b7173e50e8ae5610b19f70c8d9f80efe9b50bf372ff355376524"
+    },
+    {
+      "path": "docs/AI_WORKLOG.md",
+      "sha256": "07fa197e634379c6832a580eae6937c69bf5232c192621b7c1b9d254ca54b21c"
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/residuals.md",
+      "sha256": "ff16875d47893d5882d57276b1686a86c298447753bc7cfd3807838ab0d6f7c7"
+    }
+  ],
+  "checks": [
+    {
+      "command": "python3 inline assertions: git diff --name-only 1bf2e98a59d7c27e566e0640ca9591c573798b9b..HEAD; assert22docs; exact SHA256/Git blob association",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "Compare review-client-fourth-source.json to original reviewer receipt after declared checkout-prefix removal; assert originalReceiptSha256 and all original semantic fields match",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "Assert freeze-fourth sourceFiles hashes/sourceSha, reviewer72, original receipt SHA, expected67/105/4, task BLOCKED/REVIEW/FIX_BLOCKED and newCI NOT_RUN at freeze",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "Parse every changed JSON and verify all local links in changed Markdown",
+      "result": "PASS",
+      "exit_code": 0,
+      "markdown_links_checked": 84
+    },
+    {
+      "command": "bash scripts/check-governance-state.sh",
+      "result": "PASS",
+      "exit_code": 0,
+      "output": "Governance coerente: TASK-054 / BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW."
+    },
+    {
+      "command": "git diff --check 1bf2e98a59d7c27e566e0640ca9591c573798b9b..HEAD",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "gh run view 37361963759 --json headSha,status,conclusion,url,workflowName",
+      "result": "PASS",
+      "exit_code": 0,
+      "kind": "association only; not terminal CI result"
+    },
+    {
+      "command": "gh pr view 29 --json isDraft,headRefOid,url,state",
+      "result": "PASS",
+      "exit_code": 0,
+      "kind": "draft/head association only"
+    }
+  ],
+  "docs_claims": {
+    "client_source_only": "72 real autonomous PASS from source1bf applied by exact identity; no new test execution claimed",
+    "C07_C08_P3": "Closed in code; prior FAIL and P3 external-container applicability limit preserved",
+    "native": "Expected67tests/105FlutterPNG/4OS explicitly distinct from partial103/4 on oldCI2 and0Flutter/2OS on oldCI3; full new native capture NOT_RUN",
+    "live": "Auth, stagingE2E, authoring, physical and distribution remain NOT_RUN/BLOCKED; widget/source proof not promoted",
+    "governance": "TASK054 BLOCKED/REVIEW/CODEX_FIX_BLOCKED_TO_RE_REVIEW; no DONE/TASK055/main integration or production claimed",
+    "qualification": "freeze newCI NOT_RUN records pre-push checkpoint; GitHub queued association captured separately below"
+  },
+  "nonblocking_editorial_notes": [
+    {
+      "file": "docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md",
+      "line": 81,
+      "text": "residuo cleanup in correzione",
+      "precision": "This older table row still describes cleanup as in progress while report header/CODE/final section correctly close it in source1bf. Replace at terminal CI checkpoint with source cleanup closed and CI/native pending. Underclaim only; no false native/live PASS and no source finding.",
+      "communicated_to_parent": true
+    }
+  ],
+  "github_association": {
+    "observed_at_utc": "2026-10-05 19:18:21 UTC",
+    "ci": {
+      "run": 37361963759,
+      "head_sha": "302857a558fe2d309172f5061542106443b45cfb",
+      "status": "queued",
+      "conclusion": "",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37361963759",
+      "workflow": "CI"
+    },
+    "pr": {
+      "number": 29,
+      "head_sha": "302857a558fe2d309172f5061542106443b45cfb",
+      "is_draft": true,
+      "state": "OPEN",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/pull/29"
+    },
+    "CI_acceptance": "NOT_RUN by this review; terminal jobs/steps/artifacts must be reviewed separately"
+  },
+  "excluded_scope": [
+    "Backend/Python runner correctness and diagnostic receipts separately owned by backend/CI reviewer",
+    "Current CI terminal job and pixel evidence",
+    "Live auth/backend/staging/authoring/physical/distribution acceptance"
+  ],
+  "limits": [
+    "APPROVED applies only to approved-source association; wholeTASK054 remainsBLOCKED",
+    "No local native build/device/emulator/benchmark",
+    "No source mutation, codefix, merge or DONE",
+    "Future native PNG/IME review must use exact302857 source association and actual terminal artifacts"
+  ],
+  "tracked_source_mutations": 0,
+  "tracked_worktree_clean": true,
+  "owned_verification_processes_pending": 0,
+  "originalReceiptSha256": "7356a3936055a2d697e386ee9cab7d0c388a5788fe09dbb4347b93023502890f",
+  "qualification": "Associazione indipendente source1bf2e98 a freeze302857a: delta22docs, blob applicativi identici. SourceAPPROVED72PASS resta applicabile; CI4 e native/live esclusi."
+}

@@ -1,0 +1,41 @@
+{
+  "source_commit": "bb53892393710d3ed6d2574053fe1206561b87f0",
+  "scope": "flutter_test_host; synthetic data; not physical profile",
+  "command": "flutter test --tags performance --concurrency=1 --reporter expanded",
+  "result": "PASS",
+  "exit_code": 0,
+  "tests": 11,
+  "canonical_tests": 10,
+  "supplemental_inbox_work_tests": 1,
+  "log": "build/task054/operational-20261008/final/20261008T171424Z/performance.log",
+  "log_sha256": "89812707d5f016cae70f5726bd7b6f92d69c540b9ba140bfb731223acb349a28",
+  "canonical_test_files_byte_identical_to_3962414": {
+    "test/features/home/application/home_controller_test.dart": "4b5f52e566617a0969b682fd7982f9b24179e69b4ca3faa907227d55de29292f",
+    "test/features/storefront/cache/storefront_cache_performance_test.dart": "e03a94b1187bf95fb2c0a65a4a1dff08ad852ed90c4df3c772c9af7811ff5f5f",
+    "test/features/storefront/presentation/storefront_image_decode_performance_test.dart": "06f83608eb0e64a9ab1e559970df9b9756e9b59910c0c9681b47d623eed1b4f3",
+    "test/features/delivery_tracking/delivery_tracking_controller_test.dart": "86fc4990ee316eeab147c00a4e2efd64c47f30105238e1551b9ae28daf4b99b3",
+    "test/features/catalog/application/catalog_controller_test.dart": "9f2e609606b42ad36906f07d165023afb14afa074124cfe660af3102ee2d3f61",
+    "test/features/product_detail/presentation/product_detail_screen_test.dart": "770bb395e1e3341407fea3029c1b5ad3c6734c4c9240bf5045b914ea4de02e84",
+    "test/features/cart/cart_screen_test.dart": "584b8f5ce3df683e8a8ca3d054375d71f91f898ac0784ecbd0dc0bdd2ec817a0",
+    "test/features/cart/data/drift_guest_cart_store_performance_test.dart": "3df0dd421b20337c0d35560da43acdd64d940f76309fb2143d48c384d5e6347c",
+    "test/features/orders/data/shared_preferences_customer_order_cache_performance_test.dart": "a1311bf507ff7c3c246948106b0026b860ac86278328960616cc5e340b9d3c8c"
+  },
+  "raw_measurement_lines": [
+    "HOME_WARM_CACHE_PERF environment=flutter_test_host warmup=5 samples=30 p50_us=324 p95_us=1815 p99_us=2467 cache_reads=1 live_fetches=1",
+    "STOREFRONT_CACHE_PERF profile=small rows=1000 categories=250 open_ms=478 write_ms=120 catalog_us=931/2308/2380 search_us=1188/2771/4567",
+    "STOREFRONT_CACHE_PERF profile=medium rows=10000 categories=250 open_ms=3 write_ms=333 catalog_us=652/1719/1723 search_us=2485/4063/5263",
+    "STOREFRONT_CACHE_PERF profile=extreme rows=25000 categories=250 open_ms=1 write_ms=707 catalog_us=693/1049/1132 search_us=7412/12811/13503",
+    "IMAGE_DECODE_PERF environment=flutter_test_host source_px=1024 target_px=480 warmup=5 samples=30 p50_us=8948 p95_us=12144 p99_us=12800",
+    "TRACKING_PUBLICATION_PERF environment=flutter_test_host warmup=5 samples=30 p50_us=399 p95_us=1307 p99_us=1669 rpc_loads=1 realtime_subscriptions=1",
+    "CATALOG_APPEND_PERF environment=flutter_test_host warmup=5 samples=30 page_size=24 p50_us=255 p95_us=461 p99_us=470 requests=36",
+    "INBOX_WORK rows=25 samples=[(builds: 5, configurations: 5), (builds: 5, configurations: 5), (builds: 5, configurations: 5), (builds: 5, configurations: 5), (builds: 5, configurations: 5)] requests=1",
+    "INBOX_WORK rows=500 samples=[(builds: 5, configurations: 5), (builds: 5, configurations: 5), (builds: 5, configurations: 5), (builds: 5, configurations: 5), (builds: 5, configurations: 5)] requests=20",
+    "PRODUCT_DETAIL_RENDER_PERF environment=flutter_test_host warmup=5 samples=30 p50_us=52813 p95_us=67817 p99_us=78009 rpc_per_navigation=1",
+    "CHECKOUT_NAVIGATION_PERF environment=flutter_test_host warmup=5 samples=30 p50_us=9732 p95_us=15734 p99_us=20635 extra_reads_per_navigation=0",
+    "GUEST_CART_PERF rows=100 read_us=612/1109/1279 mutation_us=825/2297/3429",
+    "CUSTOMER_ORDER_CACHE_PERF rows=50 bytes=17105 write_us=2465/21873/60848 read_us=3456/18378/30681",
+    "CUSTOMER_ORDER_SELECTOR_PERF rows=500 selector_us=151/642/4443"
+  ],
+  "physical_frame_cpu_memory": "NOT_RUN",
+  "budget_changes": false
+}

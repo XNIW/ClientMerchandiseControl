@@ -375,6 +375,193 @@ void main() {
       expect(tester.takeException(), isNull, reason: '$testCase');
     }
   });
+  testWidgets(
+    'espansione in-place conserva adapter e freshness rimuove la mappa',
+    (tester) async {
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.binding.setSurfaceSize(const Size(320, 568));
+      final adapter = FakeDeliveryMapAdapter();
+      var factoryCalls = 0;
+      DeliveryMapAdapter factory() {
+        factoryCalls++;
+        return adapter;
+      }
+
+      Widget surface({
+        required DeliveryMapAdapter adapter,
+        required DeliveryMapScene scene,
+        required DeliveryMapMarkerLabels labels,
+        required Brightness brightness,
+      }) => const ColoredBox(color: Colors.teal);
+      Future<void> pump(DeliveryTrackingSnapshot snapshot) async {
+        await tester.pumpWidget(
+          _mapApp(
+            snapshot: snapshot,
+            configuration: enabledConfiguration,
+            adapterFactory: factory,
+            surfaceBuilder: surface,
+            textScaler: const TextScaler.linear(2),
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      await pump(trackingLiveSnapshot());
+      final map = find.byKey(const ValueKey('delivery-live-map'));
+      final expand = find.byKey(const ValueKey('delivery-map-expand'));
+      final initialHeight = tester.getSize(map).height;
+      expect(tester.getSize(expand), const Size(48, 48));
+      await tester.tap(expand);
+      await tester.pumpAndSettle();
+      expect(tester.getSize(map).height, greaterThan(initialHeight));
+      expect(factoryCalls, 1);
+      expect(adapter.disposeCalls, 0);
+      expect(adapter.recenterCalls, 0);
+      await tester.tap(find.byKey(const ValueKey('delivery-map-recenter')));
+      await tester.pumpAndSettle();
+      expect(adapter.recenterCalls, 1);
+      await pump(trackingLiveSnapshot(version: 5));
+      expect(adapter.scenes.last.snapshotVersion, 5);
+      expect(factoryCalls, 1);
+      await pump(trackingLiveSnapshot(version: 6, freshness: 'stale'));
+      expect(map, findsNothing);
+      expect(expand, findsNothing);
+      expect(adapter.disposeCalls, 1);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+  testWidgets(
+    'runtime failed dopo ready recupera sullo stesso snapshot con retry locale',
+    (tester) async {
+      final snapshot = trackingLiveSnapshot();
+      final failedAdapter = _RuntimeDeliveryMapAdapter();
+      final recoveredAdapter = FakeDeliveryMapAdapter();
+      var useRecoveredAdapter = false;
+      var factoryCalls = 0;
+      final semantics = tester.ensureSemantics();
+      try {
+        DeliveryMapAdapter factory() {
+          factoryCalls++;
+          return useRecoveredAdapter ? recoveredAdapter : failedAdapter;
+        }
+
+        await tester.pumpWidget(
+          _mapApp(
+            snapshot: snapshot,
+            configuration: enabledConfiguration,
+            adapterFactory: factory,
+            surfaceBuilder:
+                ({
+                  required adapter,
+                  required scene,
+                  required labels,
+                  required brightness,
+                }) => const ColoredBox(
+                  key: ValueKey('fake-delivery-map-surface'),
+                  color: Colors.teal,
+                ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump();
+        expect(
+          find.byKey(const ValueKey('delivery-map-loading')),
+          findsOneWidget,
+        );
+        expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
+        expect(factoryCalls, 1);
+
+        failedAdapter.emit(DeliveryMapRuntimeState.ready);
+        await tester.pump();
+        expect(find.byKey(const ValueKey('delivery-live-map')), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('fake-delivery-map-surface')),
+          findsOneWidget,
+        );
+        expect(failedAdapter.scenes.single.snapshotVersion, snapshot.version);
+        expect(failedAdapter.disposeCalls, 0);
+
+        failedAdapter.emit(DeliveryMapRuntimeState.failed);
+        await tester.pump();
+        await tester.pump();
+        final unavailable = find.byKey(
+          const ValueKey('delivery-map-unavailable'),
+        );
+        final retry = find.byKey(const ValueKey('delivery-map-retry'));
+        expect(unavailable, findsOneWidget);
+        expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
+        expect(
+          find.byKey(const ValueKey('fake-delivery-map-surface')),
+          findsNothing,
+        );
+        final l10n = AppLocalizations.of(tester.element(unavailable));
+        expect(find.text(l10n.deliveryTrackingMapUnavailable), findsOneWidget);
+        expect(find.text(l10n.deliveryTrackingMapRetry), findsOneWidget);
+        expect(retry, findsOneWidget);
+        expect(tester.getSize(retry).width, greaterThanOrEqualTo(48));
+        expect(tester.getSize(retry).height, greaterThanOrEqualTo(48));
+        expect(
+          tester.getSemantics(retry).label,
+          contains(l10n.deliveryTrackingMapRetry),
+        );
+        expect(tester, meetsGuideline(labeledTapTargetGuideline));
+        expect(tester, meetsGuideline(androidTapTargetGuideline));
+        expect(tester, meetsGuideline(iOSTapTargetGuideline));
+        expect(factoryCalls, 1);
+        expect(failedAdapter.disposeCalls, 1);
+        expect(recoveredAdapter.disposeCalls, 0);
+        expect(tester.takeException(), isNull);
+
+        // Cambia solo il risultato della factory già montata: nessun pumpWidget,
+        // nuova versione, nuovo punto o nuova istanza di snapshot abilita il retry.
+        useRecoveredAdapter = true;
+        await tester.tap(retry);
+        await tester.pumpAndSettle();
+        expect(find.byKey(const ValueKey('delivery-live-map')), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('fake-delivery-map-surface')),
+          findsOneWidget,
+        );
+        expect(unavailable, findsNothing);
+        expect(retry, findsNothing);
+        expect(factoryCalls, 2);
+        expect(failedAdapter.disposeCalls, 1);
+        expect(recoveredAdapter.disposeCalls, 0);
+        expect(
+          recoveredAdapter.scenes.single.snapshotVersion,
+          snapshot.version,
+        );
+        expect(
+          recoveredAdapter.scenes.single.courier.latitude,
+          snapshot.courierCoordinate!.latitude,
+        );
+        expect(
+          recoveredAdapter.scenes.single.courier.longitude,
+          snapshot.courierCoordinate!.longitude,
+        );
+        expect(
+          identical(
+            tester
+                .widget<DeliveryLiveMap>(find.byType(DeliveryLiveMap))
+                .snapshot,
+            snapshot,
+          ),
+          isTrue,
+        );
+        expect(tester.takeException(), isNull);
+
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump();
+        expect(failedAdapter.disposeCalls, 1);
+        expect(recoveredAdapter.disposeCalls, 1);
+        expect(factoryCalls, 2);
+        expect(tester.takeException(), isNull);
+      } finally {
+        semantics.dispose();
+      }
+    },
+  );
 }
 
 Widget _mapApp({

@@ -1,0 +1,187 @@
+{
+  "scope": "Candidate Worker locale selettivo; non deploy e non accettazione TEST autenticata",
+  "source_sha": "96758b899aac2ccde1a70aeda4bbe7983007fb18",
+  "source_tree": "b75fe609cda8f53067cfe1cf1cb7782a9dba757b",
+  "canonical_commerce_source": "82af13ef0005ecfb767809bd362327e91692b5ba",
+  "snapshot_commit": "f401fc3d6c2a63d2676877a772fc6299b7401f26",
+  "snapshot_tree": "1f0679b261dde089800a3bdef7888c1f7a7b8014",
+  "snapshot_note": "Snapshot nuovo del tree W preesistente; non commit originale del deploy",
+  "prior_source_sha": "34ed0c504ed99a179d76a36b3edee6d793c7d165",
+  "prior_RED": [
+    {
+      "name": "verify",
+      "exit_code": 1,
+      "elapsed_seconds": 29.073
+    }
+  ],
+  "minimal_fix": "27 righe canoniche, sette RPC, dodici coppie percorso/RPC; logica scanner invariata",
+  "source_closure": {
+    "selected_files": 14,
+    "byte_identical_to_canonical": 13,
+    "local_application_import_files": 38,
+    "missing_imports": 0
+  },
+  "review": {
+    "result": "APPROVED",
+    "reviewer": "/root/admin_runtime/worker_candidate",
+    "mode": "read-only; no test or build rerun",
+    "checks": [
+      "2012 artifact file hashes and manifest independently recalculated",
+      "10 receipt/log/runner hashes match",
+      "SHA/tree, 14 source hashes and 38 application import closure verified",
+      "Three command exits and 29 smoke probes inspected",
+      "Protected public config hash/mode and log redaction verified without values in report",
+      "Port closed, W unchanged, handler restored",
+      "Final remote readback receipt and documentation coherent"
+    ],
+    "open_findings": 0
+  },
+  "versions": {
+    "node": "22.23.3",
+    "next": "16.2.12",
+    "@opennextjs/cloudflare": "1.20.2",
+    "wrangler": "4.123.0",
+    "typescript": "5.9.3"
+  },
+  "lock_sha256": "d1451bb86154bdacca1bd6487e424e26d0cfd120b2686421e6050ee8bf292fb0",
+  "configuration": {
+    "names": [
+      "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+      "NEXT_PUBLIC_SUPABASE_URL"
+    ],
+    "sha256": "33f0fcd20d3f227b053dbff1048b5935324e1f0c5649e20ecffc4d16490d4f42",
+    "mode": "0600",
+    "target": "TEST jpgoimipbothfgkokyvm",
+    "source": "Enabled Supabase publishable configuration; no privileged credential requested",
+    "embedded_TEST_URL_browser_assets": 1
+  },
+  "started_at_utc": "2026-10-08T17:48:55.424235+00:00",
+  "finished_at_utc": "2026-10-08T17:50:02.466673+00:00",
+  "checks": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "elapsed_seconds": 35.364
+    },
+    {
+      "name": "opennext",
+      "exit_code": 0,
+      "elapsed_seconds": 26.929
+    },
+    {
+      "name": "local-smoke",
+      "exit_code": 0,
+      "elapsed_seconds": 4.57
+    }
+  ],
+  "smoke_count": 29,
+  "artifact": {
+    "file_count": 2012,
+    "bytes": 40142604,
+    "manifest_sha256": "c905fde55da03cfc0dca100ee6c8313b0a689e41b1f65ad87c204eda4a208b64",
+    "manifest_algorithm": "sha256 of UTF-8 JSON artifact_files sorted keys and separators comma colon",
+    "worker": {
+      "path": ".open-next/worker.js",
+      "bytes": 2278,
+      "sha256": "d05223bf4d44c84108a102ab62aa3bc9c5568f0c3ac2064c37be5cc65c64bc45"
+    },
+    "server_handler": {
+      "path": ".open-next/server-functions/default/handler.mjs",
+      "bytes": 11746547,
+      "sha256": "6aa3dff35b2b80352c8d36555d5e7ef226d397bbe55105fbb4584d327c6a6345"
+    }
+  },
+  "cleanup": {
+    "local_port": 8794,
+    "listener_absent": true,
+    "candidate_preview_process_ids": [],
+    "source_clean": true,
+    "opennext_handler_backup_absent": true,
+    "opennext_handler_sha256": "d9d67f62e82d9f51c9afc22cbe74750a5933e06dfb02a748c1d4db0522bf04a7"
+  },
+  "W_unchanged": true,
+  "source_to_remote_binary": "NOT_RUN",
+  "deploy_TEST": "NOT_RUN",
+  "authenticated_TEST_commerce": "NOT_RUN",
+  "SQL_apply": "NOT_RUN",
+  "remaining_release_gates": [
+    "Coordinated shared writer/cron window and fresh target/runtime readback",
+    "Resolved backend integrity and authenticated runtime acceptance",
+    "Explicit coordinator release authorization"
+  ],
+  "files": [
+    {
+      "name": "worker-build-runner.py",
+      "sha256": "3974ca8be562e4f33a90e95d7b0f537eb6106f5124c2851892b26ff193c379dd"
+    },
+    {
+      "name": "worker-build-runner-receipt.json",
+      "sha256": "fe552a4492678c8d9923218b52edd6e0c34835db8f04eb8d83013cc6f449e92a"
+    },
+    {
+      "name": "worker-build-runner-34ed0c50-red-receipt.json",
+      "sha256": "816d3a6d3f49870ce99c061c5958f016d5f135a148203234c3bc198cb4ef7201"
+    },
+    {
+      "name": "worker-verify-34ed0c50-red.log",
+      "sha256": "225b5542996faa7fdeeb8857781440922a8abf0a3c33d94f8cb426d962eb782f"
+    },
+    {
+      "name": "worker-verify.log",
+      "sha256": "5bbbb28334253b97af396c5ac32367a19f8daee746e5810e1cbf8ed868987caa"
+    },
+    {
+      "name": "worker-opennext.log",
+      "sha256": "b3a76dde3ae61f5f93549f67c4c6f28d4b6de587cb43cd89ee2530d530fc2e2a"
+    },
+    {
+      "name": "worker-local-smoke.log",
+      "sha256": "83c2f1717e0c8a3cdbbca48ac69f0a8105fdbfcfca4146e6a6fc9330556d3f39"
+    },
+    {
+      "name": "worker-allowlist-review-96758b89.json",
+      "sha256": "73821930df2cdb13873a214ba39f79c63f92c8befeb5efbd5fdf38d7d2e72242"
+    },
+    {
+      "name": "worker-public-config-receipt.json",
+      "sha256": "f2f90a04cc4843ec4271cc75278f9a827d43233452378af2302031ae7a54e059"
+    },
+    {
+      "name": "worker-distributed-readback-final.json",
+      "sha256": "f47d01af8132dd016cbb27293d7e1e882864d6d8604ba09577be5c1735a62cd1"
+    }
+  ],
+  "distributed_runtime_readback": {
+    "observed_at_utc": "2026-10-08T17:52:53.634832+00:00",
+    "command": "node node_modules/wrangler/bin/wrangler.js deployments list --env staging --json",
+    "exit_code": 0,
+    "worker": "merchandise-control-admin-web-staging",
+    "latest_deployment": {
+      "id": "f726de06-fb79-46f5-a1b3-1d35fdc9de69",
+      "source": "wrangler",
+      "strategy": "percentage",
+      "created_on": "2026-10-02T16:44:20.280417Z"
+    },
+    "versions": [
+      {
+        "version_id": "22107a6f-f515-44c4-8392-a8e5653ff0b8",
+        "percentage": 100
+      }
+    ],
+    "expected_version": "22107a6f-f515-44c4-8392-a8e5653ff0b8",
+    "unchanged": true
+  },
+  "candidate_evidence_commit": "a771cee43b0c43ec844e60282ea764646905996e",
+  "candidate_evidence_tree": "0bbfa93f961d72de2f4c547269afd6c641e10294",
+  "runtime_source_diff_after_build": {
+    "result": "PASS",
+    "command": "git diff --exit-code 96758b899aac2ccde1a70aeda4bbe7983007fb18 HEAD -- . ':(exclude)docs/**'",
+    "exit_code": 0,
+    "source_build_sha_unchanged": true
+  },
+  "candidate_worktree_clean": true,
+  "original_evidence_directory": "/Users/minxiang/.codex/outputs/task054-address-create-20261008",
+  "artifact_root": "/Users/minxiang/.codex/worktrees/task054-worker-commerce-candidate/merchandise-control-admin-web/.open-next",
+  "receipt_and_manifest_locator": "/Users/minxiang/.codex/outputs/task054-address-create-20261008/worker-build-runner-receipt.json",
+  "reproduction_note": "Runner preserved exactly as executed, pinned to build source 96758b89; subsequent a771cee4 changes documentation only. Re-execution requires that immutable source in an isolated checkout and a new heavy lease."
+}

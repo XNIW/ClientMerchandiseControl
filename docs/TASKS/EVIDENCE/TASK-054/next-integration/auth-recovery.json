@@ -1,0 +1,54 @@
+{
+  "auth_test_management_get": {
+    "approved_exact_callback_in_allowlist": false,
+    "approved_verified_host_available": false,
+    "external_google_enabled": true,
+    "http_status": 200,
+    "legacy_local_callback_in_allowlist": true,
+    "live_mobile_auth_reason": "APPROVED_HTTPS_HOST_AASA_ASSETLINKS_AND_PILOT_IDENTITY_NOT_REFERENCED",
+    "live_mobile_auth_result": "NOT_RUN",
+    "method": "GET",
+    "redirect_allowlist_count": 17,
+    "result": "PASS",
+    "site_url_present": true
+  },
+  "backend_live_gate_without_approved_inputs": {
+    "exit_code": 2,
+    "output_codes": [
+      "BACKEND_COMPATIBILITY BLOCKED prerequisite=CMC_BACKEND_PGSERVICE_and_artifact_config"
+    ]
+  },
+  "checked_at_utc": "2026-10-04T19:15:48.420909+00:00",
+  "client_commit": "bfbfc0b6a7122f29b8d8f6e2c2263d77b252749c",
+  "keychain_existing_cli_token": {
+    "available": true,
+    "exit_code": 0,
+    "shape_valid": true
+  },
+  "mutations": 0,
+  "physical_ios_readonly": {
+    "available_count": 0,
+    "exit_code": 0,
+    "physical_ios_count": 1,
+    "unavailable_errors": [
+      {
+        "code": -27,
+        "developer_mode_required": false,
+        "domain": "com.apple.dt.deviceprep",
+        "locked": false,
+        "pairing_required": false
+      }
+    ]
+  },
+  "scope": "readonly_test_configuration",
+  "test_backup_pitr_readonly": {
+    "backup_count": 0,
+    "backups_field_present": true,
+    "backups_null": true,
+    "exit_code": 0,
+    "pitr_enabled": false,
+    "pitr_field_present": true,
+    "remote_restore_proof": "NOT_RUN",
+    "result": "PASS"
+  }
+}

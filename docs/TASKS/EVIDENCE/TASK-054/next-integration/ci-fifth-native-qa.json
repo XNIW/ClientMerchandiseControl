@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "role": "CODEX_RE_REVIEWER_READONLY_CLIENT_UI",
+  "reviewer": "/root/review_client_visual_resume",
+  "atUtc": "2026-10-05T20:56:42.825606+00:00",
+  "runId": 37369690043,
+  "candidateHead": "c796526a799c959408257f4c89c36a4439515b23",
+  "sourceCommit": "50a3123e9b81e2a2c5490808aaf6056a1fa1e7ef",
+  "outcome": "BLOCKED",
+  "scope": "CI5_NATIVE_AFTER_PIXEL_QA_ONLY",
+  "sourceReview": {
+    "outcome": "APPROVED",
+    "hostPassCount": 62,
+    "qualification": "C09 source correction and associated harness only; native acceptance and integrated task approval excluded"
+  },
+  "mapping": {
+    "result": "PASS",
+    "scope": "static semantic checkpoint mapping and source provenance",
+    "expectedFlutterCaptures": 105,
+    "expectedOsFrames": 4,
+    "runtimeCaseCountExpected": 67,
+    "numericPrefixUsedAsIdentity": false,
+    "reference": "mapping"
+  },
+  "platforms": {
+    "android": {
+      "artifactMetadataRead": "PASS",
+      "artifactAvailability": "BLOCKED",
+      "downloadAttemptsByParent": 1,
+      "queriesOrDownloadsByReviewer": 0,
+      "downloadedZipCount": 0,
+      "pngCount": 0,
+      "nativeFixtureVisualExecution": "NOT_RUN",
+      "nativePixelInspection": "NOT_RUN",
+      "C09NativeAfter": "NOT_RUN",
+      "reason": "Parent and independent CI reviewer report runner shutdown during assembleDebug of flutter drive, before Flutter test execution; capture job cancelled and Save artifact skipped. Local artifact metadata confirms zero matches."
+    },
+    "ios": {
+      "artifactRead": "PASS",
+      "jsonCount": 2,
+      "pngCount": 0,
+      "nativeFixtureVisualExecution": "NOT_RUN",
+      "nativePixelInspection": "NOT_RUN",
+      "C09NativeAfter": "NOT_RUN",
+      "reason": "Owned simulator bootstatus timed out after 300 seconds with exit 124, before Flutter visual fixtures. Environment failure does not establish an app failure.",
+      "ownedCleanupReceipt": "PASS",
+      "cleanupAttempts": 2,
+      "processCleanupFailed": false,
+      "qualification": "Owned-resource cleanup only; no inference of global CoreSimulator quiescence. GITHUB_SHA in owner context is the synthetic PR context, not a frame checkout SHA."
+    }
+  },
+  "retainedEvidence": {
+    "genuineBeforeSix": {
+      "result": "PASS",
+      "scope": "Hashes and dimensions verified by immutable inspection-ready receipt; no files generated or edited",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-before-d9fcbfd",
+      "sourceCommit": "d9fcbfd96add14b7effa00be8fa310d483bdb9b3",
+      "finalSha256Recheck": "PASS"
+    },
+    "C09ImmediateBeforeCI4": {
+      "result": "PASS",
+      "scope": "Existing native fixture pixels retained; edit failure clipped, submit failure positive control",
+      "sourceCommit": "302857a",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a",
+      "submitFile": "flutter-88-review-submit-failure-comment-preserved-compact200.png",
+      "submitSha256": "92562837ef238acdc539e244fa0ddd8efaf713babf36b5bda9b65ab26ca4b874",
+      "editFile": "flutter-90-review-edit-failure-comment-preserved-compact200.png",
+      "editSha256": "f9b16170bf15dbe1c9c8195badcb075d542b67a5dd269478ea774a193890b062",
+      "finalSha256Recheck": "PASS"
+    }
+  },
+  "C09Status": "CLOSED_SOURCE_NATIVE_AFTER_NOT_RUN",
+  "references": {
+    "sourceC09": {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/RE_REVIEW_CLIENT_50A_SOURCE_APPROVED.json",
+      "sha256": "90332e100d3447beba1175abdc3ab5277752255a2037a70889606eb2b348b4f9"
+    },
+    "harness": {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/RE_REVIEW_HARNESS_EFFB_APPROVED.json",
+      "sha256": "33f535ffbc30602a95039949d44401918d391e67357ab28e1aad2c6197d19e24"
+    },
+    "mapping": {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/ci5-native-qa/inspection-ready-c796526.json",
+      "sha256": "b3278f43df01d8c47b167dfc6ea99bc80b8477feedab5ecc5de3831991120e2e"
+    },
+    "iosNativeNotRun": {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/ci5-native-qa/ios-native-not-run.json",
+      "sha256": "26fb17cd0a57629c4fc0489d97bb9a08d7dddccf271e713e25a1a9432d726cbc"
+    },
+    "androidArtifactUnavailable": {
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/ci-fifth/android-artifact-unavailable.json",
+      "sha256": "36a9c646a3e95223ea2fee60699a71cad1b4b22c080d4483b3286491966e7998"
+    }
+  },
+  "ownProcesses": {
+    "state": "ALL_TERMINAL",
+    "newHostRuns": 0,
+    "newNativeRuns": 0,
+    "unresolvedProcesses": 0,
+    "qualification": "Parent-owned local global command 22737 is outside this reviewer ownership; parent handles its terminal outcome."
+  },
+  "git": {
+    "mutationByReviewer": false,
+    "head": "c796526a799c959408257f4c89c36a4439515b23",
+    "branch": "codex/task054-next-evidence-ci5",
+    "candidateSourceDiffEmpty": true,
+    "worktreeClean": false,
+    "writerEvidenceChangesPreserved": true,
+    "status": "?? docs/TASKS/EVIDENCE/TASK-054/next-integration/ci-fifth-ios-artifact.json\n?? docs/TASKS/EVIDENCE/TASK-054/next-integration/ci-fifth-ios-native-not-run.json\n?? docs/TASKS/EVIDENCE/TASK-054/next-integration/ci-fifth-jobs.json\n?? docs/TASKS/EVIDENCE/TASK-054/next-integration/ci-fifth-review.json\n?? docs/TASKS/EVIDENCE/TASK-054/next-integration/ci5-ios-receipt/\n?? docs/TASKS/EVIDENCE/TASK-054/next-integration/config-terminal-current.json\n?? docs/TASKS/EVIDENCE/TASK-054/next-integration/ios-local-readiness.json\n?? docs/TASKS/EVIDENCE/TASK-054/next-integration/local-full-candidate.json\n?? docs/TASKS/EVIDENCE/TASK-054/next-integration/review-documents-fifth.json\n"
+  },
+  "receiptPreparation": {
+    "firstAttemptExitCode": 1,
+    "reason": "Worktree clean assertion raced parent opening the authorized docs evidence branch; failed before receipt write. Read-only refresh confirmed source unchanged, and final receipt records parent evidence changes instead of asserting clean."
+  },
+  "limits": [
+    "No new Android or iOS after pixels or OS frames exist for CI5; no visual PASS assigned.",
+    "Native fixture evidence, AT, physical devices, authenticated staging, providers and live business flow remain separate lanes.",
+    "This receipt does not approve CI, integrated TASK-054, merge, DONE, release or activation of another task.",
+    "Historical FAIL causes and original native before pixels are preserved; synthetic insets and host tests are not native proof."
+  ],
+  "originalReceipt": {
+    "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/ci5-native-qa/CI5_NATIVE_QA_FINAL.json",
+    "sha256": "39a4e346e4b0921a605c4dd2bc90fc30b31a0cf28dc70eed84a4d7c0a8cd92d3"
+  },
+  "durableQualification": "QA read-only scoped BLOCKED con source62 APPROVED e native after NOT_RUN; nessuna nuova acquisizione. Il comando locale root22737 esterno al reviewer è concluso986PASS/exit0 in local-full-candidate.json, senza alterare la ricevuta originale."
+}

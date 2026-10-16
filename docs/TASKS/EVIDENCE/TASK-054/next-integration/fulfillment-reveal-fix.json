@@ -1,0 +1,110 @@
+{
+  "sourceBaseline": "302857a558fe2d309172f5061542106443b45cfb",
+  "sourceBeforeSha256": "be55bc82ef5f2dd0d7b922c44852a113a296e0d4a4d4b9d00d62420524a57180",
+  "sourceAfterSha256": "01903afb303bccc4854a8c4e36c32bb06ab1d49b8b67320d3fb4d887b46b6de5",
+  "sdkRevision": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+  "sdkPrimarySources": [
+    {
+      "path": "/Users/minxiang/develop/flutter/packages/flutter_test/lib/src/finders.dart",
+      "sha256": "6caf9b9f7e92fad6c5b075136c86f07b1b143d60915b8bcc79f6a9522453bcf0"
+    },
+    {
+      "path": "/Users/minxiang/develop/flutter/packages/flutter/lib/src/rendering/wrap.dart",
+      "sha256": "35f978fa60e8ab82452700b3e27bd1c487143d250d53e726f9b774829bc3dfc7"
+    },
+    {
+      "path": "/Users/minxiang/develop/flutter/packages/flutter/lib/src/widgets/scrollable.dart",
+      "sha256": "10d7f77a6e3765b0c00e866c684910c928f850c9e015d17819a14406e84b11cb"
+    },
+    {
+      "path": "/Users/minxiang/develop/flutter/bin/cache/artifacts/material_fonts/Roboto-Regular.ttf",
+      "sha256": "79e851404657dac2106b3d22ad256d47824a9a5765458edb72c9102a45816d95"
+    }
+  ],
+  "reason": "Wrap informativo su due righe: centro nel runSpacing y274–282; gruppo intero nel viewport ed entrambe le label con hitTestable1. Nessun difetto produzione provato.",
+  "fix": "Solo callsite fulfillment: reveal della label pickup, poi ensureVisible del gruppo; assert viewport intero e label hitTestable, gesti sulle CTA quantità/add e Drift memory2→4. Helper globale invariato.",
+  "inventoryUnchanged": {
+    "cases": 67,
+    "flutterCaptures": 105,
+    "osFrames": 4,
+    "captureCallsAndArgumentsUnchanged": true
+  },
+  "gates": [
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test build/task054/fulfillment_ci_geometry_probe_test.dart --name 'product compatto200%' --reporter expanded",
+      "revision": "before302",
+      "result": "FAIL",
+      "exitCode": 1,
+      "caseResults": "1PASS/3FAIL conRoboto +320×640",
+      "log": "before-host-product-roboto.log",
+      "logSha256": "39bea84770ac9f980e920752a3b22daf7201f0ffbdc7c99c79502c95a981eab4"
+    },
+    {
+      "command": "flutter test build/task054/fulfillment_render_probe_test.dart --no-pub --reporter expanded",
+      "revision": "before302",
+      "result": "PASS",
+      "exitCode": 0,
+      "caseResults": "4",
+      "log": "render-probe.log",
+      "logSha256": "28d945fb86a6166154435484cea1e48a4a8752e89327fbd82faa2b2ab589dce6"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test build/task054/fulfillment_ci_geometry_probe_test.dart --no-pub --name 'product compatto200%' --reporter expanded",
+      "revision": "afterworkingtree",
+      "result": "PASS",
+      "exitCode": 0,
+      "caseResults": "4 conRoboto +320×640",
+      "log": "after-host-product-roboto.log",
+      "logSha256": "7e22e79162247d44b7f112eab274c4ee69b56437ae4f072bc460faf56328386a"
+    },
+    {
+      "command": "flutter test build/task054/host_all_visual_flow_test.dart --no-pub --reporter expanded",
+      "result": "PASS",
+      "exitCode": 0,
+      "caseResults": "67",
+      "log": "host-all-67.log",
+      "logSha256": "44c507789bd17ec6553b80d22f31aa85fb391f185dd3ee339b8f1e4f801f2c28"
+    },
+    {
+      "command": "flutter analyze --no-pub lib test integration_test",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "analyze-tracked-source.log",
+      "logSha256": "b8f94746d0debbdb547b510425549cb6d6f85eed5cce23d169d18ece449224ed"
+    },
+    {
+      "command": "flutter analyze --no-pub integration_test/task054_next_integration_surfaces_test.dart",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "analyze-changed.log",
+      "logSha256": "95f4a3b4b40536c7287ccccf6335d3716aa8973436478754c08af83ee3befaab"
+    },
+    {
+      "command": "flutter analyze --no-pub",
+      "result": "FAIL",
+      "exitCode": 1,
+      "log": "analyze.log",
+      "reason": "Analizza anche copie sorgenti ignored incomplete degli indici e probe;626issue tutte negli artifactbuild, successivo analyze3source dirs PASS.",
+      "logSha256": "add3118c79a9f5f25576e56f8de472754838d4693fa15a28e5c4e113cddb9392"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter analyze --no-pub",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "analyze-global-clean-probes.log",
+      "logSha256": "335304fa3f5ca3d3c269648ca6f8ad5316c2a3ae8c404320cdc56c70bd1cf2bd",
+      "reason": "38 sorgenti Dart ignored spostati fuori repo preservando hash; nessun exclude o source change."
+    }
+  ],
+  "limits": [
+    "Host deterministico distinto dal runtime nativo: dopo il fix native NOT_RUN.",
+    "Nessuna fonte lib/runner/timeouts/skip/golden modificata; sei prima PNG d9fc immutati.",
+    "QA CI4 parziale separata in ci4-partial-qa/receipt.json, suiteFAIL64PASS3FAIL102PNG4OS.",
+    "Nessuna review autonomaAPPROVED; consegna al reviewer distinto."
+  ],
+  "commandsCopiedFromActualToolCalls": true,
+  "fixCommit": "effb687e8a298fe03e2239f76e5d2b02ea7054cf",
+  "probePreservationMap": "probe-location-map.json",
+  "originalReceiptSha256": "a5d03e9a90de18a0a6469eab9ccf33a76fdf6cd386ba1e15b9741ca81b51a848",
+  "qualification": "Receipt writer effb cherry0c09, ultimo analyzer globale PASS0 dopo38PoC relocated byteimmutate; FAIL626 precedente e errore trascrizione filtro della prima receipt preservati. Nessun exclude. Comandi locali eseguiti nel WT visual; source/counts/capture invariati."
+}

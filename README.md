@@ -2,11 +2,13 @@
 
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
 Merchandise Control. Il codice include catalogo, account, carrello, checkout,
-ordini, consegna, inbox, assistenza e recensioni. L'audit operativo TASK-054 del
-2026-09-28 ha riconfermato 23 RPC mancanti nello staging e risorse esterne non
-configurate per OAuth, indirizzi assistiti e push: il prodotto non è dichiarato
-operativamente completo. Il [rapporto verificabile](docs/TASKS/EVIDENCE/TASK-054/README.md)
-separa codice, SQL locale, staging, dispositivi e distribuzione.
+ordini, consegna, inbox, assistenza e recensioni. Il ledger TEST readonly del
+12 ottobre contiene161ricevute e quattro migration Client canoniche ancora assenti.
+Il dato32/57RPC è storico del10ottobre; non descrive il catalogo corrente.
+OAuth, mappa TEST, push, percorsi autenticati e distribuzione restano da qualificare:
+il prodotto non è dichiarato operativamente completo. Il
+[rapporto verificabile](docs/TASKS/EVIDENCE/TASK-054/README.md) separa sorgenti,
+fixture, staging, dispositivi e distribuzione.
 
 ## Relazione con Merchandise Control
 
@@ -194,10 +196,148 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
+- **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
+
+Sul pubblicato `516bb9e`, Quality `38893955534` è PASS: 1252 test/1 SKIP,
+11 performance e 365 Python; format 411/0, analyze 0. Visual `38895852835`
+è FAIL124 readiness: la query UUID parte ma resta BLOCKED/0 byte; cleanup
+PASS, app/visual NOT_RUN. Journal `38895857215` supera prepare e seed, poi
+recover fallisce con terminal_gate/assertion; il sottocontrollo non è conservato.
+Cleanup PASS non certifica il clear del journal; nessuna causa app dimostrata.
+
+Applicati sei postimage dopo review distinte: metadata terminali finiti del
+journal (218b49a8/4397c850) e unica query live readiness nominale1s entro
+capture3s (4fa45f1e/9467c7d4). Approval solo source/pure; congiunto di successo,
+budget300/30, guard e cap invariati. La finestra live cambia copertura;0righe
+UNKNOWN. Nuova Quality exact-SHA e native NOT_RUN al freeze; nessun retry
+identico o SDK Mac. Globale BLOCKED, PR29 draft, merge HOLD.
+
+Il paragrafo seguente conserva il cutoff precedente ai terminali 516.
+
+Sul commit pubblicato `dd9c0b2`, Quality `38887332867` è PASS: 1252 test,
+1 SKIP, 11 performance, 352 Python, format 411/0 e analyze 0. Visual
+`38889394269` e journal `38889397834` completano bootstatus e falliscono
+nella successiva readiness; app e fixture non sono state eseguite. Cleanup
+visual PASS; journal FAIL, con secondo cleanup della risorsa PASS. I leader
+osservati sono HOST, senza PID guest o causa del timeout qualificati.
+
+Il finding P2 `IOS-OWNED-KILL-EPERM-RR-01` è riprodotto e corretto nel
+worktree: dopo il solo KILL/EPERM, un wait proprio bounded 2s e lo stesso
+errore propagato. Patch `27ac8561`, review distinta `7be308cb` APPROVED
+soltanto source/pure/privacy; primary 124 e cleanup FAIL restano preservati.
+I gate sul successivo candidato sono NOT_RUN. È applicato anche il riordino
+minimo dell'unica query CoreSimulator UUID già prevista, con ownership fresca
+e STOP su errore/rifiuto, per recuperare evidenza prima censurata dalla ps.
+Patch `dd199b8d`, review distinta `b178343f` APPROVED solo source/pure: 80
+tracer e 17 readiness PASS dell'autore; 17 mirati PASS indipendenti.
+Nessun token generico dimostra guest PID o sito d'attesa. Budget 300/30
+invariati; PR29 draft, merge HOLD, nessun SDK Mac o nuovo accesso.
+
+Il paragrafo seguente conserva il freeze precedente ai run dd9.
+
+Re-review finale del freeze diagnostico b350aa96: 9 source e 7 documenti
+verificati per hash; esito globale BLOCKED, CODEX_REVIEW_BLOCKED. Il composito
+1ad30c7006ad conserva approval dc0d9927 solo source/pure/privacy: root 284
+Python/12 suite e reviewer 51 test/176 casi, con provenienze distinte. Security
+1157/zero/exit0 precede gli ultimi metadati di handoff; pin4, governance e
+whitespace PASS da ricevute terminali. Nessun nuovo test, scan o SDK Mac.
+Quality hosted format/analyze/fullhost sul futuro SHA e nuove domande native
+restano NOT_RUN; soltanto dopo Quality PASS saranno eseguite sul medesimo
+candidato visual reason/identity/reap e journal passivo/checkpoint. FullCI7
+NOT_RUN, budget300/30 e guard invariati; nessuna acceptance nativa/live o causa
+storica inferita. e77 conserva i propri PASS/FAIL, V1/RED/setupfail e cutoff
+restano immutati. PR29 draft/HOLD; Maps/live e gli altri gate restano distinti.
+
+
+Il paragrafo seguente conserva il piano di ripresa precedente all'applicazione.
+
+Ripresa corrente16ottobre sul baseline e77 dopo tre run terminali: Quality
+PASS1252/1SKIP+11performance, visualFAIL124/observerEPERM, journalFAIL124
+readiness prima app/fixture. Nessun Simulator residuo attestato; quiescenza
+observer non dimostrata, senza leak inferito. Il mandato continuativo è
+riconfermato: diagnosi recuperabile source/pure e fix revisionati, poi nuove
+prove hosted solo con ipotesi falsificabile. PrimoTERM/EPERM: conservare
+motivo precleanup e wait; journal: trace passiva sul medesimo Popen senza
+observer/sample. Budget300/30 e attestazioni invariati. Nessun SDK/device
+Mac, reset, retry identico, nuovo accesso/deploy/merge o DONE. FullCI7e77
+NOT_RUN, Maps/live e altri gate distinti; root unico writer, PR29draft/HOLD.
+
+Il paragrafo seguente conserva il freeze precedente ai tre run e77.
+
+Candidato successivo ad a2a: fix IOS-BOOT-OBS-RR-02 dopo ESRCH e nuovo
+failureOrigin journal body|terminal_gate, entrambi con due review distinte
+APPROVED soltanto source/pure. Root: 12 suite Python, 248 PASS, exit0.
+Quality hosted (format/analyze/full host) NOT_RUN al freeze; solo dopo PASS
+una verifica ios-visual del cleanup corretto e una ios-address-journal del
+nuovo discriminante, sul medesimo candidato e runner separati. FullCI7
+nuovo head NOT_RUN; sei altri job SKIPPED per selector, nessun Androidrepeat.
+I due run a2a sono terminali FAIL: bootstatus0/117.566s poi observercleanup2
+con cleanupFAIL; journal seedPASS23482→recover23761 assertionFAIL e cleanup
+PASS separato. Causa e sottoproba precise non qualificate; nessun PASS
+trasferito o retry identico. Maps/live e gli altri gate restano distinti.
+
+Il freeze seguente precede i run mirati a2a e conserva quel cutoff.
+
+Freeze composito: BOOTV2 e enumfix approvati source/pure da reviewer
+distinti,12suitePython240PASS. P2FalseInventory corretto prima di apply/CI.
+Due nuove domande mirate iOS sul futuro stessohead NOT_RUN al cutoff;
+fullCI7nuovoheadNOT_RUN e d1955/2 nontrasferito.
+
+Il paragrafo seguente conserva il cutoff precedente alla preparazioneV2.
+
+Supplemento in corso: osservazione bounded DURANTE bootstatus owned,prima
+della readiness, per distinguere attesa migrazione/servizio. Stesso300s e
+sequenza/guard/cleanup, no warmup/reset/bypass. Source/pure/review prima
+di una nuova prova visual e una separata journalenum; entrambeNOT_RUN.
+
+Ultimo ciclo: canonicald195/run38862344656 terminale5SUCCESS/2FAIL.
+Quality1252/1SKIP+11performance,Androidvisual137+4,journalAndroid e release
+unsigned2PASS. iOSvisual falliscebootstatus300 prima readiness; journaliOS
+raggiunge la fixture nativa e fallisce seed, restartNOT_RUN/causaUNKNOWN.
+Corretto IOS-JOURNAL-OBS-RR-01: enum failure già sanitizzato conservato nei
+diagnostics,45testPythonPASS e review distinta. Nuovo head e unica prova
+miratajournal da qualificare separatamente; fullCI7NOT_RUN sul nuovo head.
+
+Il freeze seguente precede la CI d195 e conserva il proprio cutoff.
+
+Ripresa16ottobre: diagnostica source AndroidVM/lifecycle/PID/APK e iOS
+PID/stack/UUID revisionata distintamente;9suitePython178PASS. Il primo
+focused38860609181/c559 fallisce ad analyze per3lint, testNOT_RUN; patch
+formatter autentica e lint corretti dopo review distinta. Nuovo focused
+38861373311 su90f3807 PASS506/1SKIP,format405/0/analyze0:9unit nuovi
+inclusi. Unica CI7job strumentata NOT_RUN al freeze; esiti nei Checks PR29.
+Quality2e9/run38845283993 resta PASS1243/1SKIP+11performance; native9d
+restano4SUCCESS/3FAIL. Nessuna nuova acceptance nativa o Maps/live.
+
+I checkpoint seguenti sono storici e mantengono i propri cutoff.
+
+Addendum12ottobre: esito add scoped, riconciliazione cart/checkout e UI tracking
+corretti. [Dossier corrente](docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md):
+freeze app07649, re-review source/widget APPROVED scoped; Quality1242PASS/1SKIP,
+11performance e due release unsigned PASS. Guest Android/iOS e journal indirizzi Android
+superano storage/kill/restart; Android4b produce137Flutter+4OS. Il collector iOS
+è sourceapproved; la nuova CIeb0 conserva visual prepare/cleanup FAIL e journal
+SDK seed FAIL dopo avvio app, con restart/recover NOT_RUN e cause distinte.
+Maps/R17, R13/R14 autenticati, Auth/firma/R24/AT e C04 restano aperti.
+La nuova CI PR29 eb0dc22 ha 1241 PASS/1 FAIL/1 SKIP: QUALITY-RR-01 riguarda
+il validatore del selettore hosted. Fix mirato source/focused qualificato con
+497 PASS/1 SKIP/analyze0 e formatter adottato in21a; Quality sul nuovo head PR
+da leggere separatamente nei Checks. Nessun delta applicativo lib/native/config/deps.
+Android finale journal e corpus137+4 PASS; journal iOS SDK seed FAIL e visual
+iOS prepare/cleanup FAIL conservati con cause e limiti distinti.
+Il checkpoint precedente ba11/527/QAcb9 e tutti i negativi sono conservati nel
+[rapporto storico](docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md).
+
+Il checkpoint PR29 `43fd7af` conserva CI43 terminale: cinque job PASS,
+journal iOS FAIL in preparazione e job smoke/visual CANCELLED30min. Lo smoke
+è PASS; visual91PASS/1FAIL resta distinto dal budget. Badge predefinito al200%
+corretto dopo RED/review in16e4681; la proiezione degli inset del solo harness
+bf9be05 è approvato e integrato in2327948. La preview iOS7e è approvata e integrata in d4a7e97; nuova CI del composto da avviare; il rapporto corrente
+sul branch evidence distingue checkpoint e candidato finale. Firma/upload/
+install Client TEST e percorsi autenticati rimangono NOT_RUN/BLOCKED.
 
 TASK-054 è riaperto dal mandato del 2026-09-28 per audit funzionale e completamento
 nel perimetro di sviluppo. Le attestazioni di closeout seguenti sono storiche:

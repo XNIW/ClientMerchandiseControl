@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:async';
 
 import 'package:client_merchandise_control/features/after_sales/data/supabase_customer_after_sales_repository.dart';
 import 'package:client_merchandise_control/features/after_sales/domain/customer_after_sales_models.dart';
@@ -13,6 +14,29 @@ const _ticket = '82000000-0000-4000-8000-000000000001';
 const _evidence = '83000000-0000-4000-8000-000000000001';
 
 void main() {
+  test('ticket tardivo dopo timeout non avvia upload o register', () async {
+    final barrier = Completer<void>();
+    final port = _Port()..ticketBarrier = barrier;
+    final repository = SupabaseCustomerAfterSalesRepository(
+      port: port,
+      timeout: const Duration(milliseconds: 5),
+    );
+    await expectLater(
+      repository.uploadEvidence(
+        caseId: _case,
+        input: CustomerAfterSalesEvidenceInput(
+          bytes: Uint8List.fromList([1]),
+          extension: 'jpg',
+          mimeType: 'image/jpeg',
+        ),
+      ),
+      throwsA(isA<CustomerAfterSalesException>()),
+    );
+    barrier.complete();
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+    expect(port.uploadedPath, isNull);
+    expect(port.functions, ['customer_after_sales_evidence_upload_ticket_v1']);
+  });
   test('post-vendita legge snapshot storico e quantità residua', () async {
     final port = _Port();
     final result = await SupabaseCustomerAfterSalesRepository(
@@ -114,6 +138,7 @@ final class _Port implements CustomerAfterSalesPort {
 
   final Map<String, Object?>? orderLinesPayload;
   final List<String> functions = [];
+  Completer<void>? ticketBarrier;
   String? uploadedPath;
   String? uploadedMimeType;
 
@@ -123,6 +148,9 @@ final class _Port implements CustomerAfterSalesPort {
     Map<String, Object?> parameters,
   ) async {
     functions.add(function);
+    if (function == 'customer_after_sales_evidence_upload_ticket_v1') {
+      await ticketBarrier?.future;
+    }
     return switch (function) {
       'customer_after_sales_order_lines_v1' =>
         orderLinesPayload ?? _orderLinesPayload(),

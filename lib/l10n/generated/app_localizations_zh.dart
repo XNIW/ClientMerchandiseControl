@@ -1264,7 +1264,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cartTimeoutError =>
-      'La tienda tardó demasiado. Reintenta sin duplicar la operación.';
+      'El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.';
 
   @override
   String get cartUnauthorizedError =>
@@ -1913,7 +1913,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deliveryTrackingWindow(String start, String end) {
-    return 'Entrega prevista entre $start y $end';
+    return 'Entrega estimada, no garantizada, entre $start y $end';
   }
 
   @override
@@ -2125,6 +2125,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'No pudimos completar esta acción. Intenta nuevamente.';
 
   @override
+  String get afterSalesDestinationUnavailable =>
+      'Esta solicitud de asistencia no está disponible. Puedes consultar las demás solicitudes.';
+
+  @override
+  String get afterSalesBackToList => 'Ir a las solicitudes';
+
+  @override
   String get afterSalesSelectItem => 'Selecciona al menos un artículo.';
 
   @override
@@ -2230,6 +2237,142 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notificationsUnreadOnly => 'Solo no leídas';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle =>
+      'No hay no leídas entre las notificaciones mostradas';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'No hay notificaciones sin leer';
+
+  @override
+  String get notificationsUnreadPageHint =>
+      'Puedes buscar más notificaciones sin leer cargando las anteriores.';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage =>
+      'Vuelve a conectarte para comprobar si hay más notificaciones sin leer.';
+
+  @override
+  String get notificationsUnreadEmptyMessage =>
+      'Has leído todas las notificaciones mostradas.';
+
+  @override
+  String get notificationsUpdateFailed =>
+      'No se pudieron actualizar las notificaciones. Inténtalo de nuevo.';
+
+  @override
+  String get customerAddressUnknown =>
+      'Resultado por verificar. Verifica antes de editar.';
+
+  @override
+  String get customerAddressJournalUnavailable =>
+      'No podemos leer la información de recuperación guardada en este dispositivo. Puedes consultar tu cuenta; añadir direcciones está en pausa. Vuelve a intentar para recuperar el acceso sin borrar datos.';
+
+  @override
+  String get customerAddressVerify => 'Verificar';
+
+  @override
+  String get customerAddressCloseEditor => 'Cerrar';
+
+  @override
+  String get customerAddressSending =>
+      'Guardando. Cerrar el editor no cancela el guardado.';
+
+  @override
+  String get reviewsSaving => 'Guardando…';
+
+  @override
+  String get notificationsRead => 'Leída';
+
+  @override
+  String get notificationsOpenOrder => 'Abrir pedido';
+
+  @override
+  String get notificationsOpenSupport => 'Abrir solicitud de asistencia';
+
+  @override
+  String get notificationsOpenProduct => 'Abrir producto';
+
+  @override
+  String get notificationsStayInInbox => 'Permanecer en notificaciones';
+
+  @override
+  String get afterSalesCaseOpened =>
+      'Solicitud abierta. Puedes completar los adjuntos aquí.';
+
+  @override
+  String get afterSalesEvidenceConfirmed => 'Recibido; pendiente de revisión';
+
+  @override
+  String get afterSalesEvidenceSafe => 'Verificado';
+
+  @override
+  String get afterSalesEvidenceRejected => 'Rechazado';
+
+  @override
+  String get afterSalesEvidencePending => 'Por completar';
+
+  @override
+  String get afterSalesEvidenceUploading => 'Cargando adjuntos…';
+
+  @override
+  String get afterSalesEvidenceAmbiguous =>
+      'Resultado por verificar. Reintenta para comprobar el mismo adjunto.';
+
+  @override
+  String get afterSalesEvidenceFileUnavailable =>
+      'Archivo local no disponible. Selecciónalo de nuevo.';
+
+  @override
+  String get afterSalesEvidenceRetry => 'Completar adjuntos';
+
+  @override
+  String get afterSalesEvidenceReplace => 'Seleccionar de nuevo';
+
+  @override
+  String get afterSalesEvidenceReopenHelp =>
+      'Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan.';
+
+  @override
+  String get afterSalesCreating => 'Abriendo solicitud…';
+
+  @override
+  String get afterSalesEvidenceInvalid =>
+      'Archivo no compatible o demasiado grande. Selecciona otro.';
+
+  @override
+  String get cartLocalSavedNotice =>
+      'Guardado en el carrito de este dispositivo.';
+
+  @override
+  String get cartPendingConfirmationNotice =>
+      'El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.';
+
+  @override
+  String get deliveryTrackingEtaUnavailable =>
+      'La tienda aún no informó una ventana estimada.';
+
+  @override
+  String get deliveryTrackingEtaExpired =>
+      'La ventana estimada anterior terminó. Esperamos una actualización de la tienda.';
+
+  @override
+  String get deliveryTrackingMapExpand => 'Ampliar el mapa de la entrega';
+
+  @override
+  String get deliveryTrackingMapCollapse => 'Reducir el mapa de la entrega';
+
+  @override
+  String get deliveryTrackingMapUnavailable =>
+      'El mapa no está disponible. Puedes seguir el estado de la entrega aquí.';
+
+  @override
+  String get deliveryTrackingMapRetry => 'Reintentar el mapa';
+
+  @override
+  String get deliveryTrackingCacheCleanupFailed =>
+      'No se pudo quitar la ubicación guardada. Sigue oculta; reintenta la actualización.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3366,7 +3509,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get cartOfflineError => '当前离线，本地购物车仍可使用。';
 
   @override
-  String get cartTimeoutError => '商店响应超时。重试不会重复执行该操作。';
+  String get cartTimeoutError => '尚未确认此次更改。请在购物车中重试。重启后，请先检查数量，再次添加。';
 
   @override
   String get cartUnauthorizedError => '请重新登录以同步购物车。';
@@ -3955,7 +4098,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String deliveryTrackingWindow(String start, String end) {
-    return '预计在 $start 至 $end 之间送达';
+    return '预计送达时间为 $start 至 $end，并非保证时间';
   }
 
   @override
@@ -4158,6 +4301,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get afterSalesFailure => '无法完成此操作，请重试。';
 
   @override
+  String get afterSalesDestinationUnavailable => '此售后申请暂不可用。你可以查看其他申请。';
+
+  @override
+  String get afterSalesBackToList => '查看售后申请';
+
+  @override
   String get afterSalesSelectItem => '请至少选择一件商品。';
 
   @override
@@ -4261,4 +4410,124 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get notificationsUnreadOnly => '仅未读';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle => '当前显示的通知中没有未读通知';
+
+  @override
+  String get notificationsUnreadEmptyTitle => '没有未读通知';
+
+  @override
+  String get notificationsUnreadPageHint => '加载更早的通知，查看是否还有未读通知。';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage => '重新连接以查看是否还有未读通知。';
+
+  @override
+  String get notificationsUnreadEmptyMessage => '你已阅读所有显示的通知。';
+
+  @override
+  String get notificationsUpdateFailed => '无法更新通知。请重试。';
+
+  @override
+  String get customerAddressUnknown => '保存结果待确认，请验证后再修改。';
+
+  @override
+  String get customerAddressJournalUnavailable =>
+      '暂时无法读取此设备保存的恢复信息。你仍可查看账户，新增地址已暂停。请重试以恢复访问，无需删除数据。';
+
+  @override
+  String get customerAddressVerify => '验证保存';
+
+  @override
+  String get customerAddressCloseEditor => '关闭';
+
+  @override
+  String get customerAddressSending => '正在保存。关闭编辑器不会取消保存。';
+
+  @override
+  String get reviewsSaving => '正在保存…';
+
+  @override
+  String get notificationsRead => '已读';
+
+  @override
+  String get notificationsOpenOrder => '打开订单';
+
+  @override
+  String get notificationsOpenSupport => '打开售后申请';
+
+  @override
+  String get notificationsOpenProduct => '打开商品';
+
+  @override
+  String get notificationsStayInInbox => '留在通知中';
+
+  @override
+  String get afterSalesCaseOpened => '申请已创建。可在此补充附件。';
+
+  @override
+  String get afterSalesEvidenceConfirmed => '已收到，待审核';
+
+  @override
+  String get afterSalesEvidenceSafe => '已审核';
+
+  @override
+  String get afterSalesEvidenceRejected => '已拒绝';
+
+  @override
+  String get afterSalesEvidencePending => '待补充';
+
+  @override
+  String get afterSalesEvidenceUploading => '正在上传附件…';
+
+  @override
+  String get afterSalesEvidenceAmbiguous => '结果待确认。重试以核对同一附件。';
+
+  @override
+  String get afterSalesEvidenceFileUnavailable => '本地文件不可用。请重新选择。';
+
+  @override
+  String get afterSalesEvidenceRetry => '补充附件';
+
+  @override
+  String get afterSalesEvidenceReplace => '重新选择';
+
+  @override
+  String get afterSalesEvidenceReopenHelp => '重新打开后，已收到的附件会保留。重启应用后，请重新选择缺失文件。';
+
+  @override
+  String get afterSalesCreating => '正在创建申请…';
+
+  @override
+  String get afterSalesEvidenceInvalid => '文件格式不支持或文件过大。请选择其他文件。';
+
+  @override
+  String get cartLocalSavedNotice => '已保存到此设备的购物车。';
+
+  @override
+  String get cartPendingConfirmationNotice =>
+      '尚未确认此次更改。请在购物车中重试。重启后，请先检查数量，再次添加。';
+
+  @override
+  String get deliveryTrackingEtaUnavailable => '商店尚未提供预计送达时间段。';
+
+  @override
+  String get deliveryTrackingEtaExpired => '此前的预计送达时间段已结束，正在等待商店更新。';
+
+  @override
+  String get deliveryTrackingMapExpand => '展开配送地图';
+
+  @override
+  String get deliveryTrackingMapCollapse => '收起配送地图';
+
+  @override
+  String get deliveryTrackingMapUnavailable => '地图暂不可用。你仍可在此查看配送状态。';
+
+  @override
+  String get deliveryTrackingMapRetry => '重试地图';
+
+  @override
+  String get deliveryTrackingCacheCleanupFailed =>
+      '未能删除已保存的位置。此前的位置仍被隐藏，请重试更新。';
 }

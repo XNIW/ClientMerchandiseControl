@@ -230,9 +230,11 @@ class StorefrontFulfillmentBadges extends StatelessWidget {
                       Icon(option.icon, size: 15),
                       if (!compact) ...[
                         const SizedBox(width: AppSpacing.xs),
-                        Text(
-                          option.label,
-                          style: Theme.of(context).textTheme.labelSmall,
+                        Flexible(
+                          child: Text(
+                            option.label,
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
                         ),
                       ],
                     ],

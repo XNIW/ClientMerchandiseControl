@@ -1,0 +1,1935 @@
+{
+  "sourceRevision": "28d74aadee21f98605366e6f12e6477cfdfbc012",
+  "method": "WCAG 2.2 sRGB relative luminance; (Lmax+0.05)/(Lmin+0.05); unrounded threshold comparison",
+  "scope": "Widget host, Theme canoniche AppTheme light/dark, scala1, locale en, colori RenderParagraph/RenderPhysical/BoxDecoration applicati. Nessuna lettura pixel PNG, build app, device o verifica globale WCAG/AT.",
+  "rows": [
+    {
+      "id": "inbox.filter.All",
+      "theme": "light",
+      "text": "All",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FF324B47",
+      "foregroundSrgba": {
+        "r": 0.19607843137254902,
+        "g": 0.29411764705882354,
+        "b": 0.2784313725490196,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF324B47",
+      "foregroundEffectiveSrgba": {
+        "r": 0.19607843137254902,
+        "g": 0.29411764705882354,
+        "b": 0.2784313725490196,
+        "a": 1.0
+      },
+      "background": "#FFCCE8E3",
+      "backgroundSrgba": {
+        "r": 0.8,
+        "g": 0.9098039215686274,
+        "b": 0.8901960784313725,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFCCE8E3"
+      ],
+      "foregroundLuminance": 0.06165196034808632,
+      "backgroundLuminance": 0.7609664597569634,
+      "ratio": 7.26334277722212,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.filter.Orders",
+      "theme": "light",
+      "text": "Orders",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFF4FBF8",
+      "backgroundSrgba": {
+        "r": 0.9568627450980393,
+        "g": 0.984313725490196,
+        "b": 0.9725490196078431,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#00000000",
+        "PhysicalModel:#FFF4FBF8"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.9500476797643393,
+      "ratio": 16.305630846676653,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.filter.Payments",
+      "theme": "light",
+      "text": "Payments",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFF4FBF8",
+      "backgroundSrgba": {
+        "r": 0.9568627450980393,
+        "g": 0.984313725490196,
+        "b": 0.9725490196078431,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#00000000",
+        "PhysicalModel:#FFF4FBF8"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.9500476797643393,
+      "ratio": 16.305630846676653,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.filter.Support",
+      "theme": "light",
+      "text": "Support",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFF4FBF8",
+      "backgroundSrgba": {
+        "r": 0.9568627450980393,
+        "g": 0.984313725490196,
+        "b": 0.9725490196078431,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#00000000",
+        "PhysicalModel:#FFF4FBF8"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.9500476797643393,
+      "ratio": 16.305630846676653,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.filter.Unread only",
+      "theme": "light",
+      "text": "Unread only",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 16.0,
+      "effectiveLogicalSize": 16.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFF4FBF8",
+      "backgroundSrgba": {
+        "r": 0.9568627450980393,
+        "g": 0.984313725490196,
+        "b": 0.9725490196078431,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalModel:#FFF4FBF8"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.9500476797643393,
+      "ratio": 16.305630846676653,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-partial",
+      "theme": "light",
+      "text": "No unread notifications among those shown",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 22.0,
+      "effectiveLogicalSize": 22.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFE9EFED",
+      "backgroundSrgba": {
+        "r": 0.9137254901960784,
+        "g": 0.9372549019607843,
+        "b": 0.9294117647058824,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE9EFED"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.8517106676305288,
+      "ratio": 14.702260276588506,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-partial",
+      "theme": "light",
+      "text": "Load earlier notifications to check for more unread updates.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 16.0,
+      "effectiveLogicalSize": 16.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFE9EFED",
+      "backgroundSrgba": {
+        "r": 0.9137254901960784,
+        "g": 0.9372549019607843,
+        "b": 0.9294117647058824,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE9EFED"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.8517106676305288,
+      "ratio": 14.702260276588506,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.update-failure",
+      "theme": "light",
+      "text": "Notifications could not be updated. Try again.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FF001E30",
+      "foregroundSrgba": {
+        "r": 0.0,
+        "g": 0.11764705882352941,
+        "b": 0.18823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF001E30",
+      "foregroundEffectiveSrgba": {
+        "r": 0.0,
+        "g": 0.11764705882352941,
+        "b": 0.18823529411764706,
+        "a": 1.0
+      },
+      "background": "#FFCDE5FF",
+      "backgroundSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFCDE5FF"
+      ],
+      "foregroundLuminance": 0.011419468177531932,
+      "backgroundLuminance": 0.7623775868532856,
+      "ratio": 13.226711512791383,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.update-failure",
+      "theme": "light",
+      "text": "Retry",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FF001E30",
+      "foregroundSrgba": {
+        "r": 0.0,
+        "g": 0.11764705882352941,
+        "b": 0.18823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF001E30",
+      "foregroundEffectiveSrgba": {
+        "r": 0.0,
+        "g": 0.11764705882352941,
+        "b": 0.18823529411764706,
+        "a": 1.0
+      },
+      "background": "#FFCDE5FF",
+      "backgroundSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#00000000",
+        "PhysicalShape:#FFCDE5FF"
+      ],
+      "foregroundLuminance": 0.011419468177531932,
+      "backgroundLuminance": 0.7623775868532856,
+      "ratio": 13.226711512791383,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.partial-hint",
+      "theme": "light",
+      "text": "Load earlier notifications to check for more unread updates.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FF001E30",
+      "foregroundSrgba": {
+        "r": 0.0,
+        "g": 0.11764705882352941,
+        "b": 0.18823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF001E30",
+      "foregroundEffectiveSrgba": {
+        "r": 0.0,
+        "g": 0.11764705882352941,
+        "b": 0.18823529411764706,
+        "a": 1.0
+      },
+      "background": "#FFCDE5FF",
+      "backgroundSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFCDE5FF"
+      ],
+      "foregroundLuminance": 0.011419468177531932,
+      "backgroundLuminance": 0.7623775868532856,
+      "ratio": 13.226711512791383,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-complete",
+      "theme": "light",
+      "text": "No unread notifications",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 22.0,
+      "effectiveLogicalSize": 22.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFE9EFED",
+      "backgroundSrgba": {
+        "r": 0.9137254901960784,
+        "g": 0.9372549019607843,
+        "b": 0.9294117647058824,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE9EFED"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.8517106676305288,
+      "ratio": 14.702260276588506,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-complete",
+      "theme": "light",
+      "text": "You have read all the notifications shown.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 16.0,
+      "effectiveLogicalSize": 16.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFE9EFED",
+      "backgroundSrgba": {
+        "r": 0.9137254901960784,
+        "g": 0.9372549019607843,
+        "b": 0.9294117647058824,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE9EFED"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.8517106676305288,
+      "ratio": 14.702260276588506,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-cached",
+      "theme": "light",
+      "text": "No unread notifications among those shown",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 22.0,
+      "effectiveLogicalSize": 22.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFE9EFED",
+      "backgroundSrgba": {
+        "r": 0.9137254901960784,
+        "g": 0.9372549019607843,
+        "b": 0.9294117647058824,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE9EFED"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.8517106676305288,
+      "ratio": 14.702260276588506,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-cached",
+      "theme": "light",
+      "text": "Reconnect to check for more unread notifications.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 16.0,
+      "effectiveLogicalSize": 16.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFE9EFED",
+      "backgroundSrgba": {
+        "r": 0.9137254901960784,
+        "g": 0.9372549019607843,
+        "b": 0.9294117647058824,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE9EFED"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.8517106676305288,
+      "ratio": 14.702260276588506,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.offline-banner",
+      "theme": "light",
+      "text": "Showing saved notifications offline.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FF001E30",
+      "foregroundSrgba": {
+        "r": 0.0,
+        "g": 0.11764705882352941,
+        "b": 0.18823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF001E30",
+      "foregroundEffectiveSrgba": {
+        "r": 0.0,
+        "g": 0.11764705882352941,
+        "b": 0.18823529411764706,
+        "a": 1.0
+      },
+      "background": "#FFCDE5FF",
+      "backgroundSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFCDE5FF"
+      ],
+      "foregroundLuminance": 0.011419468177531932,
+      "backgroundLuminance": 0.7623775868532856,
+      "ratio": 13.226711512791383,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-detail.text",
+      "theme": "light",
+      "text": "Store pickup",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFF4FBF8",
+      "backgroundSrgba": {
+        "r": 0.9568627450980393,
+        "g": 0.984313725490196,
+        "b": 0.9725490196078431,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalModel:#FFF4FBF8"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.9500476797643393,
+      "ratio": 16.305630846676653,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-detail.text",
+      "theme": "light",
+      "text": "Delivery",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFF4FBF8",
+      "backgroundSrgba": {
+        "r": 0.9568627450980393,
+        "g": 0.984313725490196,
+        "b": 0.9725490196078431,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalModel:#FFF4FBF8"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.9500476797643393,
+      "ratio": 16.305630846676653,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-detail.text",
+      "theme": "light",
+      "text": "Reservation",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFF4FBF8",
+      "backgroundSrgba": {
+        "r": 0.9568627450980393,
+        "g": 0.984313725490196,
+        "b": 0.9725490196078431,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalModel:#FFF4FBF8"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.9500476797643393,
+      "ratio": 16.305630846676653,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-card.text",
+      "theme": "light",
+      "text": "Store pickup",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFE9EFED",
+      "backgroundSrgba": {
+        "r": 0.9137254901960784,
+        "g": 0.9372549019607843,
+        "b": 0.9294117647058824,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE9EFED"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.8517106676305288,
+      "ratio": 14.702260276588506,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-card.text",
+      "theme": "light",
+      "text": "Delivery",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFE9EFED",
+      "backgroundSrgba": {
+        "r": 0.9137254901960784,
+        "g": 0.9372549019607843,
+        "b": 0.9294117647058824,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE9EFED"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.8517106676305288,
+      "ratio": 14.702260276588506,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-card.text",
+      "theme": "light",
+      "text": "Reservation",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FF161D1C",
+      "foregroundSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FF161D1C",
+      "foregroundEffectiveSrgba": {
+        "r": 0.08627450980392157,
+        "g": 0.11372549019607843,
+        "b": 0.10980392156862745,
+        "a": 1.0
+      },
+      "background": "#FFE9EFED",
+      "backgroundSrgba": {
+        "r": 0.9137254901960784,
+        "g": 0.9372549019607843,
+        "b": 0.9294117647058824,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE9EFED"
+      ],
+      "foregroundLuminance": 0.011331431403536589,
+      "backgroundLuminance": 0.8517106676305288,
+      "ratio": 14.702260276588506,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.compact.icon",
+      "theme": "light",
+      "text": "",
+      "declaredFontFamily": "MaterialIcons",
+      "fontLogicalSize": 15.0,
+      "effectiveLogicalSize": 15.0,
+      "weight": null,
+      "largeText": false,
+      "foreground": "#DD000000",
+      "foregroundSrgba": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 0.8666666666666667
+      },
+      "foregroundEffective": "#FF1F2020",
+      "foregroundEffectiveSrgba": {
+        "r": 0.12183006535947709,
+        "g": 0.12496732026143788,
+        "b": 0.12392156862745096,
+        "a": 1.0
+      },
+      "background": "#FFE9EFED",
+      "backgroundSrgba": {
+        "r": 0.9137254901960784,
+        "g": 0.9372549019607843,
+        "b": 0.9294117647058824,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE9EFED"
+      ],
+      "foregroundLuminance": 0.014203210217450473,
+      "backgroundLuminance": 0.8517106676305288,
+      "ratio": 14.044635222701736,
+      "threshold": 3.0,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.compact.icon",
+      "theme": "light",
+      "text": "",
+      "declaredFontFamily": "MaterialIcons",
+      "fontLogicalSize": 15.0,
+      "effectiveLogicalSize": 15.0,
+      "weight": null,
+      "largeText": false,
+      "foreground": "#DD000000",
+      "foregroundSrgba": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 0.8666666666666667
+      },
+      "foregroundEffective": "#FF1F2020",
+      "foregroundEffectiveSrgba": {
+        "r": 0.12183006535947709,
+        "g": 0.12496732026143788,
+        "b": 0.12392156862745096,
+        "a": 1.0
+      },
+      "background": "#FFE9EFED",
+      "backgroundSrgba": {
+        "r": 0.9137254901960784,
+        "g": 0.9372549019607843,
+        "b": 0.9294117647058824,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE9EFED"
+      ],
+      "foregroundLuminance": 0.014203210217450473,
+      "backgroundLuminance": 0.8517106676305288,
+      "ratio": 14.044635222701736,
+      "threshold": 3.0,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "address.mutation-error",
+      "theme": "light",
+      "text": "Your account data is temporarily unavailable.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFBA1A1A",
+      "foregroundSrgba": {
+        "r": 0.7294117647058823,
+        "g": 0.10196078431372549,
+        "b": 0.10196078431372549,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFBA1A1A",
+      "foregroundEffectiveSrgba": {
+        "r": 0.7294117647058823,
+        "g": 0.10196078431372549,
+        "b": 0.10196078431372549,
+        "a": 1.0
+      },
+      "background": "#FFE3EAE7",
+      "backgroundSrgba": {
+        "r": 0.8901960784313725,
+        "g": 0.9176470588235294,
+        "b": 0.9058823529411765,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE3EAE7"
+      ],
+      "foregroundLuminance": 0.11252473533117811,
+      "backgroundLuminance": 0.8094605231336822,
+      "ratio": 5.288182881100233,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.filter.All",
+      "theme": "dark",
+      "text": "All",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FFCCE8E3",
+      "foregroundSrgba": {
+        "r": 0.8,
+        "g": 0.9098039215686274,
+        "b": 0.8901960784313725,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFCCE8E3",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8,
+        "g": 0.9098039215686274,
+        "b": 0.8901960784313725,
+        "a": 1.0
+      },
+      "background": "#FF324B47",
+      "backgroundSrgba": {
+        "r": 0.19607843137254902,
+        "g": 0.29411764705882354,
+        "b": 0.2784313725490196,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF324B47"
+      ],
+      "foregroundLuminance": 0.7609664597569634,
+      "backgroundLuminance": 0.06165196034808632,
+      "ratio": 7.26334277722212,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.filter.Orders",
+      "theme": "dark",
+      "text": "Orders",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF0E1513",
+      "backgroundSrgba": {
+        "r": 0.054901960784313725,
+        "g": 0.08235294117647059,
+        "b": 0.07450980392156863,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#00000000",
+        "PhysicalModel:#FF0E1513"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.006767101249694109,
+      "ratio": 14.320829866313552,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.filter.Payments",
+      "theme": "dark",
+      "text": "Payments",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF0E1513",
+      "backgroundSrgba": {
+        "r": 0.054901960784313725,
+        "g": 0.08235294117647059,
+        "b": 0.07450980392156863,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#00000000",
+        "PhysicalModel:#FF0E1513"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.006767101249694109,
+      "ratio": 14.320829866313552,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.filter.Support",
+      "theme": "dark",
+      "text": "Support",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF0E1513",
+      "backgroundSrgba": {
+        "r": 0.054901960784313725,
+        "g": 0.08235294117647059,
+        "b": 0.07450980392156863,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#00000000",
+        "PhysicalModel:#FF0E1513"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.006767101249694109,
+      "ratio": 14.320829866313552,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.filter.Unread only",
+      "theme": "dark",
+      "text": "Unread only",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 16.0,
+      "effectiveLogicalSize": 16.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF0E1513",
+      "backgroundSrgba": {
+        "r": 0.054901960784313725,
+        "g": 0.08235294117647059,
+        "b": 0.07450980392156863,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalModel:#FF0E1513"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.006767101249694109,
+      "ratio": 14.320829866313552,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-partial",
+      "theme": "dark",
+      "text": "No unread notifications among those shown",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 22.0,
+      "effectiveLogicalSize": 22.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF1A2120",
+      "backgroundSrgba": {
+        "r": 0.10196078431372549,
+        "g": 0.12941176470588237,
+        "b": 0.12549019607843137,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF1A2120"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.014116095399003737,
+      "ratio": 12.679374717713966,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-partial",
+      "theme": "dark",
+      "text": "Load earlier notifications to check for more unread updates.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 16.0,
+      "effectiveLogicalSize": 16.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF1A2120",
+      "backgroundSrgba": {
+        "r": 0.10196078431372549,
+        "g": 0.12941176470588237,
+        "b": 0.12549019607843137,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF1A2120"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.014116095399003737,
+      "ratio": 12.679374717713966,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.update-failure",
+      "theme": "dark",
+      "text": "Notifications could not be updated. Try again.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFCDE5FF",
+      "foregroundSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFCDE5FF",
+      "foregroundEffectiveSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "background": "#FF004B70",
+      "backgroundSrgba": {
+        "r": 0.0,
+        "g": 0.29411764705882354,
+        "b": 0.4392156862745098,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF004B70"
+      ],
+      "foregroundLuminance": 0.7623775868532856,
+      "backgroundLuminance": 0.06202006136334918,
+      "ratio": 7.252072324958394,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.update-failure",
+      "theme": "dark",
+      "text": "Retry",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FFCDE5FF",
+      "foregroundSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFCDE5FF",
+      "foregroundEffectiveSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "background": "#FF004B70",
+      "backgroundSrgba": {
+        "r": 0.0,
+        "g": 0.29411764705882354,
+        "b": 0.4392156862745098,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#00000000",
+        "PhysicalShape:#FF004B70"
+      ],
+      "foregroundLuminance": 0.7623775868532856,
+      "backgroundLuminance": 0.06202006136334918,
+      "ratio": 7.252072324958394,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.partial-hint",
+      "theme": "dark",
+      "text": "Load earlier notifications to check for more unread updates.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFCDE5FF",
+      "foregroundSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFCDE5FF",
+      "foregroundEffectiveSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "background": "#FF004B70",
+      "backgroundSrgba": {
+        "r": 0.0,
+        "g": 0.29411764705882354,
+        "b": 0.4392156862745098,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF004B70"
+      ],
+      "foregroundLuminance": 0.7623775868532856,
+      "backgroundLuminance": 0.06202006136334918,
+      "ratio": 7.252072324958394,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-complete",
+      "theme": "dark",
+      "text": "No unread notifications",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 22.0,
+      "effectiveLogicalSize": 22.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF1A2120",
+      "backgroundSrgba": {
+        "r": 0.10196078431372549,
+        "g": 0.12941176470588237,
+        "b": 0.12549019607843137,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF1A2120"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.014116095399003737,
+      "ratio": 12.679374717713966,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-complete",
+      "theme": "dark",
+      "text": "You have read all the notifications shown.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 16.0,
+      "effectiveLogicalSize": 16.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF1A2120",
+      "backgroundSrgba": {
+        "r": 0.10196078431372549,
+        "g": 0.12941176470588237,
+        "b": 0.12549019607843137,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF1A2120"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.014116095399003737,
+      "ratio": 12.679374717713966,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-cached",
+      "theme": "dark",
+      "text": "No unread notifications among those shown",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 22.0,
+      "effectiveLogicalSize": 22.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF1A2120",
+      "backgroundSrgba": {
+        "r": 0.10196078431372549,
+        "g": 0.12941176470588237,
+        "b": 0.12549019607843137,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF1A2120"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.014116095399003737,
+      "ratio": 12.679374717713966,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.empty-cached",
+      "theme": "dark",
+      "text": "Reconnect to check for more unread notifications.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 16.0,
+      "effectiveLogicalSize": 16.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF1A2120",
+      "backgroundSrgba": {
+        "r": 0.10196078431372549,
+        "g": 0.12941176470588237,
+        "b": 0.12549019607843137,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF1A2120"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.014116095399003737,
+      "ratio": 12.679374717713966,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "inbox.offline-banner",
+      "theme": "dark",
+      "text": "Showing saved notifications offline.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFCDE5FF",
+      "foregroundSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFCDE5FF",
+      "foregroundEffectiveSrgba": {
+        "r": 0.803921568627451,
+        "g": 0.8980392156862745,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "background": "#FF004B70",
+      "backgroundSrgba": {
+        "r": 0.0,
+        "g": 0.29411764705882354,
+        "b": 0.4392156862745098,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF004B70"
+      ],
+      "foregroundLuminance": 0.7623775868532856,
+      "backgroundLuminance": 0.06202006136334918,
+      "ratio": 7.252072324958394,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-detail.text",
+      "theme": "dark",
+      "text": "Store pickup",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF0E1513",
+      "backgroundSrgba": {
+        "r": 0.054901960784313725,
+        "g": 0.08235294117647059,
+        "b": 0.07450980392156863,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalModel:#FF0E1513"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.006767101249694109,
+      "ratio": 14.320829866313552,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-detail.text",
+      "theme": "dark",
+      "text": "Delivery",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF0E1513",
+      "backgroundSrgba": {
+        "r": 0.054901960784313725,
+        "g": 0.08235294117647059,
+        "b": 0.07450980392156863,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalModel:#FF0E1513"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.006767101249694109,
+      "ratio": 14.320829866313552,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-detail.text",
+      "theme": "dark",
+      "text": "Reservation",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF0E1513",
+      "backgroundSrgba": {
+        "r": 0.054901960784313725,
+        "g": 0.08235294117647059,
+        "b": 0.07450980392156863,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalModel:#FF0E1513"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.006767101249694109,
+      "ratio": 14.320829866313552,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-card.text",
+      "theme": "dark",
+      "text": "Store pickup",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF1A2120",
+      "backgroundSrgba": {
+        "r": 0.10196078431372549,
+        "g": 0.12941176470588237,
+        "b": 0.12549019607843137,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF1A2120"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.014116095399003737,
+      "ratio": 12.679374717713966,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-card.text",
+      "theme": "dark",
+      "text": "Delivery",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF1A2120",
+      "backgroundSrgba": {
+        "r": 0.10196078431372549,
+        "g": 0.12941176470588237,
+        "b": 0.12549019607843137,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF1A2120"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.014116095399003737,
+      "ratio": 12.679374717713966,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.probe-card.text",
+      "theme": "dark",
+      "text": "Reservation",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 11.0,
+      "effectiveLogicalSize": 11.0,
+      "weight": 500,
+      "largeText": false,
+      "foreground": "#FFDDE4E1",
+      "foregroundSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFDDE4E1",
+      "foregroundEffectiveSrgba": {
+        "r": 0.8666666666666667,
+        "g": 0.8941176470588236,
+        "b": 0.8823529411764706,
+        "a": 1.0
+      },
+      "background": "#FF1A2120",
+      "backgroundSrgba": {
+        "r": 0.10196078431372549,
+        "g": 0.12941176470588237,
+        "b": 0.12549019607843137,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF1A2120"
+      ],
+      "foregroundLuminance": 0.7629519990006648,
+      "backgroundLuminance": 0.014116095399003737,
+      "ratio": 12.679374717713966,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.compact.icon",
+      "theme": "dark",
+      "text": "",
+      "declaredFontFamily": "MaterialIcons",
+      "fontLogicalSize": 15.0,
+      "effectiveLogicalSize": 15.0,
+      "weight": null,
+      "largeText": false,
+      "foreground": "#FFFFFFFF",
+      "foregroundSrgba": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFFFFFFF",
+      "foregroundEffectiveSrgba": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "background": "#FF1A2120",
+      "backgroundSrgba": {
+        "r": 0.10196078431372549,
+        "g": 0.12941176470588237,
+        "b": 0.12549019607843137,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF1A2120"
+      ],
+      "foregroundLuminance": 1.0,
+      "backgroundLuminance": 0.014116095399003737,
+      "ratio": 16.376543104593285,
+      "threshold": 3.0,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "fulfillment.compact.icon",
+      "theme": "dark",
+      "text": "",
+      "declaredFontFamily": "MaterialIcons",
+      "fontLogicalSize": 15.0,
+      "effectiveLogicalSize": 15.0,
+      "weight": null,
+      "largeText": false,
+      "foreground": "#FFFFFFFF",
+      "foregroundSrgba": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFFFFFFF",
+      "foregroundEffectiveSrgba": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "background": "#FF1A2120",
+      "backgroundSrgba": {
+        "r": 0.10196078431372549,
+        "g": 0.12941176470588237,
+        "b": 0.12549019607843137,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF1A2120"
+      ],
+      "foregroundLuminance": 1.0,
+      "backgroundLuminance": 0.014116095399003737,
+      "ratio": 16.376543104593285,
+      "threshold": 3.0,
+      "result": "PASS",
+      "required": true
+    },
+    {
+      "id": "address.mutation-error",
+      "theme": "dark",
+      "text": "Your account data is temporarily unavailable.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFFFB4AB",
+      "foregroundSrgba": {
+        "r": 1.0,
+        "g": 0.7058823529411765,
+        "b": 0.6705882352941176,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFFFB4AB",
+      "foregroundEffectiveSrgba": {
+        "r": 1.0,
+        "g": 0.7058823529411765,
+        "b": 0.6705882352941176,
+        "a": 1.0
+      },
+      "background": "#FF252B2A",
+      "backgroundSrgba": {
+        "r": 0.1450980392156863,
+        "g": 0.16862745098039217,
+        "b": 0.16470588235294117,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF252B2A"
+      ],
+      "foregroundLuminance": 0.5684279070779308,
+      "backgroundLuminance": 0.022882358564523694,
+      "ratio": 8.48528943434821,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true
+    }
+  ]
+}

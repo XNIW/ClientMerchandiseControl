@@ -1,0 +1,181 @@
+{
+  "schema": "task054.test-release-preflight.source-rereview.v1",
+  "revision": "6461194f68cf7d18f011b22e15fa6269dca19eb5",
+  "parent": "02d089d4e9a0e893df328feffaee2ab891dfe602",
+  "cumulative_base": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "outcome": "APPROVED",
+  "scope": "SOURCE_CODE_ONLY",
+  "reviewer": "/root/client_ux/journal_source_review",
+  "author_distinct": true,
+  "source_association": {
+    "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/immutable-source-association-6461194.json",
+    "sha256": "849165b9e1e61bd3146e4d1c809503466d7521bd0882703a7d76bb3b16055a84"
+  },
+  "closures": [
+    {
+      "id": "TEST-PREFLIGHT-01",
+      "severity": "P2",
+      "status": "RESOLVED",
+      "source": "scripts/check-android-release.sh:432",
+      "change": "Il guard TEST passa il readback XML compilato APK già acquisito al helper locale e usa lo stesso host attestato impiegato dal validator AAB. Production salta il ramo.",
+      "evidence": [
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/p2-rereview-6461194.log",
+          "sha256": "d739b2537ee659109b021bc880a58ecdf6eb11d1bed56e1ad945dae959f877f0"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/native-peer-6461194/android-apk-callback-rereview.json",
+          "sha256": "645a57e902bca31ae9dfd41d32bab71e0b7853077673355e37a80152716d217d"
+        }
+      ],
+      "verification": "Nuovo test permanente esegue il guard reale: canonico accettato e otto negativi respinti. Peer verifica separatamente18 casi helper e6 guard, compresi host diverso/HTTPS assente e skip production."
+    },
+    {
+      "id": "TEST-PREFLIGHT-02",
+      "severity": "P2",
+      "status": "RESOLVED",
+      "source": "tool/check_android_bundle_manifest.dart:250",
+      "change": "La cardinalità delle chiavi uniche deve corrispondere alla cardinalità attesa, insieme al controllo esistente di namespace e valori.",
+      "evidence": [
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/green-duplicate-host-missing-path-6461194.log",
+          "sha256": "4ede5f879fab2fb63bec974b52301b68f9ca07dfd2d4a4e19d6a223fd1e558cb"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/p2-rereview-6461194.log",
+          "sha256": "d739b2537ee659109b021bc880a58ecdf6eb11d1bed56e1ad945dae959f877f0"
+        }
+      ],
+      "verification": "Stesso PoC autonomo della review RED: canonico expected0/actual0; host duplicato/path assente expected1/actual1. Driver GREEN exit0. Test permanente duplicate incluso nella suite passata."
+    }
+  ],
+  "open_blocking_findings": [],
+  "fresh_checks": {
+    "flutter_impacted": {
+      "result": "PASS",
+      "exit_code": 0,
+      "tests": 32,
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/p2-rereview-6461194.log",
+        "sha256": "d739b2537ee659109b021bc880a58ecdf6eb11d1bed56e1ad945dae959f877f0"
+      }
+    },
+    "original_duplicate_poc": {
+      "result": "PASS",
+      "exit_code": 0,
+      "cases": 2,
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/green-duplicate-host-missing-path-6461194.log",
+        "sha256": "4ede5f879fab2fb63bec974b52301b68f9ca07dfd2d4a4e19d6a223fd1e558cb"
+      }
+    },
+    "shell_syntax_and_default_source_only": {
+      "result": "PASS",
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cases": 4,
+      "evidence": [
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/android-syntax-6461194.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/android-source-only-6461194.log",
+          "sha256": "99e0089acb2d8a0221bd4effbecf88d10b436601a55457708bba799100f0f8a5"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/ios-syntax-6461194.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/ios-source-only-6461194.log",
+          "sha256": "245860d72153226ea773aa2c5c95bb7a40ae2b890db75a85a933665f8e0048ec"
+        }
+      ]
+    },
+    "peer_xml_helper": {
+      "result": "PASS",
+      "exit_code": 0,
+      "cases": 18,
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/native-peer-6461194/android-apk-callback-rereview.json",
+        "sha256": "645a57e902bca31ae9dfd41d32bab71e0b7853077673355e37a80152716d217d"
+      }
+    },
+    "peer_actual_guard": {
+      "result": "PASS",
+      "exit_code": 0,
+      "cases": 6,
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/native-peer-6461194/android-apk-callback-rereview.json",
+        "sha256": "645a57e902bca31ae9dfd41d32bab71e0b7853077673355e37a80152716d217d"
+      }
+    }
+  },
+  "reused_evidence": {
+    "base_review": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/source-review-02d089d.json",
+      "sha256": "7e9e72ddd8942a8a0040b5bed1f3b6e2e5707ac6829428a71a6b1be846f01937"
+    },
+    "byte_identity_receipt": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/base-evidence-reuse-6461194.json",
+      "sha256": "b54f65c469152d071ab1ace8e63bba2a9e382f36d9d682833a6b9248ec5fbfbc"
+    },
+    "files_compared": 14,
+    "base_flutter_tests": 60,
+    "base_ast_canonical": "PASS",
+    "note": "Prove precedenti, non nuove esecuzioni. Config/attestazione/tool/AST e file governance indicati risultano identici. I file test/caller Android modificati sono stati rieseguiti."
+  },
+  "interoperability": "XML APK e protobuf AAB applicano lo stesso contratto: unico filtro HTTPS, namespace Android, autoVerify=true, VIEW/DEFAULT/BROWSABLE, host attestato e path esatto /auth-callback/; altri attributi/dati e duplicati sono respinti nei casi verificati. Nessuna prova con artifact o apkanalyzer reale.",
+  "non_blocking_observations": [
+    {
+      "id": "XML-ENCODING-LIMIT",
+      "status": "LIMIT_RECORDED_NO_REACHABLE_GATE_BYPASS_DEMONSTRATED",
+      "description": "Helper diretto accetta DOCTYPE/entity innocua UTF-16 perché il byte-scan ASCII non vede dichiarazioni intervallate da NUL. Nel percorso corrente, l’esatta materializzazione Bash del readback rimuove i NUL e rende visibili le dichiarazioni ASCII; entrambi i campioni sono respinti dal guard. Nessuna garanzia universale di encoding o parser XML generalizzato viene assegnata.",
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/native-peer-6461194/android-apk-callback-rereview.json",
+        "sha256": "645a57e902bca31ae9dfd41d32bab71e0b7853077673355e37a80152716d217d"
+      }
+    },
+    {
+      "id": "SNAPSHOT-COPY-NOTE",
+      "status": "UNQUALIFIED_NOTE_INHERITED",
+      "description": "La possibile sostituzione del path fra lettura e cp, già annotata nella review base, non è un finding qualificato o una verifica di attacco."
+    }
+  ],
+  "limitations": [
+    {
+      "lane": "native_build_actual_APK_AAB_MachO_signature_profile",
+      "result": "NOT_RUN",
+      "reason": "Mandato source/host, nessun build nativo, artifact reale o profilo/credenziale consultato."
+    },
+    {
+      "lane": "device_operator_auth_TEST_upload_acceptance",
+      "result": "NOT_RUN",
+      "reason": "Fuori scope; helper/fixture/regressioni non attestano autenticazione o readiness operativa."
+    },
+    {
+      "lane": "backend_live_TLS_RPC",
+      "result": "NOT_RUN",
+      "reason": "Nessun accesso remoto o gate live eseguito dal reviewer."
+    },
+    {
+      "lane": "hosted_assetlinks_AASA_callback_ownership",
+      "result": "NOT_VERIFIED",
+      "reason": "I binding locali non dimostrano associazioni server, ownership o signer distribuito."
+    },
+    {
+      "lane": "global_suite_CI",
+      "result": "NOT_RUN",
+      "reason": "Solo regressioni impattate; nessuna suite globale o CI duplicata."
+    }
+  ],
+  "source_edits": false,
+  "all_review_processes_terminal": true,
+  "protected_directory_mode": "0700",
+  "receipt_file_mode": "0600"
+}

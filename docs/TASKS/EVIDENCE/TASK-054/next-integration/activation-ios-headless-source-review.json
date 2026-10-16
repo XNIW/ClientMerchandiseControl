@@ -1,0 +1,111 @@
+{
+  "schema": "task054-ios-headless-final-source-review-v1",
+  "created_at_utc": "2026-10-09T23:16:58.015444+00:00",
+  "reviewer": "/root/final_audit",
+  "secondary_reviewer": "/root/final_audit/capsule_integrity",
+  "verdict": "APPROVED",
+  "qualification": "APPROVED_SOURCE_DELTA_ONLY",
+  "base": "8fc7f8dc5221f22a393ffbe73c4f5827654e171f",
+  "patch_sha256": "86f4b5ab04792122092e2a2eea3cebd0f24ad60527cc0d5cfe423b810938d28d",
+  "files": {
+    "scripts/run-task054-ios-owned.py": "68adacf921d85e166d5221a5d460b07f438ab714af9e52eee182a4332c8205b3",
+    "scripts/test-task054-ios-owned.py": "dbc129051c59f03dcd609240319b2d9bdccd68be067fddb982db47ada913e6fa"
+  },
+  "static_checks_PASS": 17,
+  "gate_fidelity_checks": {
+    "PASS": 9,
+    "FAIL": 0,
+    "items": [
+      {
+        "name": "static_review_exact_preparation_patch",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "source_file_hash:scripts/run-task054-ios-owned.py",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "source_file_hash:scripts/test-task054-ios-owned.py",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "RED_log_hash_exact",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "GREEN_log_hash_exact",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "actual_RED_50_two_errors_preserved",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "actual_GREEN_50_OK_terminal",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "native_runtime_not_claimed",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "reviewed_patch_still_exact_before_commit",
+        "result": "PASS",
+        "detail": ""
+      }
+    ]
+  },
+  "inputs": [
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/review/ios-headless-concrete-review.json",
+      "sha256": "9d89ff3294d1d4166db5b6ab734e0aa3b262adeedffdf5a41d6842208c1abc37"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/headless-source-preparation.json",
+      "sha256": "a6595ec21905ee4b816aa6316ec0fb2960b51b6d00ac65e363eb4016830de25e"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/headless-regression-red.log",
+      "sha256": "763ac54d37613e7e17227929425cf4c363a95aef4f9a7b0eef635c57e02d68de"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/headless-regression-green.log",
+      "sha256": "e0348f008b987513dadeeabcb7e26af436777fee5045bdc020d3f2a358d66a58"
+    }
+  ],
+  "executor_terminal_provenance": {
+    "RED_session": 16932,
+    "RED_tool_chunk": "7e8ae1",
+    "RED_exit_code": 1,
+    "GREEN_session": 6970,
+    "GREEN_tool_chunk": "b1f9b2",
+    "GREEN_exit_code": 0
+  },
+  "regressions": {
+    "status": "PASS",
+    "tests": 50,
+    "surface": "offline lifecycle and own subprocess harness; no native boot or GUI",
+    "reviewer_reexecuted": false
+  },
+  "approval_scope": "Only two reviewed runner/test files. Explicit headless removes GUI guard/open; ownership/budgets/default behavior remain unchanged. Authorizes source handoff; new source commit must be associated with these hashes.",
+  "next_native_gates": "After writer freezes source and records concrete resource slot, one owned local Prepare may qualify own UUID. Build/launch/native review/journal/matrix remain separate actual gates.",
+  "local_headless_Prepare": "NOT_RUN",
+  "native_runtime": "BLOCKED",
+  "minimum_iOS14_runtime": "NOT_RUN",
+  "Client_Auth": "NOT_RUN",
+  "CI8fc": "Separate terminal PASS at prior exact revision; no automatic whole-new-head qualification",
+  "integrated_verdict": "BLOCKED",
+  "findings": [],
+  "repo_edits": false,
+  "UI_boot_or_device_interaction": false,
+  "remote_SQL_or_CI_mutation": false,
+  "all_own_commands_terminal": true
+}

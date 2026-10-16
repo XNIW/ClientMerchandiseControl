@@ -1,0 +1,51 @@
+{
+  "generated_at_utc": "2026-10-09T00:29:23.659630+00:00",
+  "base": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "candidate": "0cec1058748d1109a9b7a4516d54be6bc3224bab",
+  "commits": [
+    "7177d3059fb2cc6c32b91f2446bb681e6d28c501",
+    "0cec1058748d1109a9b7a4516d54be6bc3224bab"
+  ],
+  "branch": "codex/task054-db-session-pooler",
+  "worktree_clean": true,
+  "scope": "source transport gate; Client app/manifest RPC unchanged; no TEST SQL",
+  "files": {
+    "scripts/check-backend-compatibility.py": "2db803a7080eb1d8796cc0bb7d3cf6d1121cb08d8d987d19b432a861aa2a9d07",
+    "scripts/test-backend-compatibility.py": "185ae80463c2e0d6361af5d61f4ebaf199b331e76c9b55fa5de427d5e0264d38",
+    "docs/operations/BACKEND-CONNECTION-TRANSPORT.md": "9e6668c544b8bb452774ebfde713dbcfb14017f00c9ddcc8edf964727bc0e335"
+  },
+  "evidence": {
+    "red-before-fix.json": "1d534ebf957659e014a41356f6d98a5efd419c758d149f785c1a7827763fbcec",
+    "targeted-gates.json": "88bb5ae3e2fa1c1a6fd1a9151fc1fd1c08dad85db4cedfa26a87655c6628e359",
+    "targeted-fix-gates.json": "21c179d4057cacaff793920747cc2e75f8c64bcbfbb5b9b75a2b0a8fe31f9f92",
+    "libpq-service-redirection-proof.json": "35684747f49bca9824f982a8f163aaa608c433e2814626a36805f3581215d864",
+    "local-query-first-attempt.json": "3e4d6c30cca63492d5f47b32f3d3b7198a257d230c30282a62a9bf282380835e",
+    "local-query-proof.json": "ad4dca27131eac49e8204ac126ef93155945f245f12e0f8dbb28fad8ba46b1e9",
+    "dbt-r01-fix-test-harness-first.json": "04c3369556e279c1dce58bbfb4bc6252ef2634895ad9ba38b996492545c967ee",
+    "review/transport-review.json": "297f8db63c09afe5fb7c530829e3db6db72466b017f22b6c03da8d6f2a18ed1c",
+    "review/transport-rereview.json": "c4a05facef7c51c020fb511b3b3893a3cb0ca3f2bcd7f018eb49705e0a64b66e"
+  },
+  "patch_sha256": "a032381b9282b9bed72902ca8c2f5d138f3cacf614ec66ae06d8824ba50f363c",
+  "source_regressions": {
+    "result": "PASS",
+    "tests": 30
+  },
+  "review_regression_cases": {
+    "missing_inputs": 6,
+    "unreadable_inputs": 4,
+    "result": "PASS"
+  },
+  "libpq_parameter_precedence": "PASS_offline_direct_and_session_pooler_no_socket",
+  "actual_query": "PASS_local_PostgreSQL17_no_network",
+  "live_tls": "NOT_RUN",
+  "test_authentication": "NOT_RUN",
+  "remote_writes": "NOT_RUN",
+  "operator_apply_authorization": "NOT_RUN",
+  "all_commands_terminal": true,
+  "review": "APPROVED_SOURCE_CODE_ONLY",
+  "resolved_findings": [
+    "DBT-R01/P2"
+  ],
+  "open_findings": 0,
+  "next_action": "Root integra i due commit e usa endpoint/trust/password readonly autorizzati per connection-only; verifica apply channel separato; usa live57 dopo apply."
+}

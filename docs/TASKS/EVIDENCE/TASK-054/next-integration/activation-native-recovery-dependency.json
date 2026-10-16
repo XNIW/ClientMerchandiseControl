@@ -1,0 +1,162 @@
+{
+  "schema": "task054-n-recovery-dependency-readonly-v1",
+  "qualification": "CATALOG_AND_OWNER_PROJECTION_ONLY",
+  "at_utc": "2026-10-09T23:40:59.610608+00:00",
+  "project": "jpgoimipbothfgkokyvm",
+  "root_metadata_command_result": "PASS",
+  "transaction": "BEGIN READ ONLY / statement_timeout10s / catalog-only / ROLLBACK",
+  "initial_exact_short_names_query": {
+    "matched_functions": 0,
+    "qualification": "not endpoint absence; catalog naming discovery followed"
+  },
+  "source_query_sha256": "fa105f1cb02880653d2b33b34dc6a6971f36a4307abd8c3ad3277d57faae5175",
+  "private_catalog_sha256": "fc7e8323a397220ceb0575242b74445e78587dc5ebfa94ec796b17c79dc48b96",
+  "functions": [
+    {
+      "schema": "app_private",
+      "name": "shop_sync_scoped_rows_v1",
+      "identity_arguments": "p_shop_id uuid, p_mapped_owner_id uuid, p_authorized_legacy_owner_id uuid, p_scope_kind text, p_domain text, p_after_id text, p_entity_ids text[], p_limit integer",
+      "definition_md5": "ee931fc661fc2a86d4d5acffc226f744",
+      "timeout_settings": []
+    },
+    {
+      "schema": "app_private",
+      "name": "sync_recovery_page_row_count_limit_v1",
+      "identity_arguments": "p_domain text",
+      "definition_md5": "c708604c918bca9b5e83e6ebb23b93af",
+      "timeout_settings": []
+    },
+    {
+      "schema": "public",
+      "name": "shop_sync_convergence_marker_v1",
+      "identity_arguments": "p_shop_id uuid, p_device_identifier text, p_verified_baseline_id text, p_expected_baseline_scope_key text",
+      "definition_md5": "ff0591f3b2bd3284be3dc8519a65de48",
+      "timeout_settings": []
+    },
+    {
+      "schema": "public",
+      "name": "shop_sync_recovery_checkpoint_v1",
+      "identity_arguments": "p_shop_id uuid, p_device_identifier text, p_verified_baseline_id text, p_expected_baseline_scope_key text",
+      "definition_md5": "f7b56c90e15461b67d06c8f4093c73dd",
+      "timeout_settings": []
+    },
+    {
+      "schema": "public",
+      "name": "shop_sync_recovery_page_v1",
+      "identity_arguments": "p_shop_id uuid, p_device_identifier text, p_domain text, p_after_id text, p_limit integer, p_expected_scope_key text, p_expected_event_max_id text, p_expected_domain_event_max_id text",
+      "definition_md5": "64af07acdba360133bf36be198fae1ea",
+      "timeout_settings": []
+    }
+  ],
+  "role_statement_timeout_defaults": [
+    {
+      "role": "anon",
+      "statement_timeouts": [
+        "statement_timeout=3s"
+      ]
+    },
+    {
+      "role": "authenticated",
+      "statement_timeouts": [
+        "statement_timeout=8s"
+      ]
+    },
+    {
+      "role": "authenticator",
+      "statement_timeouts": [
+        "statement_timeout=8s"
+      ]
+    }
+  ],
+  "verified_call_chains": [
+    "public.shop_sync_recovery_page_v1 -> app_private.shop_sync_scoped_rows_v1",
+    "public.shop_sync_convergence_marker_v1 -> public.shop_sync_recovery_checkpoint_v1"
+  ],
+  "verified_page_limits": {
+    "request_min": 1,
+    "request_max": 250,
+    "defaults": 250,
+    "internal_helper_max": 251,
+    "effective_domain_caps": {
+      "suppliers": 240,
+      "categories": 240,
+      "products": 60,
+      "prices": 120,
+      "history": 3,
+      "images": 240
+    }
+  },
+  "owner_N_projection": {
+    "path": "/Users/minxiang/Projects/MerchandiseControl-Ecosistema/evidence/native-local-availability-20261004/native-residuals-continuation-20261007-01/native-resume-20261009-01/test-backend-current-500-projection.json",
+    "sha256": "c2af36f6d63cb864b414e5bf76838b01c86bd0e651d8fbb0b6df939c069b4e28",
+    "projection": {
+      "kind": "BOUNDED_READONLY_TEST_BACKEND_FAILURE_PROJECTION",
+      "project": "jpgoimipbothfgkokyvm",
+      "retryGestureUTC": "2026-10-09T23:17:37.485Z",
+      "nativeTerminalUILocal": "2026-10-09 20:22:09 America/Santiago",
+      "nativeTerminal": "HTTP500",
+      "edgeWindow": [
+        "2026-10-09T23:17:35Z",
+        "2026-10-09T23:22:15Z"
+      ],
+      "pgWindow": [
+        "2026-10-09T23:22:00Z",
+        "2026-10-09T23:22:15Z"
+      ],
+      "edge": [
+        {
+          "rpc": "shop_sync_recovery_page_v1",
+          "status": 500,
+          "count": 1,
+          "clientClass": "IOS_APP_UA"
+        },
+        {
+          "rpc": "shop_sync_convergence_marker_v1",
+          "status": 500,
+          "count": 1,
+          "clientClass": "UNCLASSIFIED"
+        },
+        {
+          "rpc": "shop_sync_recovery_checkpoint_v1",
+          "status": 500,
+          "count": 1,
+          "clientClass": "UNCLASSIFIED"
+        }
+      ],
+      "postgres": [
+        {
+          "queryFunction": "shop_sync_recovery_page_v1",
+          "contextFunction": "shop_sync_scoped_rows_v1",
+          "sqlState": "57014",
+          "severity": "ERROR",
+          "errorMessageClass": "STATEMENT_TIMEOUT",
+          "count": 1
+        },
+        {
+          "queryFunction": "shop_sync_convergence_marker_v1",
+          "contextFunction": "shop_sync_recovery_checkpoint_v1",
+          "sqlState": "57014",
+          "severity": "ERROR",
+          "errorMessageClass": "STATEMENT_TIMEOUT",
+          "count": 1
+        }
+      ],
+      "errorMessageProjection": "positionCaseInsensitive(event_message,'statement timeout') only; no raw messages exported",
+      "correlationBounds": "Time-window and endpoint/context relationship. Recovery page UA identifies iOS app class, not a unique request ID/device/session; other clients unclassified. Not proof of exact failing SQL execution plan.",
+      "changes": {
+        "sqlWrites": 0,
+        "ddl": 0,
+        "cron": 0,
+        "rpcInvocations": 0,
+        "authMaterialExports": 0
+      }
+    }
+  },
+  "conclusion": "N reports statement-timeout ERROR57014 in same bounded window and endpoint/helper chains match current catalog; authenticated/authenticator role defaults8s and no function timeout override. No unique request/device/session correlation or actual query-plan diagnosis.",
+  "actual_request_effective_timeout": "NOT_PROVEN from role defaults alone",
+  "business_RPC": "NOT_RUN",
+  "EXPLAIN_ANALYZE": "NOT_RUN",
+  "repair_or_migration": "NOT_RUN",
+  "relationship_to_Storefront_four_canonical_migrations": "separate existing native sync endpoints, no generic migration inferred",
+  "write_authority_R24_Client_Auth": "NOT_PROVEN"
+}

@@ -1,0 +1,37 @@
+{
+  "observed_utc": "2026-10-08T20:00:06.948456+00:00",
+  "source": "Direct authorized W/N coordination messages in current task",
+  "W": {
+    "worker_ownership": "Our Worker lane sole writer, W preserves foreign work",
+    "own_writers_active": false,
+    "proposed_window_utc": "2026-10-08T20:15:00Z/2026-10-08T20:45:00Z",
+    "window_confirmed": false,
+    "db_tls_refs_found": false,
+    "customer_A_B_refs_found": false,
+    "personal_WeChat_selector_reuse": false,
+    "cron_names_canonical": [
+      "storefront-promotion-reconcile-v1",
+      "storefront-reservation-hold-expire-v1",
+      "storefront-checkout-quote-expire-v1",
+      "storefront-delivery-tracking-cleanup-v1"
+    ],
+    "cron_live_state": "NOT_RUN",
+    "binding": "TEST only"
+  },
+  "N": {
+    "android_main": "9d5c270b9c4ab2e62866e24364c0646fa5aa186a",
+    "app_install_and_launch": "Reported PASS, native management app only",
+    "native_account_connected": "Observed in UI; not Client AUTH_LIVE or global scope READY",
+    "outbox_terminal": "Reported4→0/wm12449 on historical events, not new R24",
+    "current_sync": "Ordinary device/status/catalog sync remains active",
+    "R24": "NOT_RUN",
+    "devices_reserved_to_N": true,
+    "ios_pr21_head": "3212799ea870a977a53d85570a9c61bd8bc80a91",
+    "ios_ci": "1524 unit PASS,36skip,14UI PASS,2UI FAIL per N; cause unconfirmed",
+    "new_ios_candidate_installed": false
+  },
+  "shared_apply": "NOT_RUN",
+  "worker_deploy": "NOT_RUN",
+  "client_install": "NOT_RUN",
+  "credentials_values_received": false
+}

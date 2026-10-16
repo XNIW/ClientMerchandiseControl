@@ -1,0 +1,296 @@
+{
+  "verdict": "APPROVED_EVIDENCE_FIDELITY",
+  "runId": 37848510649,
+  "scope": "Final frozen aggregate iOS terminal capsule and debug artifacts; no native acceptance approval",
+  "capsuleSha256": {
+    "json": "49e9ee8032be01f03894fd7878302cf630a4568f7d598ebe3cb82a7308501a6d",
+    "md": "e42f9c875d66fc7bde9c06ef7ff83383e5d3958205899d505ef72f062dc5db58"
+  },
+  "rawAuditChecks": 54,
+  "aggregateCapsuleChecks": 48,
+  "referencedJournalAuditChecks": 55,
+  "checks": [
+    {
+      "id": "capsule_JSON_freeze",
+      "status": "PASS",
+      "anchor": "final freeze"
+    },
+    {
+      "id": "capsule_MD_freeze",
+      "status": "PASS",
+      "anchor": "final freeze"
+    },
+    {
+      "id": "raw54_PASS",
+      "status": "PASS",
+      "anchor": "raw-audit.json"
+    },
+    {
+      "id": "journal55_PASS",
+      "status": "PASS",
+      "anchor": "journal independent receipt"
+    },
+    {
+      "id": "both_jobs_same_run_attempt",
+      "status": "PASS",
+      "anchor": "capsule/raw/journal"
+    },
+    {
+      "id": "checkout_merge_distinct",
+      "status": "PASS",
+      "anchor": "journal raw+local Git proof"
+    },
+    {
+      "id": "parents_tree_equal",
+      "status": "PASS",
+      "anchor": "saved API merge/local checkout"
+    },
+    {
+      "id": "source_candidate_app_freeze",
+      "status": "PASS",
+      "anchor": "prior autonomous git names proof"
+    },
+    {
+      "id": "debug_identity",
+      "status": "PASS",
+      "anchor": "status"
+    },
+    {
+      "id": "journal_identity",
+      "status": "PASS",
+      "anchor": "journal/status"
+    },
+    {
+      "id": "both_preapp_FAIL124",
+      "status": "PASS",
+      "anchor": "logs+annotations"
+    },
+    {
+      "id": "debug_build_security_PASS",
+      "status": "PASS",
+      "anchor": "status/log455,568,578,579"
+    },
+    {
+      "id": "smoke_capture_Keychain_NOT_RUN",
+      "status": "PASS",
+      "anchor": "steps skipped"
+    },
+    {
+      "id": "resource_cleanup_separate",
+      "status": "PASS",
+      "anchor": "canonical receipts+status"
+    },
+    {
+      "id": "process_flag_not_promoted",
+      "status": "PASS",
+      "anchor": "no full trace"
+    },
+    {
+      "id": "wall39_170690_qualified",
+      "status": "PASS",
+      "anchor": "log983→985"
+    },
+    {
+      "id": "job35_not_hit",
+      "status": "PASS",
+      "anchor": "status+annotation+sourceworkflow"
+    },
+    {
+      "id": "exact_finished_inventory_failure_times",
+      "status": "PASS",
+      "anchor": "log981/983/985"
+    },
+    {
+      "id": "raw_artifact_integrity",
+      "status": "PASS",
+      "anchor": "fullZIPhash/CRC/API/upload"
+    },
+    {
+      "id": "preview_artifact_integrity",
+      "status": "PASS",
+      "anchor": "fullZIPhash/CRC/API/upload"
+    },
+    {
+      "id": "zero_images",
+      "status": "PASS",
+      "anchor": "ZIPs exact members"
+    },
+    {
+      "id": "preview_NOT_RUN_no_transform",
+      "status": "PASS",
+      "anchor": "manifest0+0/files[]; noPNG"
+    },
+    {
+      "id": "old43_no_causal_promotion",
+      "status": "PASS",
+      "anchor": "old capsule approved fidelity/currentapp skipped"
+    },
+    {
+      "id": "runtime14_not_promoted",
+      "status": "PASS",
+      "anchor": "localGitdeploymenttarget14/currentowner26.5"
+    },
+    {
+      "id": "other_acceptance_NOT_RUN",
+      "status": "PASS",
+      "anchor": "scope"
+    },
+    {
+      "id": "no_retry_authorized",
+      "status": "PASS",
+      "anchor": "explicit parent instruction"
+    },
+    {
+      "id": "utility_P2_preserved_withdrawn",
+      "status": "PASS",
+      "anchor": "privateutility review/withdrawal"
+    },
+    {
+      "id": "utility_no_real_use",
+      "status": "PASS",
+      "anchor": "privateutility/source review+withdrawal"
+    },
+    {
+      "id": "utility_PoC_terminal_cleanup",
+      "status": "PASS",
+      "anchor": "source reviewer syntheticPoC; workerwait and ownPGIDprobe→absent"
+    },
+    {
+      "id": "P3_terminal_claim_now_qualified",
+      "status": "PASS",
+      "anchor": "final MD/JSON qualifier"
+    },
+    {
+      "id": "monitor_scope_precise",
+      "status": "PASS",
+      "anchor": "monitor vs executorqualification"
+    },
+    {
+      "id": "seven_acquisition_receipts_reaped",
+      "status": "PASS",
+      "anchor": "sevenreceipt; subsequentPIDabsence remains parent observation, not independent retry"
+    },
+    {
+      "id": "remote_quiescence_not_promoted",
+      "status": "PASS",
+      "anchor": "scope"
+    },
+    {
+      "id": "file_pin_simulator-hosted.raw",
+      "status": "PASS",
+      "anchor": "raw/final-f326/simulator-hosted.raw"
+    },
+    {
+      "id": "file_pin_simulator-hosted.log",
+      "status": "PASS",
+      "anchor": "raw/final-f326/simulator-hosted.log"
+    },
+    {
+      "id": "file_pin_simulator-status.json",
+      "status": "PASS",
+      "anchor": "raw/final-f326/simulator-status.json"
+    },
+    {
+      "id": "file_pin_simulator-annotations.json",
+      "status": "PASS",
+      "anchor": "raw/final-f326/simulator-annotations.json"
+    },
+    {
+      "id": "file_pin_simulator-log-acquisition.json",
+      "status": "PASS",
+      "anchor": "raw/final-f326/simulator-log-acquisition.json"
+    },
+    {
+      "id": "file_pin_visual-raw.zip",
+      "status": "PASS",
+      "anchor": "raw/final-f326/visual-raw.zip"
+    },
+    {
+      "id": "file_pin_visual-raw-acquisition.json",
+      "status": "PASS",
+      "anchor": "raw/final-f326/visual-raw-acquisition.json"
+    },
+    {
+      "id": "file_pin_ios-owned-receipt.json",
+      "status": "PASS",
+      "anchor": "raw/final-f326/visual-raw-artifact/ios-owned-receipt.json"
+    },
+    {
+      "id": "file_pin_ios-visual-step-result.json",
+      "status": "PASS",
+      "anchor": "raw/final-f326/visual-raw-artifact/ios-visual-step-result.json"
+    },
+    {
+      "id": "file_pin_visual-preview.zip",
+      "status": "PASS",
+      "anchor": "raw/final-f326/visual-preview.zip"
+    },
+    {
+      "id": "file_pin_visual-preview-acquisition.json",
+      "status": "PASS",
+      "anchor": "raw/final-f326/visual-preview-acquisition.json"
+    },
+    {
+      "id": "file_pin_manifest.json",
+      "status": "PASS",
+      "anchor": "raw/final-f326/visual-preview-artifact/manifest.json"
+    },
+    {
+      "id": "file_pin_event-merge-commit.json",
+      "status": "PASS",
+      "anchor": "raw/final-f326/event-merge-commit.json"
+    },
+    {
+      "id": "file_pin_monitor-terminal-receipt.json",
+      "status": "PASS",
+      "anchor": "raw/final-f326/monitor-terminal-receipt.json"
+    },
+    {
+      "id": "own_no_native_or_network",
+      "status": "PASS",
+      "anchor": "audit operations only local read/receiptwrite"
+    }
+  ],
+  "openFidelityFindings": [],
+  "closedFidelityFindings": [
+    {
+      "id": "F326-CAPSULE-001",
+      "severity": "P3",
+      "status": "CLOSED",
+      "receipt": "capsule-finding-resolution.json"
+    }
+  ],
+  "utilitySourceFinding": {
+    "id": "ARR-SECONDARY-001",
+    "severity": "P2",
+    "status": "CHANGES_REQUIRED_SOURCE_CODE_ONLY",
+    "withdrawn": true,
+    "use": "NOT_RUN",
+    "pocCleanup": "PASS"
+  },
+  "actualOutcome": {
+    "twoAssignedIosJobs": "FAIL124 pre-app",
+    "debugBuildBundleSecurity": "PASS",
+    "smoke": "NOT_RUN",
+    "capture": "NOT_RUN",
+    "KeychainJournal": "NOT_RUN",
+    "currentNativePNGCount": 0,
+    "native137Plus4PixelReview": "NOT_RUN",
+    "preview": "NOT_RUN",
+    "ZIPDigestAndCRC": "PASS",
+    "canonicalResourceCleanupAndSteps": "PASS",
+    "independentRemoteProcessQuiescence": "NOT_VERIFIED",
+    "runtime14": "NOT_VERIFIED",
+    "old24pxCauseNative": "NOT_VERIFIED",
+    "geometryLoggerFinalNative": "NOT_RUN"
+  },
+  "limits": [
+    "Overall local terminality and monitorexit0 executor-reported;7 persisted acquisition receipts explicitlyreaped, currentPIDabsence parentobservation",
+    "Eventmerge parents/tree from saved API JSON; checkouttree from localGit, no independent signaturevalidation",
+    "No inferred engine/app/auth regression or native UX acceptance",
+    "UtilityP2 remains open/private/withdrawn; not a canonicalapp/CI issue",
+    "No network/auth/device/simulator/build/download/retry/sourcepatch executed during audit"
+  ],
+  "allOwnCommandsTerminal": true,
+  "ownFilesPermissions": "directory0700/files0600"
+}

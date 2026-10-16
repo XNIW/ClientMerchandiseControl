@@ -1,0 +1,75 @@
+{
+  "reviewer": "/root/review_evidence_ci",
+  "sourceRevision": "39d180dda3e87fb5957bb39c1a29d9c3f1887648",
+  "rootSourceIntegration": "da26c15d4078bbc5a5fb94c364dec84b72c04a62",
+  "deltaVerdict": "CHANGES_REQUIRED",
+  "taskLiveVerdict": "BLOCKED",
+  "findings": [
+    {
+      "id": "BECI-03",
+      "priority": "P2",
+      "status": "OPEN",
+      "scope": "first SIGTERM/INT before initial signal mask still abandons own cleanup",
+      "file": "scripts/run-task054-android-visual.py",
+      "lines": [
+        76,
+        84
+      ],
+      "observedCases": 4,
+      "observed": "Android/visual TERM and INT keep primary143/130, mark cleanupFAIL, but childLive=true and own group receives no TERM/KILL"
+    },
+    {
+      "id": "BECI-04",
+      "priority": "P2",
+      "status": "OPEN",
+      "scope": "normal-exit/probe-error cleanup path still abandons KILL",
+      "file": "scripts/run-task054-android-visual.py",
+      "lines": [
+        47,
+        57
+      ],
+      "observedCases": 2,
+      "observed": "Malformed ps snapshot after leader0/7 keeps primary1/7, marks cleanupFAIL, sends onlyTERM then own childLive=true"
+    }
+  ],
+  "independentRepro": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 /Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/review-evidence-ci/task054-pre-guard-probe-repro-39d180dd.py",
+    "exitCode": 1,
+    "cases": 6,
+    "finalOwnCleanup": "all6 PASS after testfinally KILL/quiescence",
+    "scope": "real temporary Python leaders/children, deterministic real signals at first mask call and malformed metadata probe injection; no native/device/build and no grace reduction",
+    "pocSha256": "b84a214984833b8754a2627d5e9cd18cabd4c5175829cf12df3936db914739ed"
+  },
+  "passedPartialFixes": {
+    "BECI-02": "FIXED_VALIDATED independent13positive+13negative PNG corpus and31suite",
+    "normalExit0PriorPoC": "PASS exit0 with own children gone, productiongrace5/20 preserved",
+    "unitSuites": {
+      "OSFrame": 31,
+      "AndroidRunner": 25,
+      "VisualRunner": 14,
+      "OwnedReal": 3,
+      "allExitCode": 0
+    }
+  },
+  "requiredFix": "Guard-init exceptions and malformed/timeout/failed metadata probes must still attempt bounded TERM/KILL only for the created own PGID; retain primary143/130/7/124 and honest cleanupFAIL when quiescence cannot be attested. Real regression cases beforeguard/probe failure required. No global/process/device mutation, no timeout build/test inflation.",
+  "aggregateCI": "NOT_RUN new composed candidate gate not complete; no aggregate approval",
+  "historicalRecords": "Previous FAIL/PASS receipts remain untouched; this is current incomplete re-review of39d source",
+  "immutableSourceBytes": {
+    "scripts/run-task054-android-visual.py": {
+      "sourceSha256": "c2b0e0203e482811bcbfeed559baea60ce920716a9014d7488a49127bc63a897",
+      "rootSha256": "c2b0e0203e482811bcbfeed559baea60ce920716a9014d7488a49127bc63a897",
+      "sourceRootExactBytes": true
+    },
+    "scripts/test-task054-visual.sh": {
+      "sourceSha256": "370bd0b30b7863e44ff10762f09e15d6a5a753d4de2346bd4a5e1ced9e92524e",
+      "rootSha256": "370bd0b30b7863e44ff10762f09e15d6a5a753d4de2346bd4a5e1ced9e92524e",
+      "sourceRootExactBytes": true
+    },
+    "scripts/capture-task054-os-frame.py": {
+      "sourceSha256": "a8c1ef54c143bdb57c5bdb8c8e515ebc6ef459d95238996b0283e830a62eace4",
+      "rootSha256": "a8c1ef54c143bdb57c5bdb8c8e515ebc6ef459d95238996b0283e830a62eace4",
+      "sourceRootExactBytes": true
+    }
+  },
+  "scopeLimit": "Numeric PGID could theoretically be reused after communicate/wait reaps leader; no separate runtime reproduction/new severity. Existing return after observed quiescence avoids later successful-path KILL."
+}

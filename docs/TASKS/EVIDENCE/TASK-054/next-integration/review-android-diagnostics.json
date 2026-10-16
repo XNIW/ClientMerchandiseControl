@@ -1,0 +1,79 @@
+{
+  "schema": "task054-android-minimal-emulator-observation-independent-v1",
+  "reviewer": "/root/review_evidence_ci",
+  "source": "75b3926b6fc3efea98ce98bc5dbb3fe7c6c4f464",
+  "root_integration": "ca5398071dabcc28da2ae0ad36be8ad094c6ff6e",
+  "observed_utc": "2026-10-05T18:31:50.432881+00:00",
+  "source_status": "PASS scoped",
+  "aggregate_review": "NON_ASSEGNATO:C08residuoFIX/CI3debugFAIL/newfreezeCIpending",
+  "source_bytes": {
+    "scripts/run-task054-android-visual.py": {
+      "sha256": "7fa8d65d9233ae59e15b7946d0e3be4458ef0a9d6ac015cbec1574dba04440cb",
+      "exact_source_root_working": true
+    },
+    "scripts/test-task054-android-runner.py": {
+      "sha256": "92ccb12e7fc6dbde619af10c2415921bc7930907d0eb15e0d341010da8895901",
+      "exact_source_root_working": true
+    }
+  },
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-android-runner.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "tests": 27,
+      "seconds": 15.29,
+      "scope": "Fixtures/processiPythonpropri;no native boot/build"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 build/task054/review-evidence-ci/android_emulator_observation_signal_repro.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "cases": [
+        {
+          "signal": 15,
+          "primary_exit": 7,
+          "observation": "unavailable/null",
+          "cleanup": "PASS",
+          "own_group_live_before_final_test_cleanup": false,
+          "seconds": 5.051
+        },
+        {
+          "signal": 2,
+          "primary_exit": 7,
+          "observation": "unavailable/null",
+          "cleanup": "PASS",
+          "own_group_live_before_final_test_cleanup": false,
+          "seconds": 5.023
+        }
+      ],
+      "scope": "ActualSIGTERM/SIGINT inaddedpoll;productionrun/cleanup;ownPythongroup instead ofemulator;fullproductiongrace5"
+    }
+  ],
+  "static_review": {
+    "unchanged_AST_methods_except_run": [
+      "owned_group_has_live_members",
+      "_stop_owned_group",
+      "finish_owned_cleanup_after_error",
+      "stop_owned_process",
+      "interrupted",
+      "__init__",
+      "remember",
+      "command",
+      "stop_command",
+      "wait_ready",
+      "free_console_port",
+      "execute",
+      "cleanup",
+      "record"
+    ],
+    "added_runtime_call": "self.emulator.poll onlybeforecleanup following native-fixture-captureFAIL",
+    "lifecycle_budget_commands": "No new nativecommand/timeout/kill/cleanup/protocol/dependency",
+    "new_metadata": "emulator_before_cleanup.state alive/exited/unavailable and normalizedexit_code only;nullonsuccess/noncapture",
+    "causality": "Observedstateonly, notappcrashreason/fixturePASS",
+    "primary_and_cleanup": "OriginalFailure7 retained evenobservationOSError/Failure;cleanupalwaysfinally"
+  },
+  "proof_sha256": "e6cb1f0d139590cdf72c8c9a26d4f108e699f697c0cfc973c978c662d8b457fd",
+  "owned_verification_processes_pending": false,
+  "mutation_scope": "Onlyownignoredproof/receipt"
+}

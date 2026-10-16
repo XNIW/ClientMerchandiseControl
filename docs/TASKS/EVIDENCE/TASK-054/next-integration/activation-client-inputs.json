@@ -1,0 +1,314 @@
+{
+  "schema": "task054.client-activation-inputs.v1",
+  "prepared_at_utc": "2026-10-09T00:13:12.738889+00:00",
+  "scope": "READONLY sourcef326+known public/prepared metadata only; no remote/account/session/device/DB access",
+  "source_revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "mandate": "8da5e50f-ba0f-4fd8-ab3c-9c4e0dd785c2 sections6/8",
+  "analysis_result": "PASS source/input classification; authenticated runtime NOT_RUN",
+  "auth_method": {
+    "implemented": "Google via Supabase OAuth in external application",
+    "PKCE": true,
+    "email_password_OTP_Client_entry": "ABSENT from inspected source",
+    "Google_AUTH_enabled_prepared": false,
+    "callback_prepared": "Legacy customscheme; rejected by f326 canonical HTTPS contract",
+    "session_reference_limit": "Protected references identify operator access; no injection/restored fabricated session substitutes for Client OAuth."
+  },
+  "prepared_metadata": {
+    "config": "/Users/minxiang/.codex/outputs/task054-completion-20261008/app_config.test.prepared.json",
+    "config_sha256": "8773989c4430fae3a5678cdd90e3f00b19ca05efcca01329399d0768b07450d9",
+    "fixture_manifest": "/Users/minxiang/.codex/outputs/task054-completion-20261008/fixture-manifest.prepared.json",
+    "fixture_manifest_sha256": "eb24e3b80f1dca5a97adbc24be9b6ed65c046d48133858426dbd0745c5601770",
+    "public_key_present": true,
+    "verified_host_present": false,
+    "shop_slug_present": false,
+    "fixture_shop_ref_present": false,
+    "fixture_A_ref_present": false,
+    "fixture_B_ref_present": false,
+    "fixture_setup": "NOT_RUN",
+    "fixture_remote_rows": 0,
+    "fixture_client_commit": "e7b194cea8bb53b23d3e994268d5cd47e67d085e",
+    "operator_manifest_schema_only": "/Users/minxiang/.codex/outputs/task054-completion-20261008/operator-reference-manifest.prepared.json"
+  },
+  "inputs": [
+    {
+      "id": "PUBLIC_TEST_BACKEND_CONFIG",
+      "classification": "RECUPERABILE_CANALE_NOTO",
+      "current": "APP_ENV staging; URL TEST e chiave pubblicabile presenti nei preparati, valore chiave non riportato",
+      "blocks": "Bootstrap TEST del Client",
+      "put_reference_at": "app_config.test.prepared.json:APP_ENV/SUPABASE_URL/SUPABASE_PUBLISHABLE_KEY; operator-reference-manifest.prepared.json:prepared_client_config",
+      "how_to_obtain": "Riutilizzare il file preparato dopo completamento host/shop e controllo finale di compatibilità backend. Non richiedere una service role o password DB per il Client.",
+      "scope": "base",
+      "depends_on": []
+    },
+    {
+      "id": "AUTH_PROVIDER_CURRENT_METADATA",
+      "classification": "RECUPERABILE_CANALE_NOTO",
+      "current": "Receipt storico 2026-10-04: Google enabled e17redirect; nessun login provato, freshness non verificata qui",
+      "blocks": "Conferma provider Google e redirect consentito del progetto TEST",
+      "put_reference_at": "operator-reference-manifest.prepared.json:client_live.owned_callback_and_native_association_reference",
+      "how_to_obtain": "Owner/coordinatore può rileggere le sole impostazioni Auth dai canali Management già autorizzati e riusare la configurazione Google esistente. Non chiedere nuovo Google client secret prima di verificare che manchi.",
+      "scope": "base",
+      "depends_on": []
+    },
+    {
+      "id": "OWNED_HTTPS_CALLBACK",
+      "classification": "OWNER_REQUIRED",
+      "current": "Host approvato assente; prepared callback customscheme legacy, Googlefalse; f326 richiede HTTPS esatta",
+      "blocks": "Login Google e callback cold/warm sul Client TEST",
+      "put_reference_at": "operator-reference-manifest.prepared.json:client_live.owned_callback_and_native_association_reference; app_config.test.prepared.json:AUTH_CALLBACK_VERIFIED_HOST/AUTH_REDIRECT_URI/GOOGLE_AUTH_ENABLED",
+      "how_to_obtain": "Fornire un riferimento al dominio HTTPS già controllato e al relativo owner, con delega a servire assetlinks/AASA e consentire https://<host>/auth-callback/ nella allowlist Supabase TEST. Il coordinatore potrà completare la config con Googletrue dopo verifica. Non usare .invalid, customscheme, wildcard o dominio non posseduto.",
+      "scope": "base",
+      "depends_on": []
+    },
+    {
+      "id": "NATIVE_CALLBACK_ASSOCIATION_FILES",
+      "classification": "GENERABILE_CODEX",
+      "current": "Package/bundle noto com.xniw.clientmerchandisecontrol; script entitlement presente; associazioni non approvate",
+      "blocks": "Rientro OAuth verificato nella build scelta",
+      "put_reference_at": "Stesso client_live.owned_callback_and_native_association_reference; file pubblici .well-known/assetlinks.json e apple-app-site-association del dominio scelto",
+      "how_to_obtain": "Generare contenuti esatti dopo host e identità di firma: Android package+SHA256 certificato del signer effettivo; iOS TeamID.bundleID e percorso /auth-callback/. Generare entitlement tramite script esistente. Pubblicare soltanto con delega owner; provider Google nativo/GoogleService plist non sono prerequisiti di questo hostedOAuth.",
+      "scope": "base",
+      "depends_on": [
+        "OWNED_HTTPS_CALLBACK",
+        "PLATFORM_SIGNING_AND_CHANNEL"
+      ]
+    },
+    {
+      "id": "GOOGLE_TEST_IDENTITY_A",
+      "classification": "OWNER_REQUIRED",
+      "current": "Riferimento nullo nei preparati; nessuna identità Google Client autorizzata identificata",
+      "blocks": "Login A; cambio A→B→A e isolamento; A serve anche al percorso base",
+      "put_reference_at": "operator-reference-manifest.prepared.json:client_live.synthetic_owner_A_auth_reference; fixture-manifest.prepared.json:ownerA_protected_session_reference",
+      "how_to_obtain": "Indicare una identità Google TEST controllata dall’owner, sintetica e distinta dall’altra, con operatore in grado di completare interattivamente OAuth/MFA. Se assente, owner predispone la seconda identità Google TEST. Password/token solo canale protetto; il riferimento a una sessione server non va iniettato nel Client né sostituisce il login. Account personali WeChat/Admin non sono fixture Client.",
+      "scope": "base",
+      "depends_on": []
+    },
+    {
+      "id": "GOOGLE_TEST_IDENTITY_B",
+      "classification": "OWNER_REQUIRED",
+      "current": "Riferimento nullo nei preparati; nessuna identità Google Client autorizzata identificata",
+      "blocks": "Login B; cambio A→B→A e isolamento; A serve anche al percorso base",
+      "put_reference_at": "operator-reference-manifest.prepared.json:client_live.synthetic_owner_B_auth_reference; fixture-manifest.prepared.json:ownerB_protected_session_reference",
+      "how_to_obtain": "Indicare una identità Google TEST controllata dall’owner, sintetica e distinta dall’altra, con operatore in grado di completare interattivamente OAuth/MFA. Se assente, owner predispone la seconda identità Google TEST. Password/token solo canale protetto; il riferimento a una sessione server non va iniettato nel Client né sostituisce il login. Account personali WeChat/Admin non sono fixture Client.",
+      "scope": "base A; isolamento sessione B",
+      "depends_on": []
+    },
+    {
+      "id": "PILOT_SHOP_SELECTION",
+      "classification": "OWNER_REQUIRED",
+      "current": "STOREFRONT_SHOP_SLUG vuoto e shop_approved_reference null; nessun pilota approvato nei riferimenti riletti",
+      "blocks": "Catalogo/cart/indirizzo contestualizzato/checkout/storico/inbox",
+      "put_reference_at": "operator-reference-manifest.prepared.json:client_live.approved_pilot_shop_slug_reference; app_config.test.prepared.json:STOREFRONT_SHOP_SLUG; fixture-manifest.prepared.json:shop_approved_reference",
+      "how_to_obtain": "Preferire shop TEST sintetico esistente e designato dall’owner. In assenza, proposta concreta: creare nel solo progetto TEST shop cmc054r-20261008-pilot, isolato e tracciato, con owner Admin/W autorizzato e cleanup dei soli dati del namespace. La proposta non è provisioning eseguito.",
+      "scope": "base",
+      "depends_on": []
+    },
+    {
+      "id": "PILOT_COMMERCE_DATA",
+      "classification": "GENERABILE_CODEX",
+      "current": "Namespace/draft manuale disponibili; remote rows vuote e setupNOTRUN; nessun provisioner live shop/Auth trovato nel Client",
+      "blocks": "Acquisto pickup/delivery e importi/stati verificabili",
+      "put_reference_at": "Fixture manifest del pilota: riferimenti server shop/publication/pickupPoint/deliveryZone/slot; campi nuovi da aggiungere dal coordinatore al manifest, non UUID mock",
+      "how_to_obtain": "Dopo scelta/autorizzazione pilota e backend pronto, preparare/applicare con owner Admin/W il dataset sintetico:1pubblicazione acquistabile con prezzoCLP e disponibilità/hold, punto pickup, zona che include commune/region del draft, slot futuri validi per ciascuna modalità, payment options payAtPickup e cashOnDelivery enabled. Online disabled/not_configured. Rileggere gli ID server; non chiedere all’owner di inventarli.",
+      "scope": "base",
+      "depends_on": [
+        "PILOT_SHOP_SELECTION"
+      ]
+    },
+    {
+      "id": "MANUAL_ADDRESS_PAYLOAD_AND_RUN_MANIFEST",
+      "classification": "GENERABILE_CODEX",
+      "current": "Payload manuale completo già preparato, phone/lat/lon null; client_commit preparato e7 storico",
+      "blocks": "R04/R25 e correlazione indirizzo/ordine/recovery",
+      "put_reference_at": "fixture-manifest.prepared.json:test_address_payload/address_intent_id/namespace/client_commit/created_remote_rows/cleanup",
+      "how_to_obtain": "Riutilizzare il payload sintetico adattando commune/region alla zona del pilota; aggiornare commit, run namespace e correlation IDs al candidato reale, registrare ID restituiti e cleanup. Telefono, GPS, geocoding e mappe non sono minimi del modello manuale. Setup tuttoraNOTRUN.",
+      "scope": "base",
+      "depends_on": [
+        "PILOT_SHOP_SELECTION"
+      ]
+    },
+    {
+      "id": "ADMIN_OPERATOR_FOR_COMMERCE_CHAIN",
+      "classification": "OWNER_REQUIRED",
+      "current": "Nessun operator fixture Admin nominato nel manifest Client",
+      "blocks": "Variazione Admin→storico/inbox; assistenza/recensione negli stati consentiti; non blocca il solo login Client",
+      "put_reference_at": "Riferimento protetto dell’operatore Admin e scope shop nel pacchetto pilota; campo proposto separato client_live.admin_operator_reference",
+      "how_to_obtain": "W/Admin owner designa un operatore TEST autorizzato sul pilota oppure usa provisioning TEST già previsto dal control plane. Restano distinti clienteA/B, operatoreAdmin e ownerN delle due origini R24.",
+      "scope": "catena Client–Admin",
+      "depends_on": []
+    },
+    {
+      "id": "PLATFORM_SIGNING_AND_CHANNEL",
+      "classification": "OWNER_REQUIRED",
+      "current": "distribution.android_signing_and_channel_reference e ios_signing_and_channel_reference null",
+      "blocks": "Installazione/distribuzione firmata sulla piattaforma scelta; separata da DB/Worker e dall’altra piattaforma",
+      "put_reference_at": "operator-reference-manifest.prepared.json:distribution.android_signing_and_channel_reference e distribution.ios_signing_and_channel_reference",
+      "how_to_obtain": "Richiesta dettagliata e limiti dei gate nello specifico receipt provisioning-signing-readonly del sottoreviewer. Niente riuso di chiavi o dispositivi dei gestionali N per inferenza.",
+      "scope": "per piattaforma, senza blocco universale",
+      "depends_on": []
+    },
+    {
+      "id": "CLIENT_TEST_EXECUTION_TARGET",
+      "classification": "OWNER_REQUIRED",
+      "current": "Nessuna destinazione Client nominata nei preparati letti; nessuna discovery svolta",
+      "blocks": "Interazione OAuth, kill/restart e collaudo autenticato; AT/profilo fisico richiedono destinazione appropriata separata",
+      "put_reference_at": "Nel riferimento distribution della piattaforma scelta: destinazione Client/host, owner e modalità accesso; field detail proposto",
+      "how_to_obtain": "Nominare device o superficie Client TEST già autorizzata e accessibile, separata dalle risorseN. Avanzare Android se disponibile mentre iOS viene qualificato. Non serve come prerequisito apply/deploy backend.",
+      "scope": "runtime Client; fisico separato per AT/profile",
+      "depends_on": []
+    }
+  ],
+  "base_payment_contract": {
+    "payAtPickup": [
+      "pickup",
+      "reservation"
+    ],
+    "cashOnDelivery": [
+      "delivery"
+    ],
+    "onlinePayment": "disabled / fulfillmentModes[] / onlineConfiguration not_configured",
+    "authority": "server storefront_fulfillment_options_v1 + storefront_payment_options_v1, quoteCreate/confirm + customer_order_create_v2/read_v2"
+  },
+  "optional_not_base_prerequisites": [
+    "FCM/APNs and push credentials",
+    "Maps SDK/geocoding/GPS",
+    "Online payment provider sandbox",
+    "OriginN Android/iOS R24 authoring resources (needed only for each R24 lane)"
+  ],
+  "technical_actions_not_human_inputs": [
+    {
+      "id": "TEST_SIGNED_STAGING_ROUTE",
+      "classification": "GENERABILE_CODEX",
+      "status": "NOT_RUN qualification needed",
+      "observation": "Current upload preflights validate production withGoogle/MapsOFF, while TEST runtime needsstaging and hostedGoogleOAuthON; SupabaseBootstrap rejectsproduction. Signingcredentialsalone do not fix this mismatch.",
+      "proposal": "Qualify an explicit TESTstaging preflight or approved protected signedstagingAPK route, conserving production attestation and boundaries. No code change in this readonly task."
+    }
+  ],
+  "pilot_proposal": {
+    "preferred": "Reuse an owner-designated existing syntheticTEST shop",
+    "fallback_shop_slug": "cmc054r-20261008-pilot",
+    "fallback_authority": "Owner TEST/AdminW scope approval and canonical provisioning window; no newpersonal or productionaccounts",
+    "identities": "2Google TEST identitiesA/B controlled byowner, interactiveOAuth; noemailpassword bypass",
+    "dataset": "1published productCLP/availability,1pickupPoint,1deliveryZone,valid future slots,payAtPickup/cashOnDelivery enabled,manualaddressprepared,online/push/mapsOFF",
+    "correlation": "Fresh namespace and actualserver IDs for addressintent/order/R24 mapped perorigin; cleanup onlyfixture namespace",
+    "setup": "NOT_RUN"
+  },
+  "secondary_provisioning_signing_review": {
+    "receipt": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-inputs/provisioning-signing-readonly.json",
+    "receipt_sha256": "736a82146044454df93f2dcd6052e7427e591e240825227ab1f80842dfa6cc03",
+    "report": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-inputs/provisioning-signing-readonly.md",
+    "report_sha256": "b496ace6e1783aca7dee29d2f758ffaf7b0b9976ea85baed5f1ca52173af22fb",
+    "status": "PASS read-only source crosscheck; no live provisioning/signing/channel claim"
+  },
+  "sources": [
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "lib/features/auth/data/supabase_auth_repository.dart",
+      "line": 98,
+      "end_line": 108,
+      "blob_sha256": "35387dfd6d166d0258f75a1d833aca103b3bf650c1a1cca7b0cc798fe76bf4df"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "lib/core/backend/supabase_bootstrap.dart",
+      "line": 26,
+      "end_line": 29,
+      "blob_sha256": "d9c8a92cf648268952358f46b4469604d32287f9c3d7392ad7a1471b2f501b07"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "lib/core/backend/supabase_bootstrap.dart",
+      "line": 51,
+      "end_line": 60,
+      "blob_sha256": "d9c8a92cf648268952358f46b4469604d32287f9c3d7392ad7a1471b2f501b07"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "lib/core/config/app_config.dart",
+      "line": 147,
+      "end_line": 165,
+      "blob_sha256": "9775a5fd54d63f2e0e2540b1db5a124c6150e6c2e1cc8ff871a79a0d62123c82"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "lib/core/config/release_config_attestation.dart",
+      "line": 109,
+      "end_line": 149,
+      "blob_sha256": "9685b8f097a3177b61de1e81bb1fcc2f07c2177238f7ab0da3d17cf37b40acb0"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "scripts/prepare-auth-entitlements.py",
+      "line": 18,
+      "end_line": 26,
+      "blob_sha256": "bc858aadf29b1f95af52f06c04650d9d4f5a57283fe1001f9ddbd79cc0e12919"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "android/app/src/main/AndroidManifest.xml",
+      "line": 39,
+      "end_line": 44,
+      "blob_sha256": "b4c51442300de1eb0f9163cee818d95d320a6f867d86a7ee46356229e58852c2"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "android/app/build.gradle.kts",
+      "line": 78,
+      "end_line": 97,
+      "blob_sha256": "922deadbabfb5cc3d47b5831fb499c0bb8802d37c6ec2f6d809ba083ffcb26dd"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "lib/features/account/domain/customer_account_models.dart",
+      "line": 203,
+      "end_line": 255,
+      "blob_sha256": "7b996fd0fe6f0525df07e19e06cbf9b017a74414717b06514aa0d399f72e8038"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "lib/features/checkout/data/supabase_checkout_repository.dart",
+      "line": 35,
+      "end_line": 59,
+      "blob_sha256": "cfb72b9d6c811cb3ad3001a07573c7bf4562984b6f0682f3c01118f1e1c02375"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "lib/features/checkout/data/supabase_checkout_repository.dart",
+      "line": 149,
+      "end_line": 186,
+      "blob_sha256": "cfb72b9d6c811cb3ad3001a07573c7bf4562984b6f0682f3c01118f1e1c02375"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "lib/features/checkout/data/supabase_checkout_repository.dart",
+      "line": 447,
+      "end_line": 479,
+      "blob_sha256": "cfb72b9d6c811cb3ad3001a07573c7bf4562984b6f0682f3c01118f1e1c02375"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "lib/features/checkout/domain/checkout_models.dart",
+      "line": 153,
+      "end_line": 157,
+      "blob_sha256": "54460287bdedd2dbbd7969eef94c0f574afb584be6e481924723977da2c21318"
+    },
+    {
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/auth-recovery.json",
+      "line": 1,
+      "end_line": 15,
+      "blob_sha256": "9edcca66aca8b941abf2f8d99919fa6f591a204dc3d94874fd393506592ce5e2"
+    }
+  ],
+  "mutations": {
+    "Git": false,
+    "source_or_docs": false,
+    "prepared_config_or_fixture": false,
+    "account_or_session_creation": false,
+    "creds_read": false,
+    "UI_DB_device": false,
+    "remote": false
+  },
+  "all_own_commands_terminal": true,
+  "human_request_sent": false
+}

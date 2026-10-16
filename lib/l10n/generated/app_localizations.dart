@@ -2236,7 +2236,7 @@ abstract class AppLocalizations {
   /// No description provided for @cartTimeoutError.
   ///
   /// In es, this message translates to:
-  /// **'La tienda tardó demasiado. Reintenta sin duplicar la operación.'**
+  /// **'El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.'**
   String get cartTimeoutError;
 
   /// No description provided for @cartUnauthorizedError.
@@ -3364,7 +3364,7 @@ abstract class AppLocalizations {
   /// No description provided for @deliveryTrackingWindow.
   ///
   /// In es, this message translates to:
-  /// **'Entrega prevista entre {start} y {end}'**
+  /// **'Entrega estimada, no garantizada, entre {start} y {end}'**
   String deliveryTrackingWindow(String start, String end);
 
   /// No description provided for @deliveryTrackingLastUpdated.
@@ -3745,6 +3745,18 @@ abstract class AppLocalizations {
   /// **'No pudimos completar esta acción. Intenta nuevamente.'**
   String get afterSalesFailure;
 
+  /// No description provided for @afterSalesDestinationUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta solicitud de asistencia no está disponible. Puedes consultar las demás solicitudes.'**
+  String get afterSalesDestinationUnavailable;
+
+  /// No description provided for @afterSalesBackToList.
+  ///
+  /// In es, this message translates to:
+  /// **'Ir a las solicitudes'**
+  String get afterSalesBackToList;
+
   /// No description provided for @afterSalesSelectItem.
   ///
   /// In es, this message translates to:
@@ -3948,6 +3960,240 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Solo no leídas'**
   String get notificationsUnreadOnly;
+
+  /// No description provided for @notificationsUnreadPartialEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay no leídas entre las notificaciones mostradas'**
+  String get notificationsUnreadPartialEmptyTitle;
+
+  /// No description provided for @notificationsUnreadEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay notificaciones sin leer'**
+  String get notificationsUnreadEmptyTitle;
+
+  /// No description provided for @notificationsUnreadPageHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes buscar más notificaciones sin leer cargando las anteriores.'**
+  String get notificationsUnreadPageHint;
+
+  /// No description provided for @notificationsUnreadCachedEmptyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Vuelve a conectarte para comprobar si hay más notificaciones sin leer.'**
+  String get notificationsUnreadCachedEmptyMessage;
+
+  /// No description provided for @notificationsUnreadEmptyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Has leído todas las notificaciones mostradas.'**
+  String get notificationsUnreadEmptyMessage;
+
+  /// No description provided for @notificationsUpdateFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron actualizar las notificaciones. Inténtalo de nuevo.'**
+  String get notificationsUpdateFailed;
+
+  /// No description provided for @customerAddressUnknown.
+  ///
+  /// In es, this message translates to:
+  /// **'Resultado por verificar. Verifica antes de editar.'**
+  String get customerAddressUnknown;
+
+  /// No description provided for @customerAddressJournalUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No podemos leer la información de recuperación guardada en este dispositivo. Puedes consultar tu cuenta; añadir direcciones está en pausa. Vuelve a intentar para recuperar el acceso sin borrar datos.'**
+  String get customerAddressJournalUnavailable;
+
+  /// No description provided for @customerAddressVerify.
+  ///
+  /// In es, this message translates to:
+  /// **'Verificar'**
+  String get customerAddressVerify;
+
+  /// No description provided for @customerAddressCloseEditor.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar'**
+  String get customerAddressCloseEditor;
+
+  /// No description provided for @customerAddressSending.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando. Cerrar el editor no cancela el guardado.'**
+  String get customerAddressSending;
+
+  /// No description provided for @reviewsSaving.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando…'**
+  String get reviewsSaving;
+
+  /// No description provided for @notificationsRead.
+  ///
+  /// In es, this message translates to:
+  /// **'Leída'**
+  String get notificationsRead;
+
+  /// No description provided for @notificationsOpenOrder.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir pedido'**
+  String get notificationsOpenOrder;
+
+  /// No description provided for @notificationsOpenSupport.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir solicitud de asistencia'**
+  String get notificationsOpenSupport;
+
+  /// No description provided for @notificationsOpenProduct.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir producto'**
+  String get notificationsOpenProduct;
+
+  /// No description provided for @notificationsStayInInbox.
+  ///
+  /// In es, this message translates to:
+  /// **'Permanecer en notificaciones'**
+  String get notificationsStayInInbox;
+
+  /// No description provided for @afterSalesCaseOpened.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud abierta. Puedes completar los adjuntos aquí.'**
+  String get afterSalesCaseOpened;
+
+  /// No description provided for @afterSalesEvidenceConfirmed.
+  ///
+  /// In es, this message translates to:
+  /// **'Recibido; pendiente de revisión'**
+  String get afterSalesEvidenceConfirmed;
+
+  /// No description provided for @afterSalesEvidenceSafe.
+  ///
+  /// In es, this message translates to:
+  /// **'Verificado'**
+  String get afterSalesEvidenceSafe;
+
+  /// No description provided for @afterSalesEvidenceRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazado'**
+  String get afterSalesEvidenceRejected;
+
+  /// No description provided for @afterSalesEvidencePending.
+  ///
+  /// In es, this message translates to:
+  /// **'Por completar'**
+  String get afterSalesEvidencePending;
+
+  /// No description provided for @afterSalesEvidenceUploading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando adjuntos…'**
+  String get afterSalesEvidenceUploading;
+
+  /// No description provided for @afterSalesEvidenceAmbiguous.
+  ///
+  /// In es, this message translates to:
+  /// **'Resultado por verificar. Reintenta para comprobar el mismo adjunto.'**
+  String get afterSalesEvidenceAmbiguous;
+
+  /// No description provided for @afterSalesEvidenceFileUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivo local no disponible. Selecciónalo de nuevo.'**
+  String get afterSalesEvidenceFileUnavailable;
+
+  /// No description provided for @afterSalesEvidenceRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Completar adjuntos'**
+  String get afterSalesEvidenceRetry;
+
+  /// No description provided for @afterSalesEvidenceReplace.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar de nuevo'**
+  String get afterSalesEvidenceReplace;
+
+  /// No description provided for @afterSalesEvidenceReopenHelp.
+  ///
+  /// In es, this message translates to:
+  /// **'Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan.'**
+  String get afterSalesEvidenceReopenHelp;
+
+  /// No description provided for @afterSalesCreating.
+  ///
+  /// In es, this message translates to:
+  /// **'Abriendo solicitud…'**
+  String get afterSalesCreating;
+
+  /// No description provided for @afterSalesEvidenceInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivo no compatible o demasiado grande. Selecciona otro.'**
+  String get afterSalesEvidenceInvalid;
+
+  /// No description provided for @cartLocalSavedNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardado en el carrito de este dispositivo.'**
+  String get cartLocalSavedNotice;
+
+  /// No description provided for @cartPendingConfirmationNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.'**
+  String get cartPendingConfirmationNotice;
+
+  /// No description provided for @deliveryTrackingEtaUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda aún no informó una ventana estimada.'**
+  String get deliveryTrackingEtaUnavailable;
+
+  /// No description provided for @deliveryTrackingEtaExpired.
+  ///
+  /// In es, this message translates to:
+  /// **'La ventana estimada anterior terminó. Esperamos una actualización de la tienda.'**
+  String get deliveryTrackingEtaExpired;
+
+  /// No description provided for @deliveryTrackingMapExpand.
+  ///
+  /// In es, this message translates to:
+  /// **'Ampliar el mapa de la entrega'**
+  String get deliveryTrackingMapExpand;
+
+  /// No description provided for @deliveryTrackingMapCollapse.
+  ///
+  /// In es, this message translates to:
+  /// **'Reducir el mapa de la entrega'**
+  String get deliveryTrackingMapCollapse;
+
+  /// No description provided for @deliveryTrackingMapUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'El mapa no está disponible. Puedes seguir el estado de la entrega aquí.'**
+  String get deliveryTrackingMapUnavailable;
+
+  /// No description provided for @deliveryTrackingMapRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar el mapa'**
+  String get deliveryTrackingMapRetry;
+
+  /// No description provided for @deliveryTrackingCacheCleanupFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo quitar la ubicación guardada. Sigue oculta; reintenta la actualización.'**
+  String get deliveryTrackingCacheCleanupFailed;
 }
 
 class _AppLocalizationsDelegate

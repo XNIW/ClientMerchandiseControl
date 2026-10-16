@@ -1,0 +1,234 @@
+{
+  "absentCheckedPathCount": 6,
+  "authOrBackendRequests": false,
+  "backendLiveGate": {
+    "executionThisProbe": "NOT_RUN",
+    "exitCodeThisProbe": null,
+    "historicalObservation": {
+      "command": "python3 scripts/check-backend-compatibility.py --live",
+      "exit_code": 2,
+      "gate_source_sha256": "b42fc17b4ea16191c2602dfc845c993f6bc4e4cfb978f4615ca1f80c5e6b3d2c",
+      "observed_interval_utc": "2026-10-05T16:30:12Z..2026-10-05T16:34:04Z",
+      "sql_executed": false,
+      "status": "BLOCKED",
+      "stdout": "BACKEND_COMPATIBILITY BLOCKED prerequisite=CMC_BACKEND_PGSERVICE_and_artifact_config"
+    },
+    "historicalSource": "docs/TASKS/EVIDENCE/TASK-054/next-integration/config-current.json",
+    "historicalSourceSha256": "6696d458fccc2aa60e8042e70800f6fa75e636d61befe4972e2adf2eb78ea8be",
+    "prerequisiteState": "BLOCKED",
+    "qualification": "16:30–16:34 BLOCKED/exit2 is reused with its timestamp; no SQL or current gate invocation performed.",
+    "reason": "No new approved readonly TEST pgservice/artifact config reference; six checked standard paths absent and the sole historical original config is unvalidated by this metadata-only probe.",
+    "unblockInputs": [
+      "Approved TEST artifact configuration with authorized synthetic shop/pilot references.",
+      "Approved readonly CMC_BACKEND_PGSERVICE with TLS verify-full to the canonical TEST project."
+    ]
+  },
+  "checkedPathCount": 7,
+  "clientHead": {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exitCode": 0,
+    "sha": "c796526a799c959408257f4c89c36a4439515b23"
+  },
+  "command": [
+    "python3",
+    "build/task054/config-terminal/reference_presence_probe.py"
+  ],
+  "completedUtc": "2026-10-05T20:29:10.238678+00:00",
+  "configurationBodiesRead": false,
+  "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+  "deviceOperations": false,
+  "diagnosticLookup": {
+    "command": "rg -n 'original_staging_json|worktree_staging_json|client_config_directory|client_support_directory|apple_api_key_directory|default_pg_service' build/task054/config-next build/task054/config-final docs/TASKS/EVIDENCE/TASK-054/config-distribution-result.md docs/TASKS/EVIDENCE/TASK-054/config-distribution-summary.json",
+    "exitCode": 2,
+    "reason": "Two documentary paths absent; rg --files located the same named reports in build/task054/config-next, read successfully. Not a config/application failure."
+  },
+  "environmentAndGithubMetadata": {
+    "executionThisProbe": "NOT_RUN",
+    "qualification": "Historical relative to this probe; not refreshed now.",
+    "reason": "Existing 19:25 snapshot reused without querying environment/GitHub or reading values again; no new supplied reference.",
+    "source": "docs/TASKS/EVIDENCE/TASK-054/next-integration/config-final-current.json",
+    "sourceObservedUtc": "2026-10-05T19:25:51.604264+00:00",
+    "sourceSha256": "4ebad2f380e1c0dcb211024e0b78ad313cd3fc9e7ef6eef025c7a9ceb845df97"
+  },
+  "exitCode": 0,
+  "externalMutations": false,
+  "filesystemReferences": [
+    {
+      "contentRead": false,
+      "directory": false,
+      "entryExists": true,
+      "exists": true,
+      "historicalPresenceObservedUtc": "2026-10-05T16:28:58.539148+00:00",
+      "historicalStatMatches": true,
+      "label": "original_staging_json",
+      "mtimeUtc": "2026-08-01T18:51:28.354480+00:00",
+      "observedUtc": "2026-10-05T20:29:10.228860+00:00",
+      "operation": "pathlib.Path.lstat()/stat()",
+      "path": "/Users/minxiang/Projects/ClientMerchandiseControl/config/app_config.staging.local.json",
+      "presenceChangedSinceHistorical": false,
+      "qualification": "Historical local config; stat match does not validate content, current parser or approved artifact binding.",
+      "regular": true,
+      "result": "PASS",
+      "size": 280,
+      "symlink": false
+    },
+    {
+      "contentRead": false,
+      "directory": false,
+      "entryExists": false,
+      "exists": false,
+      "historicalPresenceObservedUtc": "2026-10-05T16:28:58.539148+00:00",
+      "label": "worktree_staging_json",
+      "observedUtc": "2026-10-05T20:29:10.228880+00:00",
+      "operation": "pathlib.Path.lstat()/stat()",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/config/app_config.staging.local.json",
+      "presenceChangedSinceHistorical": false,
+      "regular": false,
+      "result": "PASS",
+      "symlink": false
+    },
+    {
+      "contentRead": false,
+      "directory": false,
+      "entryExists": false,
+      "exists": false,
+      "historicalPresenceObservedUtc": "2026-10-05T16:28:58.539148+00:00",
+      "label": "worktree_production_json",
+      "observedUtc": "2026-10-05T20:29:10.228888+00:00",
+      "operation": "pathlib.Path.lstat()/stat()",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/config/app_config.production.local.json",
+      "presenceChangedSinceHistorical": false,
+      "regular": false,
+      "result": "PASS",
+      "symlink": false
+    },
+    {
+      "contentRead": false,
+      "directory": false,
+      "entryExists": false,
+      "exists": false,
+      "historicalPresenceObservedUtc": "2026-10-05T16:28:58.539148+00:00",
+      "label": "original_signing_android",
+      "observedUtc": "2026-10-05T20:29:10.228893+00:00",
+      "operation": "pathlib.Path.lstat()/stat()",
+      "path": "/Users/minxiang/Projects/ClientMerchandiseControl/android/key.properties",
+      "presenceChangedSinceHistorical": false,
+      "regular": false,
+      "result": "PASS",
+      "symlink": false
+    },
+    {
+      "contentRead": false,
+      "directory": false,
+      "entryExists": false,
+      "exists": false,
+      "historicalPresenceObservedUtc": "2026-10-05T16:28:58.539148+00:00",
+      "label": "worktree_signing_android",
+      "observedUtc": "2026-10-05T20:29:10.228900+00:00",
+      "operation": "pathlib.Path.lstat()/stat()",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/android/key.properties",
+      "presenceChangedSinceHistorical": false,
+      "regular": false,
+      "result": "PASS",
+      "symlink": false
+    },
+    {
+      "contentRead": false,
+      "directory": false,
+      "entryExists": false,
+      "exists": false,
+      "historicalPresenceObservedUtc": "2026-10-05T16:28:58.539148+00:00",
+      "label": "default_pg_service",
+      "observedUtc": "2026-10-05T20:29:10.228905+00:00",
+      "operation": "pathlib.Path.lstat()/stat()",
+      "path": "/Users/minxiang/.pg_service.conf",
+      "presenceChangedSinceHistorical": false,
+      "regular": false,
+      "result": "PASS",
+      "symlink": false
+    },
+    {
+      "contentRead": false,
+      "directory": false,
+      "entryExists": false,
+      "exists": false,
+      "historicalPresenceObservedUtc": "2026-10-05T16:28:58.539148+00:00",
+      "label": "default_pgpass",
+      "observedUtc": "2026-10-05T20:29:10.228910+00:00",
+      "operation": "pathlib.Path.lstat()/stat()",
+      "path": "/Users/minxiang/.pgpass",
+      "presenceChangedSinceHistorical": false,
+      "regular": false,
+      "result": "PASS",
+      "symlink": false
+    }
+  ],
+  "implementationMutations": false,
+  "keychainAccess": false,
+  "mutations": "Owned ignored probe/receipt only.",
+  "ownedProcesses": "Synchronous probe and git rev-parse only; no background process started.",
+  "presentCheckedPathCount": 1,
+  "probeSourceSha256": "752a120c3c2748b4533e297d53436ef1ec5c159883fcb778f3c0a639a7a2929d",
+  "qualification": "PASS means seven metadata checks completed; one historical file present, not usable configuration acceptance. Four directory labels remain NOT_RUN, not absent.",
+  "requestedLabelCount": 11,
+  "result": "PASS",
+  "schema": "task054-reference-presence-terminal-v1",
+  "scope": "SEVEN_APPROVED_FILESYSTEM_PATHS_METADATA_ONLY",
+  "secretValuesRead": false,
+  "sourceReceipt": {
+    "path": "build/task054/config-next/reference-presence-20261005.json",
+    "sha256": "e15eaf07fa86caf63306a4915899e7c2d82676fe93f8308a3f2251b8c0ee0bcf"
+  },
+  "startedUtc": "2026-10-05T20:29:10.228711+00:00",
+  "unresolvedReferences": [
+    {
+      "directory": null,
+      "exists": null,
+      "label": "client_config_directory",
+      "path": null,
+      "reason": "Original exact path mapping not preserved; no speculative path reconstruction or directory discovery.",
+      "regular": null,
+      "result": "NOT_RUN",
+      "symlink": null
+    },
+    {
+      "directory": null,
+      "exists": null,
+      "label": "client_config_directory_lower",
+      "path": null,
+      "reason": "Original exact path mapping not preserved; no speculative path reconstruction or directory discovery.",
+      "regular": null,
+      "result": "NOT_RUN",
+      "symlink": null
+    },
+    {
+      "directory": null,
+      "exists": null,
+      "label": "client_support_directory",
+      "path": null,
+      "reason": "Original exact path mapping not preserved; no speculative path reconstruction or directory discovery.",
+      "regular": null,
+      "result": "NOT_RUN",
+      "symlink": null
+    },
+    {
+      "directory": null,
+      "exists": null,
+      "label": "apple_api_key_directory",
+      "path": null,
+      "reason": "Original exact path mapping not preserved; no speculative path reconstruction or directory discovery.",
+      "regular": null,
+      "result": "NOT_RUN",
+      "symlink": null
+    }
+  ],
+  "originalReceipt": {
+    "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/config-terminal/reference-presence-terminal-20261005.json",
+    "sha256": "be9944686a2b95285a203366679daa5e2f074203b02094464b3ecba351684693"
+  },
+  "durableQualification": "Ricevuta di TASK-054 copiata con outcome e limiti conservati; log completi e artifact locali fuori Git. Il candidato CI è c796526, source50a immutabile. Questo branch documentale non è un nuovo candidato applicativo o una prova di CI sul suo HEAD."
+}

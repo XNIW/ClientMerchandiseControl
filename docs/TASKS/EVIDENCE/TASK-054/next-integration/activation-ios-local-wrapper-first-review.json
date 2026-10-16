@@ -1,0 +1,120 @@
+{
+  "schema": "task054-private-wrapper-review-v1",
+  "reviewed_at_utc": "2026-10-09T23:28:19.308653+00:00",
+  "role": "CODEX_RE_REVIEWER_READ_ONLY",
+  "scope": "PRIVATE_WRAPPER_PREPARATION_ONLY",
+  "outcome": "CHANGES_REQUIRED",
+  "wrapper": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/qualify-local-owned.py",
+  "wrapper_sha256": "290b7bf75cbca1e00068cf1fc4c9607ac3a11b454678f2759b8c6acdf7b93b7e",
+  "source": "3f8d3d19a46d95bc7b7eb494a8f5b85a42372428",
+  "source_association_sha256": "3440b373480347b1642abfdd12fca4936f3b8405c65a44a3244d56133ee5807e",
+  "source_association_checks": [
+    {
+      "id": "HEAD",
+      "result": "PASS"
+    },
+    {
+      "id": "TRACKING",
+      "result": "PASS"
+    },
+    {
+      "id": "CLEAN",
+      "result": "PASS"
+    },
+    {
+      "id": "ONLY_TWO_SCRIPTS",
+      "result": "PASS"
+    },
+    {
+      "id": "REVIEWED_PATCH_EXACT",
+      "result": "PASS"
+    },
+    {
+      "id": "SOURCE_REVIEW_BINDING",
+      "result": "PASS"
+    },
+    {
+      "id": "BLOB:scripts/run-task054-ios-owned.py",
+      "result": "PASS"
+    },
+    {
+      "id": "BLOB:scripts/test-task054-ios-owned.py",
+      "result": "PASS"
+    }
+  ],
+  "findings": [
+    {
+      "id": "LWR-01",
+      "priority": 1,
+      "file": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/qualify-local-owned.py",
+      "lines": [
+        37,
+        81,
+        103
+      ],
+      "problem": "La grace TERM30 si applica anche a Prepare, che differisce il segnale durante create.",
+      "impact": "Un TERM durante create può provocare KILL del runner prima della persistenza UUID: creationStarted=true/device=null limita il cleanup a BLOCKED e non autorizza cancellare risorse senza identità.",
+      "evidence": "Il canonico differisce TERM/INT in fase create; create ha budget30 e un eventuale drain TERM5/KILL5/probe può precedere persist. Il trasporto esterno può uccidere il runner a30.",
+      "correction": "Separare il lifecycle di Prepare dal TERM30 delle recipe visuali; garantire persistenza UUID e cleanup canonico, contabilizzando la grace nella riserva e mantenendo invariati i timeout build/test900.",
+      "regression": "Controllare staticamente/com mock di trasporto un segnale durante create seguito da drain: UUID durevole prima del KILL esterno e cleanup limitato all’UUID proprio."
+    },
+    {
+      "id": "LWR-02",
+      "priority": 2,
+      "file": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/qualify-local-owned.py",
+      "lines": [
+        29,
+        107,
+        108
+      ],
+      "problem": "Le guard di hash, readiness e runtime usano assert.",
+      "impact": "Python -O/PYTHONOPTIMIZE può eliminarle e consentire il dispatch con input non validati.",
+      "correction": "Usare condizioni esplicite con failure nonzero prima di qualsiasi recipe/device; proteggere anche la forma dell’UUID restituito.",
+      "regression": "Controllare fallimento esplicito anche in modalità ottimizzata con hash/runtime/readiness invalidi, senza creare device."
+    },
+    {
+      "id": "LWR-03",
+      "priority": 2,
+      "file": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/qualify-local-owned.py",
+      "lines": [
+        134,
+        137,
+        143
+      ],
+      "problem": "Cleanup fallito e failure della trace possono lasciare failed_stage=null e stampare all stages passed.",
+      "impact": "Exit finale rimane nonzero per cleanup fallito, ma la receipt e la frase terminale contraddicono l’esito negativo; gli errori di context entry/exit possono inoltre propagarsi dopo un messaggio di successo.",
+      "correction": "Propagare cleanup FAIL/NOT_RUN e errori della trace nell’esito terminale esplicito, con exit nonzero e nessun messaggio di successo.",
+      "regression": "Mock dei casi cleanup nonzero/NOT_RUN e apertura/chiusura trace fallita: terminal outcome non PASS e failed_stage coerente."
+    },
+    {
+      "id": "LWR-04",
+      "priority": 2,
+      "file": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/qualify-local-owned.py",
+      "lines": [
+        26,
+        29,
+        33
+      ],
+      "problem": "L’associazione verifica solo2file e non accerta HEAD/working tree all’invocazione prima di Prepare.",
+      "impact": "Sorgenti app o recipe mutate potrebbero essere eseguite con GITHUB_SHA3f8 ed evidence attribuita a una revisione diversa.",
+      "correction": "Guard esplicita e bounded di HEAD==3f8 e input tracked immutati/working tree pertinente clean prima di creare risorse; mantenere il freeze fino al termine e registrare il risultato nella capsule.",
+      "regression": "Mock HEAD diverso e mutazione tracked fuori dai2script: fermarsi prima di Prepare senza device."
+    }
+  ],
+  "static_pass": [
+    "Budget totale2100s e riserva180s espliciti; timeout esterni possono accorciare gli step e i900 interni non sono aumentati.",
+    "UUID deriva dalla receipt del Prepare canonico; le recipe --device non creano altri device e non aprono GUI.",
+    "Trasporto usa sessioni e segnali di PGID propri; non richiama il lifecycle emulator Android.",
+    "Review-alone/trio usano flutter test, che nello SDK3.44.8 disinstalla per default in kill(); il journal rifiuta comunque un package residuo prima di installare una sola volta.",
+    "Backend e ClientAuth restano NOT_RUN; logs/trace solo privati.",
+    "Ogni PASS di uno step richiede codice comando0; quiescenza processi resta lane separata e condizione finale."
+  ],
+  "limits": [
+    "Solo review statica: nessun wrapper/test/Flutter/simctl/UI/boot eseguito.",
+    "Nessuna risorsa Client acquisita; slot W ancora da rilasciare esplicitamente secondo il coordinamento del parent.",
+    "La presenza di runtime26.5 e la modifica headless non provano build/install/VM/pixels/AT/profile/minimum_iOS14.",
+    "Una lettura cat su percorso docs errato ha restituito exit1, poi il percorso è stato corretto; nessun gate applicativo è stato eseguito o promosso."
+  ],
+  "peer_review_sha256": "790053be1bcf0841745ff9cd323ea2fd386a12884c99563e9a9f976c0dc94f59",
+  "all_review_commands_terminal": true
+}

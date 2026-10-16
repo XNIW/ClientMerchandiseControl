@@ -10,28 +10,44 @@
 - **Stato task**: BLOCKED
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: eseguire il mandato funzionale e UX del 2026-10-01
-  sulla main aggiornata: preflight staging, flussi e schermate nativi con fixture,
-  correzioni riproducibili e due review read-only; integrazione dopo gate applicabili.
-  TASK-054 resta aperta finché i requisiti live obbligatori non sono verificati.
+- **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
+- **Prossima azione autorizzata**: pubblicare il candidato successivo a516bb9e,
+  sei postimage source e sette documenti. Journal218b49a8, review4397c850
+  APPROVED source/pure/privacy: metadata finiti dei sei input terminali, congiunto
+  invariato e teardown indisponibile distinto da fallito;95mask,64implica8.
+  Finding statico candidate-promotion chiuso solo sorgente; nuovi SDK NOT_RUN.
+  Querylive4fa45f1e, review9467c7d4 APPROVED source/pure: sola query resource-first
+  nominale1s entro capture3s, stessaownership/cap/STOP, legacy/Boot invariati.
+  Copertura diversa dallo storico;0righe UNKNOWN, nessuna causa dimostrata.
+  Nuova Quality exact-SHA NOT_RUN, poi solo dopo PASS le due nuove domande
+  native motivate. FullCI7 NOT_RUN; budget300/30 e guard invariati.
+  Solo516 conserva Quality38893955534 PASS, visual38895852835 FAIL124 e
+  journal38895857215 recoverFAIL1 dopo prepare/seedPASS; cleanupPASS separato.
+  Nessun SDK Mac, nuovo branch/WT/accesso, reset, SQL/deploy/merge/DONE.
+  Maps/live e altri gate distinti; root writer attivo, PR29 draft, merge HOLD.
 
 ## Repository coinvolti
 
 - `XNIW/ClientMerchandiseControl` — repository corrente e unico writer del client.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
-  authority canonica verificata; TASK-159 concorrente preservato, PR commerce117 merged con6d5f3768 dopo review APPROVED e CI verde;
-  main4532831b include anche PR119; f21339bb è la baseline PR118, ancestry verificata.
-- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
-- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura.
+  authority canonica; snapshot storico main02ea44b9,159sorgenti e155receipt TEST;
+  rollout POS corrente daacb3e4ac/PR133 (OPEN), distinto dal candidato Client96758b89;
+  TASK159/Worker selettivo appartiene a W, modifiche concorrenti preservate.
+  Le riconciliazioni4532831b/f21339bb precedenti rimangono nelle evidence storiche.
+- `XNIW/MerchandiseControlSplitView` — owner N riferisce PR26 merged, mainbbbda83 e APK74e75 installato con preservazione; N riferisce SaveA locale e1riga/2prezzi remoti nel readback00:28:52UTC del10ottobre, HTTPACK non provato/peerA0; R24 NOT_RUN.
+- `XNIW/iOSMerchandiseControl` — owner N riferisce PR21 merged, mainb869c9b e Proper2cb5de installato; N riferisce primoSaveB localePASS/3pending, remotoB assente al solo readback00:28:52UTC del10ottobre; diagnostica errori8ott storica, ACK/convergenza da provare; R24 NOT_RUN.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
-- Supabase staging esistente — audit metadata readonly: 32/55 RPC presenti,
-  23 assenti e tre migration richieste non applicate (due commerce e correttiva
-  dedup); production non modificata.
+- Supabase TEST — ledger readonly API del12ottobre:161ricevute, tre nuove
+  versioni POS e quattro versioni canoniche Client ancora assenti. Postapply165
+  solo se161 invariato; conteggio non certifica schema. RPC32/57,25mancanti e1/2
+  indici restano fotografia10ottobre20:49UTC/history158, non catalogo corrente.
+  Source Adminmain6d2bcf1/PR136/CI38243799965 riconciliata readonly; recovery,
+  profilo operator155 e TLS/catalago correnti da qualificare prima di apply.
+  Nessun apply/cron/Worker da Client; CA e Cloudflare già disponibili.
 - Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 
 ## Principi architetturali

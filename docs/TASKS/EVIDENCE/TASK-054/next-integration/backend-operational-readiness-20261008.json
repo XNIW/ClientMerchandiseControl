@@ -1,0 +1,395 @@
+{
+  "authenticated_smokes": {
+    "reason": "3 canonical migrations absent and current approved TEST artifact config/pilot identities not referenced",
+    "result": "NOT_RUN"
+  },
+  "canonical_migration_bytes": [
+    {
+      "file": "20260823023037_client_commerce_journey_v1.sql",
+      "same": true,
+      "sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc"
+    },
+    {
+      "file": "20260823150000_customer_after_sales_order_lines_v1.sql",
+      "same": true,
+      "sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467"
+    },
+    {
+      "file": "20260928200000_customer_notification_hold_dedup.sql",
+      "same": true,
+      "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e"
+    }
+  ],
+  "date": "2026-10-08",
+  "external_receipts": {
+    "current-canonical-apply-receipt.json": "ad772afe69a8474d54d5dfef4e3e0802d4a548e7ec1a12ebf999b56b343b7bb8",
+    "current-scoped-recovery-final.json": "ba29f01a47d6cc7c841da8fd0253d417ce28eff7371428c134c44d6ce063709c",
+    "current-scoped-restore-receipt.json": "9f26f5d29b56e468aa48e33005b408c963012cd52b157fe8fba18859afcb5ec6",
+    "current-server-native-digest-receipt.json": "1dcf65d87c858fca3b570cacbffb8568e5cdabc46d4a9726cb71f799092f8729",
+    "current-storage-api-receipt.json": "6dc42c0844248c54ccce02d8cc174c06b5cfaf4c5e78b678527a4e7abbeb06ed",
+    "final-57-rpc-index-readback.json": "6816337a7a52dfb3808abdde1a2d93e32542e27f0876f4d4d10f298398da78af",
+    "restore-first-command-receipt.json": "bdcddfee22d0ba62c587dc1be2801e05252fca547108bd42f3c353b1dc69b006",
+    "restore-first-failure.json": "cbc6256c22db37b6ce6c0b1c00ede6b349fdb26270932953962065e272719d86",
+    "scoped-recovery-inverse-commands.json": "a606ab79cf584b4485593979110a04475cd8aa3a41fc99282bc907aa21de2c79",
+    "storage-api-schema-readback.json": "6cf8bdb813293f7f4c41289e1e22266e18f05bb2adafc4c7151ac202d3bb1395"
+  },
+  "final_local_admin_rpc_index": {
+    "all_contract_fields_compared": [
+      "identity_arguments",
+      "arguments",
+      "result",
+      "security_definer",
+      "anon_execute",
+      "authenticated_execute",
+      "settings",
+      "definition_md5"
+    ],
+    "authenticated_behavior": "NOT_RUN",
+    "consumer_source_errors": [],
+    "errors": [],
+    "full_history_gate_result": "FAIL",
+    "history_invented": false,
+    "history_rows": 0,
+    "indexes": 2,
+    "missing_history_count": 17,
+    "qualification": "RPC/index metadata only; local direct SQL application has no authoritative migration history",
+    "receipt_sha256": "51aa95a4e82b161ac1b70538a30f93e0ed0959a0739190b3129a8c0efe7bacbc",
+    "result": "PASS",
+    "rpc_receipts_identical": true,
+    "rpcs": 57,
+    "shared_TEST_readback": "NOT_RUN"
+  },
+  "historical_work_not_repeated": {
+    "reason": "Nessun drift delle tre canoniche ne dei fingerprint public/app_private; prova corrente basata su nuove righe esportate, non replay della vecchia fixture.",
+    "sql_1035_suite": "NOT_RUN"
+  },
+  "hygiene": {
+    "external_package_directory_mode": "0700",
+    "external_package_files_mode": "0600",
+    "protected_raw_exports_outside_git": true,
+    "raw_rows_in_this_evidence": false,
+    "remote_writes": false,
+    "secrets_in_this_evidence": false,
+    "verification_processes_pending": false
+  },
+  "live_compatibility_gate": {
+    "exit_code": 2,
+    "reason": "CMC_BACKEND_PGSERVICE_and_artifact_config absent; .pg_service.conf/.pgpass absent; historical config is not approved",
+    "result": "BLOCKED"
+  },
+  "recovery": {
+    "attempts_preserved": [
+      {
+        "cause": "Differenza di serializzazione Python int/float integrale nel valore numerico settings, non rollback. Comparatore corretto, poi 13 aggregati server-native identici senza normalizzazioni.",
+        "first_comparator_result": "FAIL",
+        "phase": "restore",
+        "sql_exit": 0,
+        "transaction": "COMMIT"
+      },
+      {
+        "correction": "Ordine dipendenze funzioni con check_function_bodies=off nel restore locale; fingerprint finale esatto.",
+        "first_result": "FAIL",
+        "phase": "Storage schema reconciliation",
+        "sqlstate": "42883",
+        "transaction": "ROLLBACK"
+      },
+      {
+        "cause": "Freeze richiesto alla migrazione 72 assente nell immagine locale. Diagnosi bounded, nessun hash/history modificato; freeze a prefisso identico poi API PASS.",
+        "first_result": "BLOCKED",
+        "phase": "Storage API startup"
+      }
+    ],
+    "auth_account_recovery": "NOT_RUN",
+    "backup_service": {
+      "backup_count": 0,
+      "backups_null": false,
+      "pitr_enabled": false,
+      "status": 200
+    },
+    "before_after_metadata_equal": true,
+    "existing_orphans": {
+      "missing_references": 8,
+      "notification_rows": 2,
+      "parents_invented": false,
+      "per_fk": {
+        "order": 2,
+        "shop": 2,
+        "source_event": 2,
+        "user": 2
+      },
+      "qualification": "Due notifiche senza parent per ciascuno dei quattro FK; nessuna correzione del target. Il restore conserva il difetto e non dimostra integrita relazionale.",
+      "rows_deleted": false,
+      "target_fk_metadata_validated": true
+    },
+    "fidelity_result": "PASS",
+    "global_database_recovery": "NOT_RUN",
+    "history": "155 righe reali -> 158 dopo tre apply locali realmente eseguiti -> 155 identiche",
+    "history_qualification": "Le tre ricevute locali seguono gli apply psql effettivi; non provano atomicita del runner CLI remoto e non riparano alcuna history condivisa.",
+    "limitations": [
+      "Procedura autorizzata solo sul clone isolato, richiede review prima di uso live.",
+      "Non e un backup globale, non recupera credenziali/account Auth ne oggetti di altri bucket.",
+      "Export e riconciliazione devono essere aggiornati nella finestra coordinata prima di qualunque apply TEST.",
+      "Nuova migration address v3 non inclusa nel ciclo apply/inverse corrente."
+    ],
+    "metadata_categories_equal": {
+      "columns": true,
+      "constraints": true,
+      "functions": true,
+      "indexes": true,
+      "policies": true,
+      "tables": true,
+      "triggers": true,
+      "views": true
+    },
+    "relational_integrity_result": "FAIL",
+    "restore_trigger_handling": "session_replication_role=replica esclusivamente nella transazione di restore nel DB locale isolato; origin prima di apply. Tutti i 1238 flag trigger, inclusi interni, coincidono con il target nel controllo finale readonly.",
+    "retained_local_resource": {
+      "container": "cmc-task054-address-create-20261008",
+      "container_owner": "admin_runtime",
+      "database": "task054_scoped_recovery_current",
+      "network": "none",
+      "reason": "Conservato per eventuale review; nessun processo di verifica pendente."
+    },
+    "row_sets": {
+      "auth.users": {
+        "before_after_equal": true,
+        "count": 13
+      },
+      "public.customer_addresses": {
+        "before_after_equal": true,
+        "count": 0
+      },
+      "public.customer_checkout_quotes": {
+        "before_after_equal": true,
+        "count": 0
+      },
+      "public.customer_notification_events": {
+        "before_after_equal": true,
+        "count": 2
+      },
+      "public.customer_orders": {
+        "before_after_equal": true,
+        "count": 6
+      },
+      "public.customer_payment_events": {
+        "before_after_equal": true,
+        "count": 0
+      },
+      "public.profiles": {
+        "before_after_equal": true,
+        "count": 7
+      },
+      "public.shops": {
+        "before_after_equal": true,
+        "count": 7
+      },
+      "public.storefront_fulfillment_slots": {
+        "before_after_equal": true,
+        "count": 6
+      },
+      "public.storefront_pickup_points": {
+        "before_after_equal": true,
+        "count": 6
+      },
+      "public.storefront_settings": {
+        "before_after_equal": true,
+        "count": 1
+      }
+    },
+    "scope": "Righe esistenti delle sei tabelle coinvolte e antenati FK esistenti strettamente necessari; auth.users solo proiezione id reale, history corrente completa; bucket scoped inizialmente assente.",
+    "server_native_digest": {
+      "checks": [
+        {
+          "count": 13,
+          "same_count_and_server_native_digest": true,
+          "table": "auth.users"
+        },
+        {
+          "count": 1238,
+          "same_count_and_server_native_digest": true,
+          "table": "catalog.all_trigger_flags"
+        },
+        {
+          "count": 0,
+          "same_count_and_server_native_digest": true,
+          "table": "public.customer_addresses"
+        },
+        {
+          "count": 0,
+          "same_count_and_server_native_digest": true,
+          "table": "public.customer_checkout_quotes"
+        },
+        {
+          "count": 2,
+          "same_count_and_server_native_digest": true,
+          "table": "public.customer_notification_events"
+        },
+        {
+          "count": 6,
+          "same_count_and_server_native_digest": true,
+          "table": "public.customer_orders"
+        },
+        {
+          "count": 0,
+          "same_count_and_server_native_digest": true,
+          "table": "public.customer_payment_events"
+        },
+        {
+          "count": 7,
+          "same_count_and_server_native_digest": true,
+          "table": "public.profiles"
+        },
+        {
+          "count": 7,
+          "same_count_and_server_native_digest": true,
+          "table": "public.shops"
+        },
+        {
+          "count": 6,
+          "same_count_and_server_native_digest": true,
+          "table": "public.storefront_fulfillment_slots"
+        },
+        {
+          "count": 6,
+          "same_count_and_server_native_digest": true,
+          "table": "public.storefront_pickup_points"
+        },
+        {
+          "count": 1,
+          "same_count_and_server_native_digest": true,
+          "table": "public.storefront_settings"
+        },
+        {
+          "count": 155,
+          "same_count_and_server_native_digest": true,
+          "table": "supabase_migrations.schema_migrations"
+        }
+      ],
+      "http_status": 201,
+      "normalization": "NONE; exact PostgreSQL to_jsonb(row)::text aggregates, computed independently on target and restored clone",
+      "numeric_precision_or_string_coercion": "NONE",
+      "remote_changes": false,
+      "result": "PASS",
+      "scope": "READ_ONLY_CURRENT_SERVER_NATIVE_TEXT_DIGESTS",
+      "scope_sets": 13,
+      "started_at": "2026-10-08T15:59:04.329208+00:00"
+    },
+    "storage": {
+      "api_delete_http": 200,
+      "api_get_http": 200,
+      "api_image_target_history_difference": "Immagine con 62 migrazioni note contro 73 nel target; prefisso 62/62 nomi e hash esatto. Freeze alla 61 mark-filename-immutable, aggiornamento hash disabilitato. Tutte le 73 righe history e metadata identici dopo API.",
+      "api_private_bucket": true,
+      "api_readback_body_status": 404,
+      "api_readback_http": 400,
+      "final_scoped_bucket_count": 0,
+      "final_scoped_object_count": 0,
+      "image": "public.ecr.aws/supabase/storage-api:v1.69.0",
+      "image_id": "sha256:28424184c9f699790cc190f78ddf7d6abfb5c87af78af260529a394d12c135e9",
+      "initial_scoped_bucket_count": 0,
+      "initial_scoped_object_count": 0,
+      "qualification": "API locale per bucket vuoto sullo stesso DB; HTTP 400 con body statusCode 404 nel readback, non HTTP 404. Nessuna prova runtime Storage remoto o recovery bytes di oggetti non presenti.",
+      "result": "PASS",
+      "schema_readback": {
+        "bucket_count": 0,
+        "known_migration_prefix_exact": true,
+        "metadata_after_storage_api_identical": true,
+        "metadata_different_categories": [],
+        "object_count": 0,
+        "session_replication_role": "origin",
+        "storage_api_image_latest_migration": 61,
+        "storage_migrations_73_identical": true,
+        "target_latest_migration": 72
+      },
+      "template_storage_drift": "La baseline locale aveva schema Storage anteriore. Ricostruito nel solo DB proprio dalle definizioni correnti prima del restore; gli otto fingerprint diventano uguali al target."
+    },
+    "terminal_commands": {
+      "apply_exec_session": 9299,
+      "apply_three_canonicals": 0,
+      "final_readonly_exec_session": 49898,
+      "inverse": 0,
+      "inverse_exec_session": 59377,
+      "native_readonly_digest": 0,
+      "owned_storage_container_removed": true,
+      "restore_sql": 0,
+      "storage_attach_exit_after_explicit_cleanup": 137,
+      "storage_container_pid_while_running": 10819,
+      "storage_exec_session": 40535,
+      "storage_node_api": 0,
+      "storage_runner": 0,
+      "storage_runner_pid": 83637
+    }
+  },
+  "schema_version": 1,
+  "scope": "TEST readonly e recovery locale scoped corrente; contratto finale locale Admin separato",
+  "shared_apply": {
+    "active_cron_at_readonly_observation": 4,
+    "prerequisites": [
+      "Riferimento alla configurazione TEST approvata dell artifact corrente.",
+      "Connessione readonly protetta PGSERVICE con TLS verify-full, trust certificate e credenziali su canale approvato.",
+      "Finestra coordinata attestata da tutti i writer e owner cron.",
+      "Refresh dati/history/Storage e riesame della procedura che conserva i due orphan.",
+      "Valutazione separata della nuova migration address v3 e readback completo dopo apply."
+    ],
+    "result": "NOT_RUN",
+    "safe_dedup_collisions_at_observation": 0,
+    "writer_window": "BLOCKED",
+    "writer_window_reason": "Finestra con writer unico e esclusione cron non attestata per apply; nessun cron fermato."
+  },
+  "shared_test_contract_initial_55": {
+    "errors": [
+      "missing_rpc:customer_address_delete_v2",
+      "missing_rpc:customer_address_upsert_v2",
+      "missing_rpc:customer_addresses_read_v2",
+      "missing_rpc:customer_after_sales_cancel_v1",
+      "missing_rpc:customer_after_sales_create_v1",
+      "missing_rpc:customer_after_sales_evidence_register_v1",
+      "missing_rpc:customer_after_sales_evidence_upload_ticket_v1",
+      "missing_rpc:customer_after_sales_list_v1",
+      "missing_rpc:customer_after_sales_order_lines_v1",
+      "missing_rpc:customer_checkout_quote_create_v2",
+      "missing_rpc:customer_delivery_context_read_v1",
+      "missing_rpc:customer_delivery_context_select_v1",
+      "missing_rpc:customer_notification_mark_read_v1",
+      "missing_rpc:customer_notifications_list_v1",
+      "missing_rpc:customer_notifications_mark_all_read_v1",
+      "missing_rpc:customer_order_reorder_apply_v1",
+      "missing_rpc:customer_order_reorder_preview_v1",
+      "missing_rpc:customer_review_submit_v1",
+      "missing_rpc:customer_review_update_v1",
+      "missing_rpc:customer_reviews_list_v1",
+      "missing_rpc:storefront_delivery_context_preview_v1",
+      "missing_rpc:storefront_product_reviews_v1",
+      "missing_rpc:storefront_search_suggestions_v1",
+      "missing_migration:20260823023037",
+      "missing_migration:20260823150000",
+      "missing_migration:20260928200000",
+      "missing_index:customer_notification_events_safe_dedup_idx"
+    ],
+    "exit_code": 1,
+    "missing_rpcs": 23,
+    "observed_at": "2026-10-08T15:07:48.94473+00:00",
+    "other_rpc_drift": [],
+    "present_compatible_rpcs": 32,
+    "qualification": "Full signatures, parameter defaults, result type, anon/authenticated EXECUTE, security definer, settings and definition MD5. No authenticated customer behavior inferred.",
+    "required_rpcs": 55,
+    "result": "FAIL"
+  },
+  "source_boundary": {
+    "admin_final_source": "f16c5f4f",
+    "admin_main_tree_equivalent": "02ea44b9",
+    "admin_v3_migration_sha256": "b290c6373d2d49a3c9fb4847e5ee8f47f2ce11f4eeeb17da4d3fc4086a615e56",
+    "client_initial_readonly_checkout": "39624143955f0329b3ac85e27a51d722a6884ad8",
+    "final_manifest_rpc_count": 57,
+    "final_manifest_sha256": "9eadce2cfddbb894dc6e018a26d5ff152dc69b05dd1c6d9fee9c83f83a9585b8",
+    "initial_manifest_rpc_count": 55,
+    "initial_manifest_sha256": "ea1ff64adac1ea08fede123efb4a92d1d3a36624cd9617b54dd90d38a2bef008",
+    "new_address_v3_recovery": "NOT_RUN",
+    "qualification": "Il recovery applica e inverte soltanto le tre canoniche storiche; la nuova 20261008151018 resta fuori da questa prova.",
+    "recovery_canonical_source": "82af13ef0005ecfb767809bd362327e91692b5ba"
+  },
+  "target": {
+    "name": "merchandisecontrol-dev",
+    "project_ref": "jpgoimipbothfgkokyvm",
+    "remote_writes": false
+  }
+}

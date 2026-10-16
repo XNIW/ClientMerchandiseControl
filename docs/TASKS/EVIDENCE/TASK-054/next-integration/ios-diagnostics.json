@@ -1,0 +1,68 @@
+{
+  "kind": "iOS process diagnostics only",
+  "status": "PASS",
+  "base": "20454e7a71942ea69d2cc21b585d0f05ffdb184e",
+  "checks": [
+    {
+      "command": "python3 scripts/test-task054-ios-owned.py",
+      "context": "locale",
+      "exitCode": 0,
+      "tests": 37,
+      "durationSeconds": 47.987
+    },
+    {
+      "command": "CI-like python3 scripts/test-task054-ios-owned.py",
+      "context": {
+        "GITHUB_RUN_ID": "123456789",
+        "GITHUB_RUN_ATTEMPT": "2",
+        "GITHUB_JOB": "ios-build",
+        "GITHUB_SHA": "a97778697051f93380ace9d6181a226c7f79ca77"
+      },
+      "exitCode": 0,
+      "tests": 37,
+      "durationSeconds": 47.987
+    },
+    {
+      "command": "targeted diagnostic strict probe and primary124",
+      "exitCode": 0,
+      "tests": 2,
+      "probeCases": [
+        "TimeoutExpired2",
+        "OSError5",
+        "psExit9",
+        "invalidShape3Fields"
+      ],
+      "foreignPayloadExcluded": true
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "changeScope": "Only error diagnostics, owned PGID/categories/numeric metadata; no raw error message, cmd, stdout/stderr or foreign rows.",
+  "budgetsUnchanged": {
+    "probeSeconds": 2,
+    "termGraceSeconds": 5,
+    "killGraceSeconds": 5,
+    "waitSeconds": 2,
+    "bootstatusSeconds": 300,
+    "smokeSeconds": 900,
+    "visualSeconds": 900,
+    "jobMinutes": 30,
+    "targetIos": "14.0"
+  },
+  "previousCi": {
+    "job": "111906920464",
+    "checkout": "a97778697051f93380ace9d6181a226c7f79ca77",
+    "phase": "post-open process probe before bootstatus",
+    "exitCode": 1,
+    "causeResolution": "BLOCKED",
+    "causeReason": "Original exception detail not present in historical CI log.",
+    "bootstatus": "NOT_RUN",
+    "smoke": "NOT_RUN",
+    "capture": "NOT_RUN"
+  },
+  "nativeBuildBootDeviceBackend": "NOT_RUN",
+  "ciOnComposedRootSha": "NOT_RUN",
+  "testedRevision": "0df0bd0a165d2927ddd9c7341fc9e18a0fa2f60b"
+}

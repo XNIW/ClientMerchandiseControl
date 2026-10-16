@@ -1247,7 +1247,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cartTimeoutError =>
-      'The store took too long. Retry without duplicating the operation.';
+      'The change is not confirmed. Retry from the cart. After restarting, check quantities before adding again.';
 
   @override
   String get cartUnauthorizedError => 'Sign in again to sync the cart.';
@@ -1892,7 +1892,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deliveryTrackingWindow(String start, String end) {
-    return 'Expected between $start and $end';
+    return 'Estimated, not guaranteed, delivery between $start and $end';
   }
 
   @override
@@ -2103,6 +2103,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t complete this action. Try again.';
 
   @override
+  String get afterSalesDestinationUnavailable =>
+      'This support request is unavailable. You can view your other requests.';
+
+  @override
+  String get afterSalesBackToList => 'View support requests';
+
+  @override
   String get afterSalesSelectItem => 'Select at least one item.';
 
   @override
@@ -2207,4 +2214,139 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsUnreadOnly => 'Unread only';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle =>
+      'No unread notifications among those shown';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'No unread notifications';
+
+  @override
+  String get notificationsUnreadPageHint =>
+      'Load earlier notifications to check for more unread updates.';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage =>
+      'Reconnect to check for more unread notifications.';
+
+  @override
+  String get notificationsUnreadEmptyMessage =>
+      'You have read all the notifications shown.';
+
+  @override
+  String get notificationsUpdateFailed =>
+      'Notifications could not be updated. Try again.';
+
+  @override
+  String get customerAddressUnknown =>
+      'Save unconfirmed. Check before editing.';
+
+  @override
+  String get customerAddressJournalUnavailable =>
+      'We cannot read the recovery information saved on this device. You can view your account; adding addresses is paused. Retry to recover access without deleting data.';
+
+  @override
+  String get customerAddressVerify => 'Check save';
+
+  @override
+  String get customerAddressCloseEditor => 'Close';
+
+  @override
+  String get customerAddressSending =>
+      'Saving. Closing the editor does not cancel the save.';
+
+  @override
+  String get reviewsSaving => 'Saving…';
+
+  @override
+  String get notificationsRead => 'Read';
+
+  @override
+  String get notificationsOpenOrder => 'Open order';
+
+  @override
+  String get notificationsOpenSupport => 'Open support case';
+
+  @override
+  String get notificationsOpenProduct => 'Open product';
+
+  @override
+  String get notificationsStayInInbox => 'Stay in notifications';
+
+  @override
+  String get afterSalesCaseOpened =>
+      'Case opened. You can complete attachments here.';
+
+  @override
+  String get afterSalesEvidenceConfirmed => 'Received; awaiting review';
+
+  @override
+  String get afterSalesEvidenceSafe => 'Verified';
+
+  @override
+  String get afterSalesEvidenceRejected => 'Rejected';
+
+  @override
+  String get afterSalesEvidencePending => 'To complete';
+
+  @override
+  String get afterSalesEvidenceUploading => 'Uploading attachments…';
+
+  @override
+  String get afterSalesEvidenceAmbiguous =>
+      'Result needs verification. Retry to check the same attachment.';
+
+  @override
+  String get afterSalesEvidenceFileUnavailable =>
+      'Local file unavailable. Select it again.';
+
+  @override
+  String get afterSalesEvidenceRetry => 'Complete attachments';
+
+  @override
+  String get afterSalesEvidenceReplace => 'Select again';
+
+  @override
+  String get afterSalesEvidenceReopenHelp =>
+      'Received attachments remain when reopening. After restarting the app, select missing files again.';
+
+  @override
+  String get afterSalesCreating => 'Opening case…';
+
+  @override
+  String get afterSalesEvidenceInvalid =>
+      'Unsupported file or too large. Select another.';
+
+  @override
+  String get cartLocalSavedNotice => 'Saved in this device’s cart.';
+
+  @override
+  String get cartPendingConfirmationNotice =>
+      'The change is not confirmed. Retry from the cart. After restarting, check quantities before adding again.';
+
+  @override
+  String get deliveryTrackingEtaUnavailable =>
+      'The store has not provided an estimated delivery window yet.';
+
+  @override
+  String get deliveryTrackingEtaExpired =>
+      'The previous estimated window has ended. Awaiting an update from the store.';
+
+  @override
+  String get deliveryTrackingMapExpand => 'Expand the delivery map';
+
+  @override
+  String get deliveryTrackingMapCollapse => 'Collapse the delivery map';
+
+  @override
+  String get deliveryTrackingMapUnavailable =>
+      'The map is unavailable. You can follow the delivery status here.';
+
+  @override
+  String get deliveryTrackingMapRetry => 'Retry the map';
+
+  @override
+  String get deliveryTrackingCacheCleanupFailed =>
+      'Could not remove the saved position. It remains hidden; retry the update.';
 }

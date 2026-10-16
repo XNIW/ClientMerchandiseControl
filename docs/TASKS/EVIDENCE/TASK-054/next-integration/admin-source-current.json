@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "scope": "Freschezza fonti Git; nessuna approvazione aggregata o prova runtime",
+  "reviewer": "/root/admin_source_refresh",
+  "completed_at_utc": "2026-10-05T18:10:35.275576+00:00",
+  "result": "PASS",
+  "remote_authority": {
+    "command": "git ls-remote origin refs/heads/main",
+    "exit_code": 0,
+    "sha": "82af13ef0005ecfb767809bd362327e91692b5ba",
+    "fetch": "NOT_RUN: riferimento remoto e oggetto pinnato disponibili; nessuna modifica alle refs"
+  },
+  "primary_checkout": {
+    "head": "553c4568b335ee95be31aaaea6735ed0a751879c",
+    "clean": true,
+    "ancestor_of_remote_main": true,
+    "meaning": "Checkout locale stale; non nuova main authority"
+  },
+  "source_change_since_package": "Nessuno: riferimento remoto 82af13ef e tutte le 158 sorgenti migration corrispondono al manifest pinnato",
+  "local_checkout_delta": {
+    "canonical_sources": 158,
+    "local_sources": 156,
+    "shared156_migrations_byte_identical": true,
+    "missing_in_local_only": [
+      "supabase/migrations/20261002150909_wechat_010_bounded_product_bytes.sql",
+      "supabase/migrations/20261002180757_wechat_010_admin_identity_case.sql"
+    ]
+  },
+  "canonical_package": {
+    "manifest_sha256": "d51b17775e9906eff711bf2688e680524e58433ae904ddff17c54319f6af3589",
+    "source_registry_index_sha256": "bdea1937baafbe75d572309a3ff5d2e107a5c4ffe8ab9666597ca5bf8936fdc7",
+    "verification_checks": 16,
+    "exit_code": 0,
+    "three_migrations": [
+      {
+        "path": "supabase/migrations/20260823023037_client_commerce_journey_v1.sql",
+        "sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+        "git_blob": "83aff0b62052f149fe7302bdc4612d0c601eedba",
+        "bytes": 149375,
+        "local_remote_package_byte_identical": true
+      },
+      {
+        "path": "supabase/migrations/20260823150000_customer_after_sales_order_lines_v1.sql",
+        "sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467",
+        "git_blob": "9e9aa7f3e698b96d27286ff520f150f177b73831",
+        "bytes": 8028,
+        "local_remote_package_byte_identical": true
+      },
+      {
+        "path": "supabase/migrations/20260928200000_customer_notification_hold_dedup.sql",
+        "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e",
+        "git_blob": "057f591b91bd2cdfc99e4478b0261c2a711907a2",
+        "bytes": 697,
+        "local_remote_package_byte_identical": true
+      }
+    ]
+  },
+  "price_mapping": {
+    "original_version": "20261002002517",
+    "canonical_and_service_version": "20261002005414",
+    "sha256": "54bc73e0dcbd4bd1d4323989b3bce6dc1c528117fe45509c35b5301243d8474a",
+    "raw_sql_md5": "866a0d5e0e794e929ece2b0fcac1b447",
+    "historical_original_local_remote_byte_identical": true
+  },
+  "contract_sources": {
+    "rpcs": 55,
+    "consumer_sources": 13,
+    "canonical_migrations": 15,
+    "consumer_manifest_sha256": "ea1ff64adac1ea08fede123efb4a92d1d3a36624cd9617b54dd90d38a2bef008",
+    "migration_hashes_match_contract_and_local_remote": true,
+    "source_gate_exit_code": 0,
+    "output": "BACKEND_CONTRACT_SOURCE PASS rpcs=55 runtime=NOT_RUN"
+  },
+  "historical_sql_evidence": {
+    "suites": 23,
+    "assertions": 1035,
+    "all23_test_sources_byte_identical_at_82af_553_and_historical_receipt": true,
+    "rerun": "NOT_RUN: fonti byte identiche; nessuna nuova istanza SQL in questa lane",
+    "applicability": "Risultati locali riferiti alla validazione del 4 ottobre; non nuova evidence staging"
+  },
+  "catalog_fingerprint_evidence": {
+    "categories": 8,
+    "date": "2026-10-04",
+    "freshness": "Snapshot storico; nessuna query odierna di cataloghi ACL/RLS in questa lane"
+  },
+  "seven_admin_commerce_sources": [
+    {
+      "path": "src/app/shop/after-sales/actions.ts",
+      "sha256": "8a5a70779b8dd55c9460dbf38cd79f30e80e323023d41e4fd8432cca194eba8d",
+      "git_blob": "3f49edc8f5de7ae2908cea5e0ad0ce327091c348",
+      "local_remote_identical": true,
+      "absent_in_worker_annotation_tree": true
+    },
+    {
+      "path": "src/app/shop/after-sales/page.tsx",
+      "sha256": "a9360d5ee97a79191ef6142adf7521be2526f82eeb0895bffbb9d40440c1dbbc",
+      "git_blob": "21c48394fb9ce9a5a5f9c361a1e05d37e6e6a594",
+      "local_remote_identical": true,
+      "absent_in_worker_annotation_tree": true
+    },
+    {
+      "path": "src/app/shop/reviews/actions.ts",
+      "sha256": "eeae07a8bce3500bb2322fe6103c28b89398b73ec5d9c7101d309d3048a7d264",
+      "git_blob": "e94d4836361dfcc0fbf892a7b0f3f96612bd27ca",
+      "local_remote_identical": true,
+      "absent_in_worker_annotation_tree": true
+    },
+    {
+      "path": "src/app/shop/reviews/page.tsx",
+      "sha256": "5645ce5522fc291b7d6ea730b6ed11d6dfb6ca374c76e7d23055c4c9276a49bc",
+      "git_blob": "4d39d0edf80be5e6cc8c9544b7b46b12c08ca195",
+      "local_remote_identical": true,
+      "absent_in_worker_annotation_tree": true
+    },
+    {
+      "path": "src/server/shop-admin/customer-commerce-evidence.ts",
+      "sha256": "234454a9d9370bc2089c0e792261308f222b4779220bee2a10efc1df5b4184c0",
+      "git_blob": "31194f4a46a4fb2b4cc603807f0570c77e9aa547",
+      "local_remote_identical": true,
+      "absent_in_worker_annotation_tree": true
+    },
+    {
+      "path": "src/server/shop-admin/customer-commerce-mutations.ts",
+      "sha256": "9fc1b67c32d5271a99ea1a82d29d8978fc9648767a6fed6387d1c69f90bd538f",
+      "git_blob": "bca23a9aa2c55e5ce7fb540d5fea6ddf5ca3bb01",
+      "local_remote_identical": true,
+      "absent_in_worker_annotation_tree": true
+    },
+    {
+      "path": "src/server/shop-admin/customer-commerce-read-model.ts",
+      "sha256": "7f609fa44c6c27e286f8fda3433d58256ae83d39013498ccbd4e6f8306ceb01e",
+      "git_blob": "b74e1a855664b43dcc39c0551acdc9e4903ff20c",
+      "local_remote_identical": true,
+      "absent_in_worker_annotation_tree": true
+    }
+  ],
+  "worker": {
+    "annotation_tree": "1f0679b261dde089800a3bdef7888c1f7a7b8014",
+    "seven_commerce_paths_absent_in_tree": true,
+    "api_and_runtime_binary_verification": "NOT_RUN per scope"
+  },
+  "preservation": {
+    "admin_primary_clean": true,
+    "w_head": "22158297fe8fc5601cee1d681cf197bcf529ff18",
+    "w_staged_paths": [
+      "M  scripts/cloudflare-build.mjs",
+      "A  scripts/cloudflare-query-compat.mjs",
+      "M  src/app/api/mini-program/v1/catalog/route.ts",
+      "M  src/app/shop/_components/ProductDetailModalController.tsx",
+      "M  src/components/shop/ShopShell.tsx"
+    ],
+    "w_index_before_after_sha256": "841a3fbfef0bb822a8c7954d096b74c4269f0be081656549f229539efdbbee28",
+    "w_staged_preserved": true,
+    "tracked_mutations": 0,
+    "pending_processes": 0
+  },
+  "detail_receipt_sha256": "bddd49c5c18b1b618a5b53e18ee09b657f9deb7b5e3b9b8d5c8accf634c39593",
+  "commands": [
+    {
+      "command": "python3 build/task054/backend-next/package/verify-package.py --admin-repo /Users/minxiang/Projects/merchandise-control-admin-web",
+      "exit_code": 0,
+      "status": "PASS",
+      "checks": 16,
+      "scope": "Pacchetto locale e fonti Git pinnate; snapshot remoto del 4 ottobre, nessun SQL"
+    },
+    {
+      "command": "python3 scripts/check-backend-compatibility.py --source-only",
+      "exit_code": 0,
+      "status": "PASS",
+      "scope": "55 RPC e13 sorgenti consumer Client; nessun catalogo live",
+      "output": "BACKEND_CONTRACT_SOURCE PASS rpcs=55 runtime=NOT_RUN"
+    }
+  ]
+}

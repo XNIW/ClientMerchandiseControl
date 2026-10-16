@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "scope": "TEST_MIGRATION_LEDGER_READONLY_API",
+  "recorded_date_utc": "2026-10-12",
+  "tool": "supabase.list_migrations",
+  "project": "TEST",
+  "tool_is_error": false,
+  "history_count": 161,
+  "added_since_158": [
+    {
+      "version": "20261012115442",
+      "name": "pos_import_recovery_identity_cte_folding"
+    },
+    {
+      "version": "20261012115728",
+      "name": "pos_import_recovery_identity_pairing"
+    },
+    {
+      "version": "20261012115959",
+      "name": "pos_import_recovery_plan_single_builder"
+    }
+  ],
+  "client_canonical_versions": [
+    {
+      "version": "20260823023037",
+      "present_in_ledger": false
+    },
+    {
+      "version": "20260823150000",
+      "present_in_ledger": false
+    },
+    {
+      "version": "20260928200000",
+      "present_in_ledger": false
+    },
+    {
+      "version": "20261008151018",
+      "present_in_ledger": false
+    }
+  ],
+  "postapply_count_if_baseline_unchanged": 165,
+  "full_rpc_index_rls_catalog_status": "NOT_RUN",
+  "historical_catalog": {
+    "observed_at": "2026-10-10T20:49:33Z",
+    "rpc_conforming": 32,
+    "rpc_expected": 57,
+    "indexes_conforming": 1,
+    "indexes_expected": 2
+  },
+  "root_execute_sql": false,
+  "root_apply": false,
+  "owner_main": "6d2bcf1addf92fc2e3e662ba38491f0662ab4a20",
+  "owner_source_mapping": [
+    {
+      "actual_version": "20261012115442",
+      "source_filename": "20261011215021_pos_import_recovery_identity_cte_folding.sql",
+      "sha256": "6555519186c77809cff3b0ea1de4234b19657f1e1f52ccbb248607d5d18c9a77"
+    },
+    {
+      "actual_version": "20261012115728",
+      "source_filename": "20261012005020_pos_import_recovery_identity_pairing.sql",
+      "sha256": "e89273f6cf94e55b917f543e3ba97db4d75a8330cb6a4410efecb7194dea4aa0"
+    },
+    {
+      "actual_version": "20261012115959",
+      "source_filename": "20261012055628_pos_import_recovery_plan_single_builder.sql",
+      "sha256": "4b1a5dceed9b2bdf50c92aafa13f73400db0e0455c57804cda842fe1284d967c"
+    }
+  ],
+  "scope_limits": [
+    "API ledger confirms names/versions/count only",
+    "No comparison of full applied SQL bytes or live function definitions",
+    "Existing profile155/recovery historical; fresh owner verifier/profile/recovery/window still required"
+  ],
+  "owner_source_ci": {
+    "pull_request": "https://github.com/XNIW/merchandise-control-admin-web/pull/136",
+    "run": "https://github.com/XNIW/merchandise-control-admin-web/actions/runs/38243799965",
+    "verify_and_database_pgtap": "PASS",
+    "staging_e2e": "NOT_RUN",
+    "scope": "source_ci_not_current_client_rpc_rls_catalog_or_applied_sql_bytes"
+  }
+}

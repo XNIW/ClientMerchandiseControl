@@ -1,0 +1,14 @@
+{
+  "id": "BECI-DOC-01",
+  "result": "PASS",
+  "exitCode": 0,
+  "documentaryOnly": true,
+  "historicalFlutterFailurePreserved": true,
+  "path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart",
+  "pathExists": true,
+  "pocSha256": "5537ef1327f8cb70e0152ec05c2428b54b3752879331e25d88522c01e8171796",
+  "beforeReceiptSha256": "7c92b913b5e71a7af0f9e86e87c4c77db4edd85bd7982259140d947803af4a1d",
+  "afterReceiptSha256": "1ce54dd83872da084b042e5664d54fd64a7d8f69cdbde392a2518786bf6e6ecd",
+  "flutterRerun": "NOT_RUN: metadata correction only",
+  "originalReceiptSha256": "cdb0147d14a70c1ef2eaeddd5f29e32120fcb21ab30c17fb00ee0dcbe678153d"
+}

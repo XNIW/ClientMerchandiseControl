@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "baseRevision": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+  "scope": "iOS journal fixture, una installazione e due processi; nessun backend autenticato",
+  "sourceFiles": {
+    "scripts/run-address-journal-ios.py": "a00698033a8fd747e3dbb394f1ef93dc23208a038b79043cc5c76ce797b0ab50",
+    "scripts/test-address-journal-ios.py": "c6eec71f28f3d1d713994d1ab76138a184dc25f4698fced056d9555eaff145cd",
+    "integration_test/address_creation_journal_native_test.dart": "c5736ed28fc2ce3de232eb799544cc634efc032c79d2570bcb4b19142a58ebd0",
+    "test_driver/address_creation_journal.dart": "5971c8af0ac6df5c85712f6b73cc94e32b1ae588ff30aa30649e40b3173114c8",
+    ".github/workflows/ci.yml": "cc19cdd76ca37f47e6232d3e74655864dbbf522c0edea6593856f042e0315ab8",
+    "test/governance/ci_performance_gate_test.dart": "571d5bd26638ce3a9f716af2a03d9e5a6412c4a41ad17539a81f683426cbff60",
+    "scripts/check.sh": "19b13f573f5720cf3f9f7f43aa64a5ab20374b56c43ffe6005127e28b47cc4ea"
+  },
+  "writerChecks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-ios.py",
+      "result": "PASS",
+      "exitCode": 0,
+      "tests": 16,
+      "seconds": 0.024,
+      "log": "build/task054/ios-journal-source/ios-runner-unit.log"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-android.py",
+      "result": "PASS",
+      "exitCode": 0,
+      "tests": 13,
+      "seconds": 0.224,
+      "log": "build/task054/ios-journal-source/android-runner-unit.log"
+    },
+    {
+      "command": "bash scripts/check-action-pins.sh",
+      "result": "PASS",
+      "exitCode": 0
+    },
+    {
+      "command": "bash scripts/check-governance-state.sh",
+      "result": "FAIL",
+      "exitCode": 1,
+      "reason": "snapshot handoff precedente e virgola dopo TASK-054 nel nuovo heading"
+    },
+    {
+      "command": "bash scripts/check-governance-state.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "reason": "corretti soltanto metadati e heading"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-ios.py",
+      "result": "FAIL",
+      "exitCode": 1,
+      "tests": 20,
+      "reason": "mock della nuova regressione signal non accettava il secondo parametro posizionale; corretto il solo test"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-ios.py",
+      "result": "PASS",
+      "exitCode": 0,
+      "tests": 21,
+      "seconds": 0.038,
+      "originalToolReceipt": "aac00a"
+    },
+    {
+      "command": "plutil -convert json -o - -- -",
+      "result": "PASS",
+      "exitCode": 0,
+      "scope": "solo plist sintetico in stdin, nessun Simulator"
+    }
+  ],
+  "review": {
+    "result": "APPROVED",
+    "evidenceLevel": "SOURCE_CODE_ONLY",
+    "reviewer": "/root/backend_readiness",
+    "observedAt": "2026-10-08T18:06:54.104775+00:00",
+    "independentTests": 21,
+    "independentFaultInjectionCases": 8,
+    "exitCode": 0,
+    "sourceHashes": {
+      "scripts/run-address-journal-ios.py": "a00698033a8fd747e3dbb394f1ef93dc23208a038b79043cc5c76ce797b0ab50",
+      "scripts/test-address-journal-ios.py": "c6eec71f28f3d1d713994d1ab76138a184dc25f4698fced056d9555eaff145cd",
+      ".github/workflows/ci.yml": "cc19cdd76ca37f47e6232d3e74655864dbbf522c0edea6593856f042e0315ab8",
+      "integration_test/address_creation_journal_native_test.dart": "c5736ed28fc2ce3de232eb799544cc634efc032c79d2570bcb4b19142a58ebd0",
+      "test_driver/address_creation_journal.dart": "5971c8af0ac6df5c85712f6b73cc94e32b1ae588ff30aa30649e40b3173114c8",
+      "scripts/check.sh": "19b13f573f5720cf3f9f7f43aa64a5ab20374b56c43ffe6005127e28b47cc4ea",
+      "test/governance/ci_performance_gate_test.dart": "571d5bd26638ce3a9f716af2a03d9e5a6412c4a41ad17539a81f683426cbff60",
+      "scripts/run-task054-ios-owned.py": "5784f4db204b58d4cbc925e3a1366088d42b47906923eb34fcdb815113599d8f",
+      "scripts/run-task054-android-visual.py": "b6ee1bb0294bc5a2bc0b89c7e686d7bfbe7539e90371a00b184a0d3deac9b246"
+    },
+    "resolvedFindings": [
+      "IOS-JOURNAL-REVIEW-01",
+      "IOS-JOURNAL-REVIEW-02",
+      "IOS-JOURNAL-REVIEW-03"
+    ],
+    "receiptSha256": "eaeac9ed0bc047a84f1afb07ae3cb65bddd49f47a506ece52dc30bf6636c58a6",
+    "candidateRevision": null,
+    "candidateRevisionReason": "associazione hash al commit finale da attestare dopo commit selettivo",
+    "nativeRuntime": "NOT_RUN",
+    "globalTaskOutcome": "BLOCKED"
+  },
+  "runtime": {
+    "buildIOS": "NOT_RUN",
+    "iosJournalRestart": "NOT_RUN",
+    "reason": "lane locale solo source/unit; nuovo job hosted da eseguire dopo integrazione root",
+    "backend": "NOT_RUN"
+  },
+  "unchanged": {
+    "minimumIOS": "14.0",
+    "flutter": "3.44.8",
+    "xcodeHosted": "26.6",
+    "existingJobs": 6,
+    "existingBudgets": true,
+    "appSourceAndEntitlements": true,
+    "sharedDriver": true
+  },
+  "newJob": {
+    "id": "ios-address-journal",
+    "runner": "macos-26",
+    "timeoutMinutes": 30,
+    "equivalentBudget": "ios-build",
+    "exactHeadCheckout": true
+  },
+  "risk": "Il README del plugin richiede Keychain Sharing; nessuna modifica preventiva agli entitlement, prima si verifica il comportamento nativo.",
+  "limitations": [
+    "Simulator, non dispositivo fisico",
+    "simctl terminate, non perdita di alimentazione",
+    "la quiescenza del simulatore richiede la receipt del cleanup in step always separato"
+  ],
+  "diagnostics": {
+    "scope": "solo metadata del processo fixture e stdout/stderr privati",
+    "fields": [
+      "process_id",
+      "process_state",
+      "executable_matches",
+      "stdout_bytes",
+      "stderr_bytes",
+      "vm_uri state only",
+      "stderr_markers allowlist",
+      "crash_cause NOT_CONFIRMED"
+    ],
+    "rawLogsUploaded": false,
+    "vmUriUploaded": false
+  }
+}

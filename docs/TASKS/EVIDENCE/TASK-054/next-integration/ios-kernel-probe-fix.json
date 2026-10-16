@@ -1,0 +1,158 @@
+{
+  "task": "TASK-054",
+  "role": "CODEX_FIXER",
+  "handoff": "CODEX_FIX_COMPLETE_TO_RE_REVIEW",
+  "base": "302857a558fe2d309172f5061542106443b45cfb",
+  "candidate": "559595649a5886a654bfe34b06077d4f2368e89e",
+  "branch": "codex/task054-ios-kernel-probe",
+  "sourceFiles": [
+    {
+      "path": "scripts/run-task054-ios-owned.py",
+      "sha256": "5784f4db204b58d4cbc925e3a1366088d42b47906923eb34fcdb815113599d8f"
+    },
+    {
+      "path": "scripts/test-task054-ios-owned.py",
+      "sha256": "7f9986ff3230285fa6d40bb05535f7577e8f45eeb9a7b413f48fe6f009807397"
+    }
+  ],
+  "worktreeClean": true,
+  "pushed": false,
+  "merged": false,
+  "scope": "Probe kernel del gruppo processo proprio e regressioni del helper iOS owned; nessun cambio al job, deadline, cleanup history o codice client.",
+  "host": {
+    "system": "Darwin",
+    "release": "27.0.0",
+    "python": "3.9.6"
+  },
+  "correction": {
+    "absent": "Solo ProcessLookupError/ESRCH restituisce False senza ps.",
+    "permission": "PermissionError emette diagnostic typed/errno e richiede ps originale; mai False dalla sola EPERM.",
+    "otherOsError": "Diagnostic typed/errno e re-raise; nessuna prova negativa.",
+    "present": "ps -axo pgid=,stat= con timeout2 e parser originale strict; Z quiescente, membri propri non-Z vivi.",
+    "constraints": "PGID int positivo; probe killpg esclusivamente segnale0; stop_owned_process e stato sticky invariati."
+  },
+  "mandateAmendment": "Root ha rettificato il fail immediato EPERM dopo la prova Darwin reale: fallback ps strict autorizzato, senza attenuare prove negative o primary143/130.",
+  "gates": {
+    "baseline": {
+      "command": "python3 scripts/test-task054-ios-owned.py -v > build/task054/ios-kernel-probe-fix/baseline-37.log 2>&1",
+      "exitCode": 0,
+      "status": "PASS",
+      "revision": "302857a558fe2d309172f5061542106443b45cfb",
+      "log": "build/task054/ios-kernel-probe-fix/baseline-37.log",
+      "logSha256": "3ca517297f634cb37b899516b19d38b79d3bc86138b32f8933fe512a10813ede",
+      "count": 37
+    },
+    "pocBefore": {
+      "command": "python3 build/task054/ios-kernel-probe-fix/kernel_absence_timeout_reproduction.py > build/task054/ios-kernel-probe-fix/reproduction-before.log 2>&1",
+      "exitCode": 1,
+      "status": "FAIL",
+      "revision": "302857a558fe2d309172f5061542106443b45cfb",
+      "log": "build/task054/ios-kernel-probe-fix/reproduction-before.log",
+      "logSha256": "308fcb178cba7a4b54c9bd7df9d19489ad20eb60fb4980b436a556aa23a0273c",
+      "meaning": "Own group realmente terminato e reaped, ps timeout iniettato: il helper originale propaga TimeoutExpired."
+    },
+    "initialAttempt": {
+      "command": "python3 scripts/test-task054-ios-owned.py -v > build/task054/ios-kernel-probe-fix/owned-tests-final.log 2>&1",
+      "exitCode": 1,
+      "status": "FAIL",
+      "revision": "302857a558fe2d309172f5061542106443b45cfb+first-kernel-only-candidate.patch",
+      "log": "build/task054/ios-kernel-probe-fix/owned-tests-final.log",
+      "logSha256": "8873d1a35df29e770460ad794bfd46a4704402dbc0c3d3f8d3b9de446ea19c52",
+      "count": 44,
+      "failures": 3,
+      "errors": 1,
+      "meaning": "Il primo tentativo EPERM re-raise rompe own zombie e tre subcase reali dei segnali; conservato byteimmutato."
+    },
+    "darwinProof": {
+      "command": "python3 build/task054/ios-kernel-probe-fix/darwin_kernel_zombie_reproduction.py > build/task054/ios-kernel-probe-fix/darwin-kernel-zombie.log 2>&1",
+      "exitCode": 0,
+      "status": "PASS",
+      "revision": "302857a558fe2d309172f5061542106443b45cfb+first-kernel-only-candidate.patch",
+      "log": "build/task054/ios-kernel-probe-fix/darwin-kernel-zombie.log",
+      "logSha256": "520117dfdeeef60f605a258f77b1daf2484d9bf93a210b83c0979f2d03842620",
+      "meaning": "Kernel reale: live presente; unreaped Z UID501 come processo caller -> EPERM1; dopo reap -> ESRCH3; child proprio reaped."
+    },
+    "pocFinal": {
+      "command": "python3 build/task054/ios-kernel-probe-fix/kernel_absence_timeout_reproduction.py > build/task054/ios-kernel-probe-fix/reproduction-final.log 2>&1",
+      "exitCode": 0,
+      "status": "PASS",
+      "revision": "559595649a5886a654bfe34b06077d4f2368e89e",
+      "log": "build/task054/ios-kernel-probe-fix/reproduction-final.log",
+      "logSha256": "961e6a8ef800622b54a68897f159af84129fed1463c28234e0790b1e1b67e4f5",
+      "meaning": "Own group realmente assente; ps timeout solo iniettato, ps non chiamato; nessuna inferenza native."
+    },
+    "testsFinal": {
+      "command": "python3 scripts/test-task054-ios-owned.py -v > build/task054/ios-kernel-probe-fix/owned-tests-fallback-final.log 2>&1",
+      "exitCode": 0,
+      "status": "PASS",
+      "revision": "559595649a5886a654bfe34b06077d4f2368e89e",
+      "log": "build/task054/ios-kernel-probe-fix/owned-tests-fallback-final.log",
+      "logSha256": "a620201227aac8a24116c7e39eb4e17f33b8aacf2585d939d8600366cc09a951",
+      "count": 47,
+      "seconds": 47.836,
+      "meaning": "37 precedenti piu10 nuove: real assenza/live/resistant child/Z, EPERM e PS failclosed, primary143/130, cleanup storico sticky."
+    },
+    "pyCompile": {
+      "command": "python3 -m py_compile scripts/run-task054-ios-owned.py scripts/test-task054-ios-owned.py > build/task054/ios-kernel-probe-fix/pycompile-final.log 2>&1",
+      "exitCode": 0,
+      "status": "PASS",
+      "revision": "559595649a5886a654bfe34b06077d4f2368e89e",
+      "log": "build/task054/ios-kernel-probe-fix/pycompile-final.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "diffCheck": {
+      "command": "git diff --check > build/task054/ios-kernel-probe-fix/diff-check-final.log 2>&1",
+      "exitCode": 0,
+      "status": "PASS",
+      "revision": "559595649a5886a654bfe34b06077d4f2368e89e",
+      "log": "build/task054/ios-kernel-probe-fix/diff-check-final.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "invariantsAndProcesses": {
+      "command": "python3 build/task054/ios-kernel-probe-fix/audit_candidate.py > build/task054/ios-kernel-probe-fix/candidate-invariants-processes.log 2>&1",
+      "exitCode": 0,
+      "status": "PASS",
+      "revision": "559595649a5886a654bfe34b06077d4f2368e89e",
+      "log": "build/task054/ios-kernel-probe-fix/candidate-invariants-processes.log",
+      "logSha256": "3738daf979bb86a79c107ae66b7ec6178ac2335473ebd394a128d13fbb2db750",
+      "meaning": "AST: solo group_has_live_members mutato; nomi37 preservati, due fixture mock adattate, primari/sticky invariati. Inventory metadata-only cwd propria: zero live test processi, audit e ancestors esclusi."
+    },
+    "native": {
+      "status": "NOT_RUN",
+      "reason": "Lane nativa e CI appartengono al root; nessun boot/build/emulator/device in questo fix."
+    },
+    "ci4": {
+      "status": "FAIL",
+      "revision": "302857a558fe2d309172f5061542106443b45cfb",
+      "reason": "FAIL iOSdebug psProbe TimeoutExpired2 e cleanup originali restano evidence indipendente; nessun ready/PNG e quiescenza UNKNOWN. Il fix host non li converte in PASS."
+    }
+  },
+  "artifacts": [
+    {
+      "path": "build/task054/ios-kernel-probe-fix/first-kernel-only-candidate.patch",
+      "sha256": "0f7548a5b869f783d415bed9930b19a2e064abab0c3552bb529e79bc65c865cc"
+    },
+    {
+      "path": "build/task054/ios-kernel-probe-fix/kernel_absence_timeout_reproduction.py",
+      "sha256": "e04df760034673d96e5fcfe688c2eb8332e280050d9088c64d2189722d0b3cfb"
+    },
+    {
+      "path": "build/task054/ios-kernel-probe-fix/darwin_kernel_zombie_reproduction.py",
+      "sha256": "769214e0a6f5959170773512bb52666a033a65a6c2a61cdc4334b64960534d51"
+    },
+    {
+      "path": "build/task054/ios-kernel-probe-fix/audit_candidate.py",
+      "sha256": "0e23b7905c12ff331c98b7c2f9b93d97a05caad5caa8b2c88fe0834c1ea95430"
+    }
+  ],
+  "references": [
+    "https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kill.2.html",
+    "https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/killpg.2.html",
+    "https://docs.python.org/3/library/os.html#os.killpg",
+    "https://docs.python.org/3/builtins/exceptions.html#ProcessLookupError"
+  ],
+  "ownedVerificationProcesses": 0,
+  "limitations": "PASS host misti reali/iniettati, non native/live staging. Re-review indipendente e nuova CI obbligatorie; nessuna approvazione propria.",
+  "originalReceiptSha256": "6c92104793af12bfc03ef21b4ae35990e708d80126e431faf9024468b10fd76d",
+  "qualification": "Writer559 cherry36f9a84,47hostPASS0; ESRCH reale evita ps, EPERM mantienepsstrict2. Primo44FAIL3+1/PoCFAIL preservati; non prova PGID assenti nel CI4. Comandi locali nel WT feedback, source/test canonici versionati; nessun native/livePASS."
+}

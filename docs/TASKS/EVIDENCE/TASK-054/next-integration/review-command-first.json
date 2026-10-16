@@ -1,0 +1,50 @@
+{
+  "reviewer": "/root/review_evidence_ci",
+  "revision": "163b9c246ee4e8ead06f4fd097228a649aa3e217",
+  "deltaVerdict": "CHANGES_REQUIRED",
+  "taskLiveVerdict": "BLOCKED",
+  "scope": "Android/visual command callsites only, not aggregate approval",
+  "finding": {
+    "id": "BECI-04",
+    "priority": "P2",
+    "status": "OPEN",
+    "fileLocations": [
+      {
+        "file": "scripts/run-task054-android-visual.py",
+        "lines": [
+          83,
+          102
+        ]
+      },
+      {
+        "file": "scripts/test-task054-visual.sh",
+        "lines": [
+          38,
+          51
+        ]
+      }
+    ],
+    "description": "Il leader termina normalmente ma il gruppo proprio conserva un discendente; command/run saltano il drain su successo e su returncode nonzero.",
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 /Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/review-evidence-ci/task054-normal-exit-repro-163b9c2.py --repository /Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+    "exitCode": 1,
+    "scope": "Real temporary Python leaders/children, same owned PGID; no actual native/SDK tool; final own-group SIGKILL and quiescence verified",
+    "observed": [
+      {
+        "runner": "android",
+        "exit": 0,
+        "cleanup": "PASS",
+        "child_live": true
+      },
+      {
+        "runner": "visual",
+        "exit": 0,
+        "cleanup_failed": false,
+        "child_live": true
+      }
+    ],
+    "impact": "Cleanup PASS non attesta quiescenza; step può terminare lasciando processi propri. È callsite diverso da BECI-01 emulator già risolto.",
+    "requiredFix": "Eseguire cleanup bounded del gruppo proprio anche su leader exit0 e nonzero, preservando causa primaria e gestendo primo segnale durante guard; regressioni reali exit0/nonzero e timeout/TERM/INT. Nessun aumento timeout build/test."
+  },
+  "pocSha256": "346540ce4a7fa967b5dff96cf1cde3184053fc811e28c2b895df15b6f837c3d0",
+  "aggregateCI": "NOT_RUN composed candidate not frozen"
+}

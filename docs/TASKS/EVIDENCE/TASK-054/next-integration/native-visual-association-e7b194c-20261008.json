@@ -1,0 +1,364 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-08",
+  "reviewer": "client_reviewer, distinto dal writer",
+  "review_status": "APPROVED",
+  "review_scope": "ANDROID_NATIVE_FIXTURE_PIXEL_ASSOCIATION_AND_CHANGED_FRAMES",
+  "quality_result": "PASS",
+  "global_acceptance": "BLOCKED",
+  "candidate_commit": "e7b194cea8bb53b23d3e994268d5cd47e67d085e",
+  "run_id": 37822118836,
+  "run_url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37822118836",
+  "artifact_id": 11570931734,
+  "artifact_digest": "sha256:120020145637fb234343855d51cd0ea6f61ac1539fc6a64a2f18b39dce561db5",
+  "artifact_root_local": "build/task054/ci-20261008-37822118836/android-debug-artifact",
+  "receipt_sha256": "21f9ca551060ffcae4a70dbd848c3a78c72101d136969c3717c4d27147446e21",
+  "android_runner_receipt": {
+    "evidence_level": "native_android_fixture",
+    "revision": "e7b194cea8bb53b23d3e994268d5cd47e67d085e",
+    "capture_count": 113,
+    "api": 35,
+    "abi": "x86_64",
+    "exit_code": 0,
+    "failed_phase": null,
+    "emulator_before_cleanup": null,
+    "cleanup": "PASS"
+  },
+  "previous_review": {
+    "candidate_commit": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+    "run_id": 37817219242,
+    "json_path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/native-visual-review-20261008.json",
+    "json_sha256": "346142b3342b203caa391145e9905f9164192b66e70c7af29440b4049978618d",
+    "md_path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/native-visual-review-20261008.md",
+    "md_sha256": "9ab992046b4ba20b939090a3f2e94ae0403ada828816e62c29fb03a697e129e3",
+    "unchanged": true,
+    "approved_scope": "25 Flutter + 2 OS originali, non tutta la matrice"
+  },
+  "independent_comparison": {
+    "method": "Inventario dei PNG originali e SHA-256 calcolati autonomamente per ogni file, confronto dei nomi e bytes; nessun test/build/device.",
+    "previous_counts": {
+      "flutter": 113,
+      "os": 4
+    },
+    "current_counts": {
+      "flutter": 113,
+      "os": 4
+    },
+    "added_paths": [],
+    "removed_paths": [],
+    "byte_identical": {
+      "flutter": 109,
+      "os": 0,
+      "total": 109
+    },
+    "changed": {
+      "flutter": 4,
+      "os": 4,
+      "total": 8
+    },
+    "comparison_records_sha256": "5f21a75e39875f5540447d5981833466bac2d38018241b6578972b3487932af4",
+    "comparison_digest_note": "Digest dei 117 record originali prima delle annotazioni visive: path, old_sha256, new_sha256, byte_identical; ordinamento visual poi os-visual, nomi lessicografici."
+  },
+  "review_association": {
+    "previous_flutter_sample_reused_by_exact_hash": 25,
+    "previous_os_sample_reviewed_again": 2,
+    "additional_changed_flutter_viewed": 4,
+    "additional_changed_os_viewed": 2,
+    "new_images_actually_opened": 8,
+    "old_images_opened_for_comparison": 8,
+    "method": "view_image(detail=original), confronto visivo dei singoli originali. Nessuna review dei rimanenti 84 frame Flutter è dedotta dal solo hash.",
+    "result": "PASS",
+    "conclusion": "Il campione critico precedente resta qualificato sul nuovo head; le otto immagini mutate ispezionate non mostrano finding visivi bloccanti."
+  },
+  "inherited_byte_identical_critical_files": [
+    {
+      "path": "visual/62-address-editor-focus-compact200.png",
+      "sha256": "775d48939e70b51fa329f346ad69f1b7832ff30959ccacd05e30c35f771b70f6"
+    },
+    {
+      "path": "visual/63-address-create-unknown-compact200-es-CL-dark.png",
+      "sha256": "d979428998baeb9e4b703f787b8c139d80733fd5769dad0958b9408aecc05928"
+    },
+    {
+      "path": "visual/64-address-create-unknown-compact200-es-CL-light.png",
+      "sha256": "e0373949cfa33bb0a137ad66ff7561cc28766b0c374df1be61e8ad1293566204"
+    },
+    {
+      "path": "visual/65-address-create-unknown-compact200-it-dark.png",
+      "sha256": "d02f7268a68f675318224d6da114fe59b3d312cd4f838cea1f70d7398b560fdf"
+    },
+    {
+      "path": "visual/66-address-create-unknown-compact200-it-light.png",
+      "sha256": "701b23c67c29044096d8fa1d615c978aac666bbb8734cf06bbe5e8c225c40d12"
+    },
+    {
+      "path": "visual/67-address-create-unknown-compact200-en-dark.png",
+      "sha256": "8fa045cf23876076005cd3e6858276de33506c053832642012a06d196d151594"
+    },
+    {
+      "path": "visual/68-address-create-unknown-compact200-en-light.png",
+      "sha256": "65bb2ce620a6ce6c627305eea1e978279122126b1e5ea915331c8bf27f2e5e3c"
+    },
+    {
+      "path": "visual/69-address-create-unknown-compact200-zh-Hans-dark.png",
+      "sha256": "5ab4cf845943f3a1e7ab13066940e7c120c1bbdf8ee1df24ad47f7ab942bc237"
+    },
+    {
+      "path": "visual/70-address-create-unknown-compact200-zh-Hans-light.png",
+      "sha256": "3e03236bb4346184b9378f1159c8f2b5d4289261981fccd06fb6a77b0892503e"
+    },
+    {
+      "path": "visual/75-product-fulfillment-compact200-es-CL.png",
+      "sha256": "28cd76b18d830250605d13290f6b6dd0540cedbe135a3d7396be106ddeca69a1"
+    },
+    {
+      "path": "visual/80-product-fulfillment-compact200-it.png",
+      "sha256": "22ac44c3cddba354ceba34d275bb2396a201ee7d298907660e6711617d341786"
+    },
+    {
+      "path": "visual/85-product-fulfillment-compact200-en.png",
+      "sha256": "464427e9eb6112a0f120026e65e3ba0ec9aecdd912b514f84c39765186121a6a"
+    },
+    {
+      "path": "visual/90-product-fulfillment-compact200-zh-Hans.png",
+      "sha256": "d60c806c53292f1c756071829671d60c58f88f762cab7b241127081064d427a4"
+    },
+    {
+      "path": "visual/92-inbox-unread-partial-compact200.png",
+      "sha256": "68233b0f17ea987ef1ebcdeb6167135149853ce1a9c34eab704dbd88dc1fad35"
+    },
+    {
+      "path": "visual/93-inbox-page2-unread-compact200.png",
+      "sha256": "ab0ec50ec7ae4e2c2cb21d2ee44a2e23f263bd8eafa8e0d3ac9e042d740acc33"
+    },
+    {
+      "path": "visual/94-inbox-page2-read-empty-compact200.png",
+      "sha256": "a73a3591e158f7eb25a66eb6e730f3ca9b94b1d9e15713e1360774dda97edb33"
+    },
+    {
+      "path": "visual/95-inbox-offline-cache.png",
+      "sha256": "3dbb5feb6e2773be9792a4c148d3027688e5794bb4cfea3408244cacbc37f15c"
+    },
+    {
+      "path": "visual/96-inbox-auth-expired-purged.png",
+      "sha256": "498e4f6840fd5384ec9a0fa337044bb266ac4df1e3c81aa47faaac8d698e7b94"
+    },
+    {
+      "path": "visual/97-review-comment-focus-compact200.png",
+      "sha256": "7eb38c4b547ac53216ad9f88fb829012aaa1ba22330f960c740af61bde45bea3"
+    },
+    {
+      "path": "visual/98-review-submit-busy-compact200.png",
+      "sha256": "c677a1caa122caa557b9e9295d0145d9097dc7bb99e249bbb824d6ab44817157"
+    },
+    {
+      "path": "visual/99-review-submit-failure-comment-preserved-compact200.png",
+      "sha256": "92562837ef238acdc539e244fa0ddd8efaf713babf36b5bda9b65ab26ca4b874"
+    },
+    {
+      "path": "visual/100-review-submitted-readback-compact200.png",
+      "sha256": "92f954997fda26025a2ece19733756f5a6490cf8b76b640f872127abeec65ea9"
+    },
+    {
+      "path": "visual/101-review-edit-failure-comment-preserved-compact200.png",
+      "sha256": "c2f4dec02d152bd7ae279a116e77a04a2979dc353e5cad720f96ccf246311a55"
+    },
+    {
+      "path": "visual/102-review-edited-readback-compact200.png",
+      "sha256": "d87ec27b44891e7ba26a905a5997c8068e6f0721bba1fecba47ecb0753310613"
+    },
+    {
+      "path": "visual/103-review-edit-cancel-readback-compact200.png",
+      "sha256": "d87ec27b44891e7ba26a905a5997c8068e6f0721bba1fecba47ecb0753310613"
+    }
+  ],
+  "changed_frames_reviewed": [
+    {
+      "path": "visual/54-home-offline.png",
+      "old_sha256": "fb27b8618e659bbf68f5be1aecfbdee13de2e4b44317f804017a03f4c625d128",
+      "new_sha256": "6b1fc0040eeeec00b2eccc0acc2830c9f600627efcca9cce823b9589a41b6c80",
+      "byte_identical": false,
+      "result": "PASS",
+      "method": "view_image original, nuovo PNG e precedente aperti separatamente",
+      "observation": "Timestamp della copia cache 16:44 → 17:23; avviso, prodotto e azioni mantengono la leggibilità.",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/55-catalog-offline.png",
+      "old_sha256": "91a5889cfbb8aed7f33208045dc5b18e89615ba8690d33f9dc287680a76ed622",
+      "new_sha256": "ef79717ff438c458b21e684e094f7d756376359fa846908261df1678e83e940d",
+      "byte_identical": false,
+      "result": "PASS",
+      "method": "view_image original, nuovo PNG e precedente aperti separatamente",
+      "observation": "Timestamp della copia cache 16:44 → 17:23; ricerca, categorie e filtri restano leggibili.",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/56-product-offline.png",
+      "old_sha256": "911a72692546be52cc22f2df2a7f2d6c70b9fd49d3e853d810335b358a50d27d",
+      "new_sha256": "dad82deec89dbc6e611f9a84340b4b12b022bf5cb866e5d9103c9ccc3f3ac735",
+      "byte_identical": false,
+      "result": "PASS",
+      "method": "view_image original, nuovo PNG e precedente aperti separatamente",
+      "observation": "Timestamp della copia cache 16:44 → 17:23; avviso e azione carrello restano leggibili.",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/71-search-field-focus-compact200.png",
+      "old_sha256": "57d87ceb848d381a6b7cf66aeb1b2e29a80cf5805625504174db79415e661827",
+      "new_sha256": "b33e477237a13b6b37ea037df0fd865484220dcc083710e67608c2f791c552dd",
+      "byte_identical": false,
+      "result": "PASS",
+      "method": "view_image original, nuovo PNG e precedente aperti separatamente",
+      "observation": "Cursore visibile e viewport con più contenuto (stato nessun prodotto e filtri); il frame OS associato viene valutato separatamente per la tastiera.",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "os-visual/104-assistance-note-focus.png",
+      "old_sha256": "658eb75a205376628a909bc473cc2bdf401b7d3e80c1683f33afb3a623c7a278",
+      "new_sha256": "4a482ccf2d15ea8b948f305fa1a3305909900ad5fd6eb359ca362435ed8ed879",
+      "byte_identical": false,
+      "result": "PASS",
+      "method": "view_image original, nuovo PNG e precedente aperti separatamente",
+      "observation": "Tastiera Android realmente visibile; nota sintetica leggibile sopra l’IME; orario barra di stato 5:46 → 6:26. Non è un frame dell’intero modulo o dell’azione finale.",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "os-visual/62-address-editor-focus-compact200.png",
+      "old_sha256": "63a9d161b77ac73f3a3e2796dc2d3dd6d7a58384804800a34546d5a8bcd9a59c",
+      "new_sha256": "ccfe1e20478cb76c676de88316bbe6c996b7b82cede8ddfa484187911af23a47",
+      "byte_identical": false,
+      "result": "PASS",
+      "method": "view_image original, nuovo PNG e precedente aperti separatamente",
+      "observation": "Tastiera Android realmente visibile; errore intero e Cerrar/Guardar restano sopra l’IME senza copertura.",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "os-visual/71-search-field-focus-compact200.png",
+      "old_sha256": "02147d5adddc11998cfbdb208a026549001a557db2c3984a22a1a147126724d4",
+      "new_sha256": "8d9451f1132eef2bced244130faa2cb2ca714cca7dd8bd3c5e8b0d9235b9ffd8",
+      "byte_identical": false,
+      "result": "PASS",
+      "method": "view_image original, nuovo PNG e precedente aperti separatamente",
+      "observation": "Tastiera Android realmente visibile; ricerca, cursore, suggerimenti e categorie leggibili sopra l’IME. Il contenuto inferiore del PNG Flutter non è simultaneamente visibile nel frame OS.",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "os-visual/97-review-comment-focus-compact200.png",
+      "old_sha256": "2bbb623563c156244f0259262b8ebf329b79064301c21c409ea7f5085086ea1e",
+      "new_sha256": "aad681e8d4ddf18cb98f6aa046989bb8e346c3afb9bab8ac589d97ae7bb1d0a6",
+      "byte_identical": false,
+      "result": "PASS",
+      "method": "view_image original, nuovo PNG e precedente aperti separatamente",
+      "observation": "Tastiera Android realmente visibile; Cancelar ed Enviar a moderación restano completi sopra l’IME; commento parzialmente fuori dal viewport scrollato come nel precedente.",
+      "dimensions": [
+        320,
+        640
+      ]
+    }
+  ],
+  "os_receipt_checks": [
+    {
+      "path": "os-visual/104-assistance-note-focus.json",
+      "sidecar_sha256": "88a6f432f30caae44de96a79cb7866bcddf2e13fe745f4f54341c816546116b3",
+      "frame_sha256": "4a482ccf2d15ea8b948f305fa1a3305909900ad5fd6eb359ca362435ed8ed879",
+      "candidate_matches": true,
+      "frame_hash_matches": true
+    },
+    {
+      "path": "os-visual/62-address-editor-focus-compact200.json",
+      "sidecar_sha256": "8112862ad82a8b899b4370ab70a282504aa5ab930f6e54acdf7d53647eccfdaf",
+      "frame_sha256": "ccfe1e20478cb76c676de88316bbe6c996b7b82cede8ddfa484187911af23a47",
+      "candidate_matches": true,
+      "frame_hash_matches": true
+    },
+    {
+      "path": "os-visual/71-search-field-focus-compact200.json",
+      "sidecar_sha256": "42fb08ffe24f857cd1e52ea6d0df15d82fd444daaca4cf62b07168dbae2d700a",
+      "frame_sha256": "8d9451f1132eef2bced244130faa2cb2ca714cca7dd8bd3c5e8b0d9235b9ffd8",
+      "candidate_matches": true,
+      "frame_hash_matches": true
+    },
+    {
+      "path": "os-visual/97-review-comment-focus-compact200.json",
+      "sidecar_sha256": "9667effacd727c3aae37594c51a976769af920c694b106c029ef5b707476e46c",
+      "frame_sha256": "aad681e8d4ddf18cb98f6aa046989bb8e346c3afb9bab8ac589d97ae7bb1d0a6",
+      "candidate_matches": true,
+      "frame_hash_matches": true
+    }
+  ],
+  "source_association": {
+    "method": "Confronto autonomo git rev-parse dei tree e git show dei file sui due commit immutabili.",
+    "application_trees": {
+      "lib": {
+        "unchanged": true,
+        "git_tree": "6c5e05d87270e3d8a99131f8a14576d23a52cfca"
+      },
+      "android": {
+        "unchanged": true,
+        "git_tree": "61b50030cbd642e2f048cc3a14869bf0a0ad1e5e"
+      },
+      "ios": {
+        "unchanged": true,
+        "git_tree": "5d7ac56b2178492b70d5e1b0bb9aa9afc3ece067"
+      }
+    },
+    "visual_harness_and_runner": {
+      "integration_test/task054_visual_flow_test.dart": {
+        "unchanged": true,
+        "sha256": "63052cca7cc8cc096c5f3172b181a722ea2e57591ed809758d7f67dce6a589d4"
+      },
+      "integration_test/task054_next_integration_surfaces_test.dart": {
+        "unchanged": true,
+        "sha256": "cb8d1dae5c765a85ea441aad4d98c95caca70700304d02e8d8f3a48a4fae78b0"
+      },
+      "integration_test/support/next_integration_fixtures.dart": {
+        "unchanged": true,
+        "sha256": "54fc4f38cb9650ca64009923c500a0e8bad42b0b0f8d2815f0ee4a56bc01e43f"
+      },
+      "scripts/run-task054-android-visual.py": {
+        "unchanged": true,
+        "sha256": "b6ee1bb0294bc5a2bc0b89c7e686d7bfbe7539e90371a00b184a0d3deac9b246"
+      },
+      "scripts/test-task054-visual.sh": {
+        "unchanged": true,
+        "sha256": "4cc3352b187cde124d384d6c2b923a17d98bad46a64fc1fb4a70cf7589af348a"
+      }
+    },
+    "qualification": "Il delta del runner journal iOS e della governance CI non viene approvato da questa review pixel."
+  },
+  "findings": [],
+  "limits": {
+    "full_matrix_independent_review": "NOT_RUN: questo reviewer associa il suo precedente campione e ispeziona i soli frame cambiati; la matrice estesa resta distinta.",
+    "ime": "PASS visivo nei quattro OS nuovi; non prova composizione CJK, suggerimenti corretti, tutte le tastiere o interazione assistiva.",
+    "manual_native_interaction": "NOT_RUN: sola ispezione artifact, nessun rerun.",
+    "assistive_accessibility": "NOT_RUN: TalkBack/VoiceOver, annunci e ordine focus non verificati.",
+    "authenticated_live": "NOT_RUN: fixture sintetiche, nessuna prova Auth/backend live.",
+    "physical_device": "NOT_RUN: frame emulatore CI.",
+    "ios_native_and_visual": "NOT_RUN: nessun test o PNG nel nuovo run; prepare/post-boot inventory e cleanup dei due job iOS falliti, come da review receipt distinta. Il percorso VM/Keychain non è attraversato; nessuna regressione app dedotta.",
+    "ios_receipt_review": "build/task054/ci-20261008-37822118836/native-receipts-readonly-review.json",
+    "integrated_acceptance": "BLOCKED: i gate iOS e live restano separati."
+  },
+  "mutations": "Creati solo questo JSON e il Markdown omonimo. Review precedente, source, governance e artifact originali invariati."
+}

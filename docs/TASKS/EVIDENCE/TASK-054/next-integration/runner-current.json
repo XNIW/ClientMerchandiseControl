@@ -1,0 +1,75 @@
+{
+  "revision": "fa985b9c215834c02f5eb66ab376de4d9ef98142",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "scripts/test-task054-owned-process.py"
+      ],
+      "result": "PASS",
+      "exit_code": 0,
+      "tests": 6,
+      "log_sha256": "e0fc11e9cb75c1446c8ead926c17ccd83131463359e807d900cb4c9ef70cde70",
+      "real_scenarios": 63
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/test-task054-android-runner.py"
+      ],
+      "result": "PASS",
+      "exit_code": 0,
+      "tests": 27,
+      "log_sha256": "230211b79acc85799c53a0b558129dd2ded77943fedb354b60c120a307f561e6"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/test-task054-os-frame.py"
+      ],
+      "result": "PASS",
+      "exit_code": 0,
+      "tests": 31,
+      "log_sha256": "9fed3a30b29f6ae2cdd00feb18bccb94c1fba2e0e60994a7227e14a5614f7180"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/test-task054-visual-runner.py"
+      ],
+      "result": "PASS",
+      "exit_code": 0,
+      "tests": 14,
+      "log_sha256": "661951c571fb6cd156f23cc35e127f15c37c43c4b29f09bd3713c7cc8bcfd81b"
+    }
+  ],
+  "source_sha256": {
+    "scripts/capture-task054-os-frame.py": "62d79866c831e595ff43ff944d1855a7bde3c5248b2949e9382162a2e0d05067",
+    "scripts/run-task054-android-visual.py": "2be5306f4cb4a6c6f1feb5f2442bf187cb376d18f1c1c97ea75b90ea9db8fc40",
+    "scripts/test-task054-owned-process.py": "ed74be16112e310da79dfa010606950c3e13f2f8a65434a968900126691c716b",
+    "scripts/test-task054-os-frame.py": "84cba1edf14177177b0633a4a8811edaebcf962cf26a9468df140b6c569ef18f",
+    "scripts/test-task054-android-runner.py": "4be76bb5b297cab4a2b6b3034e837e783eec1836e4b020c8391aeac86204b560",
+    "scripts/test-task054-visual-runner.py": "b205fbff38f5f671baeb27b1aa00874357472c28fd95b90e28a7f61848b8191b",
+    "scripts/test-task054-visual.sh": "4cc3352b187cde124d384d6c2b923a17d98bad46a64fc1fb4a70cf7589af348a"
+  },
+  "unchanged_receipts": {
+    "revision": "da26c15d4078bbc5a5fb94c364dec84b72c04a62",
+    "evidence": "runner-local.json",
+    "tests": {
+      "dart_protocol": 14,
+      "ios_owned_ci_context": 33
+    },
+    "byte_identical_files": [
+      "scripts/test-task054-os-sync.dart",
+      "scripts/run-task054-ios-owned.py",
+      "scripts/test-task054-ios-owned.py",
+      "scripts/test-ios-shell-smoke.sh"
+    ],
+    "qualification": "Reused after exact byte comparison; not run again in this receipt"
+  },
+  "native_and_staging": {
+    "result": "NOT_RUN",
+    "reason": "Local tests cover controlled Python process groups and synthetic tool responses"
+  },
+  "active_root_verification_processes": 0
+}

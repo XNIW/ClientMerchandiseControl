@@ -1262,7 +1262,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get cartTimeoutError =>
-      'Il negozio ha impiegato troppo tempo. Riprova senza duplicare l’operazione.';
+      'La modifica non è confermata. Riprova dal carrello. Dopo un riavvio, verifica le quantità prima di aggiungere di nuovo.';
 
   @override
   String get cartUnauthorizedError =>
@@ -1915,7 +1915,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String deliveryTrackingWindow(String start, String end) {
-    return 'Consegna prevista tra $start e $end';
+    return 'Consegna stimata, non garantita, tra $start e $end';
   }
 
   @override
@@ -2129,6 +2129,13 @@ class AppLocalizationsIt extends AppLocalizations {
       'Non è stato possibile completare l’operazione. Riprova.';
 
   @override
+  String get afterSalesDestinationUnavailable =>
+      'Questa richiesta di assistenza non è disponibile. Puoi consultare le altre richieste.';
+
+  @override
+  String get afterSalesBackToList => 'Vai alle richieste';
+
+  @override
   String get afterSalesSelectItem => 'Seleziona almeno un articolo.';
 
   @override
@@ -2234,4 +2241,140 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get notificationsUnreadOnly => 'Solo non lette';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle =>
+      'Nessuna non letta tra le notifiche mostrate';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'Nessuna notifica non letta';
+
+  @override
+  String get notificationsUnreadPageHint =>
+      'Puoi cercare altre notifiche non lette caricando quelle precedenti.';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage =>
+      'Riconnettiti per verificare se ci sono altre notifiche non lette.';
+
+  @override
+  String get notificationsUnreadEmptyMessage =>
+      'Hai letto tutte le notifiche mostrate.';
+
+  @override
+  String get notificationsUpdateFailed =>
+      'Non è stato possibile aggiornare le notifiche. Riprova.';
+
+  @override
+  String get customerAddressUnknown =>
+      'Esito da verificare. Verifica prima di modificare.';
+
+  @override
+  String get customerAddressJournalUnavailable =>
+      'Non riusciamo a leggere le informazioni di recupero salvate sul dispositivo. Puoi consultare il tuo account; la creazione di indirizzi è sospesa. Riprova per recuperare l’accesso senza cancellare dati.';
+
+  @override
+  String get customerAddressVerify => 'Verifica';
+
+  @override
+  String get customerAddressCloseEditor => 'Chiudi';
+
+  @override
+  String get customerAddressSending =>
+      'Salvataggio in corso. Chiudere non lo annulla.';
+
+  @override
+  String get reviewsSaving => 'Salvataggio in corso…';
+
+  @override
+  String get notificationsRead => 'Letta';
+
+  @override
+  String get notificationsOpenOrder => 'Apri ordine';
+
+  @override
+  String get notificationsOpenSupport => 'Apri pratica di assistenza';
+
+  @override
+  String get notificationsOpenProduct => 'Apri prodotto';
+
+  @override
+  String get notificationsStayInInbox => 'Resta nelle notifiche';
+
+  @override
+  String get afterSalesCaseOpened =>
+      'Pratica aperta. Puoi completare gli allegati qui.';
+
+  @override
+  String get afterSalesEvidenceConfirmed => 'Ricevuto; in attesa di verifica';
+
+  @override
+  String get afterSalesEvidenceSafe => 'Verificato';
+
+  @override
+  String get afterSalesEvidenceRejected => 'Rifiutato';
+
+  @override
+  String get afterSalesEvidencePending => 'Da completare';
+
+  @override
+  String get afterSalesEvidenceUploading => 'Caricamento allegati…';
+
+  @override
+  String get afterSalesEvidenceAmbiguous =>
+      'Esito da verificare. Riprova per controllare lo stesso allegato.';
+
+  @override
+  String get afterSalesEvidenceFileUnavailable =>
+      'File locale non disponibile. Selezionalo di nuovo.';
+
+  @override
+  String get afterSalesEvidenceRetry => 'Completa allegati';
+
+  @override
+  String get afterSalesEvidenceReplace => 'Seleziona di nuovo';
+
+  @override
+  String get afterSalesEvidenceReopenHelp =>
+      'Alla riapertura restano gli allegati ricevuti. Dopo il riavvio dell’app, seleziona di nuovo i file mancanti.';
+
+  @override
+  String get afterSalesCreating => 'Apertura della pratica…';
+
+  @override
+  String get afterSalesEvidenceInvalid =>
+      'File non supportato o troppo grande. Selezionane un altro.';
+
+  @override
+  String get cartLocalSavedNotice =>
+      'Salvato nel carrello di questo dispositivo.';
+
+  @override
+  String get cartPendingConfirmationNotice =>
+      'La modifica non è confermata. Riprova dal carrello. Dopo un riavvio, verifica le quantità prima di aggiungere di nuovo.';
+
+  @override
+  String get deliveryTrackingEtaUnavailable =>
+      'Il negozio non ha ancora comunicato una finestra stimata.';
+
+  @override
+  String get deliveryTrackingEtaExpired =>
+      'La finestra stimata precedente è terminata. Attendiamo un aggiornamento dal negozio.';
+
+  @override
+  String get deliveryTrackingMapExpand => 'Espandi la mappa della consegna';
+
+  @override
+  String get deliveryTrackingMapCollapse => 'Riduci la mappa della consegna';
+
+  @override
+  String get deliveryTrackingMapUnavailable =>
+      'La mappa non è disponibile. Puoi seguire lo stato della consegna qui.';
+
+  @override
+  String get deliveryTrackingMapRetry => 'Riprova la mappa';
+
+  @override
+  String get deliveryTrackingCacheCleanupFailed =>
+      'Non è stato possibile rimuovere la posizione salvata. Rimane nascosta; riprova l’aggiornamento.';
 }

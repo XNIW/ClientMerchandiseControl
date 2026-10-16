@@ -15,6 +15,63 @@ void main() {
     repository = SupabaseCustomerAccountRepository(port: port);
   });
 
+  test('create e reconcile V3 riusano identità e DTO canonico', () async {
+    const intentId = '21000000-0000-4000-8000-000000000777';
+    final created = await repository.createAddress(
+      _addressDraft(),
+      intentId: intentId,
+    );
+    expect(port.lastFunction, 'customer_address_create_v3');
+    expect(port.lastParameters!['p_intent_id'], intentId);
+    final recovered = await repository.reconcileAddressCreation(intentId);
+    expect(recovered?.id, created.id);
+    expect(port.lastFunction, 'customer_address_create_reconcile_v3');
+    expect(port.lastParameters, {'p_intent_id': intentId});
+    port.rpcStatus = 'not_found';
+    expect(await repository.reconcileAddressCreation(intentId), isNull);
+    port.rpcStatus = 'intent_conflict';
+    await expectLater(
+      repository.createAddress(_addressDraft(), intentId: intentId),
+      throwsA(
+        isA<CustomerAccountRepositoryException>().having(
+          (e) => e.kind,
+          'kind',
+          CustomerAccountFailureKind.conflict,
+        ),
+      ),
+    );
+    port.rpcStatus = 'deleted';
+    await expectLater(
+      repository.reconcileAddressCreation(intentId),
+      throwsA(
+        isA<CustomerAccountRepositoryException>().having(
+          (e) => e.creationDeleted,
+          'deleted',
+          isTrue,
+        ),
+      ),
+    );
+  });
+
+  test('V3 response malformata non diventa ACK o not_found', () async {
+    const intentId = '21000000-0000-4000-8000-000000000777';
+    for (final payload in [
+      {'apiVersion': 'customer-address.v2', 'status': 'not_found'},
+      {'apiVersion': 'customer-address.v3', 'status': 'ok'},
+      {'apiVersion': 'customer-address.v3', 'status': 'pending'},
+    ]) {
+      port.creationPayload = payload;
+      await expectLater(
+        repository.reconcileAddressCreation(intentId),
+        throwsA(isA<CustomerAccountRepositoryException>()),
+      );
+      await expectLater(
+        repository.createAddress(_addressDraft(), intentId: intentId),
+        throwsA(isA<CustomerAccountRepositoryException>()),
+      );
+    }
+  });
+
   test('load valida owner, allow-list, default e deletion request', () async {
     final snapshot = await repository.load(subjectId);
 
@@ -90,7 +147,10 @@ void main() {
 
   test('address CRUD V2 usa payload privato bounded e versionato', () async {
     final draft = _addressDraft();
-    final created = await repository.createAddress(draft);
+    final created = await repository.createAddress(
+      draft,
+      intentId: '21000000-0000-4000-8000-000000000777',
+    );
     final create = Map<String, Object?>.from(port.lastParameters!);
     await repository.updateAddress(addressId, draft);
     final update = Map<String, Object?>.from(port.lastParameters!);
@@ -99,7 +159,8 @@ void main() {
 
     expect(create['p_address_id'], isNull);
     expect(created.id, addressId);
-    expect(create['p_expected_version'], isNull);
+    expect(create['p_intent_id'], '21000000-0000-4000-8000-000000000777');
+    expect(create.keys, unorderedEquals(['p_intent_id', 'p_payload']));
     expect(update['p_address_id'], addressId);
     expect(update['p_expected_version'], 1);
     expect(deletion, {'p_address_id': addressId, 'p_expected_version': 1});
@@ -208,6 +269,7 @@ final class _FakeCustomerAccountPort implements CustomerAccountPort {
   Object? updateProfileResult = _profileRow();
   Object? readError;
   bool neverComplete = false;
+  Map<String, Object?>? creationPayload;
   String rpcStatus = 'ok';
   String? lastFunction;
   Map<String, Object?>? lastParameters;
@@ -298,6 +360,22 @@ final class _FakeCustomerAccountPort implements CustomerAccountPort {
             'customer_cancel_account_deletion_v1' => 'cancelled',
             _ => 'ok',
           };
+    if (function == 'customer_address_create_v3') {
+      return creationPayload ??
+          {
+            'apiVersion': 'customer-address.v3',
+            'status': rpcStatus,
+            'address': _addressRow(),
+          };
+    }
+    if (function == 'customer_address_create_reconcile_v3') {
+      return creationPayload ??
+          {
+            'apiVersion': 'customer-address.v3',
+            'status': rpcStatus,
+            'address': _addressRow(),
+          };
+    }
     if (function == 'customer_address_upsert_v2' ||
         function == 'customer_address_delete_v2') {
       return {

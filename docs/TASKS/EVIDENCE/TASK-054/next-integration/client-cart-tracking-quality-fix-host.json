@@ -1,0 +1,60 @@
+{
+  "schema": "task054.quality-rr01-host-association.v1",
+  "finding_id": "QUALITY-RR-01",
+  "status": "OPEN_PENDING_CANONICAL_FULL_QUALITY",
+  "source_checkout_sha": "ec4059670abf211be295514e04846b96f8fc7a26",
+  "formatter_adopted_sha": "21a738db2d13076793aaa60c8d7bd84a9ff4751d",
+  "run_id": 38323150416,
+  "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38323150416",
+  "result": "PASS",
+  "scope": "source/focused, non Quality completo",
+  "host_tests": {
+    "result": "PASS",
+    "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders test/features/product_detail/presentation/product_detail_screen_test.dart test/l10n/app_localizations_contract_test.dart test/governance/ios_release_configuration_test.dart --concurrency=1",
+    "exit_code": 0,
+    "exit_evidence": "provider terminal focused step after test count summary",
+    "passed": 497,
+    "failed": 0,
+    "skipped": 1,
+    "terminal_summary_observed": true
+  },
+  "analyze": {
+    "result": "PASS",
+    "command": "flutter analyze",
+    "issues": 0,
+    "exit_code": 0,
+    "terminal_summary_observed": true,
+    "exit_evidence": "No issues found followed by test execution"
+  },
+  "formatter": {
+    "command": "dart format lib test integration_test",
+    "exit_code": 0,
+    "files": 400,
+    "changed": 1,
+    "patch_sha256": "1510bccae31a4d3145867ca1265b921984d44cb6527279b4c19f132a603d0797",
+    "prepared_test_sha256": "dd1ad12de891fb550b2cbc68d80d4a51cfafde806694dfdf1ec19e83cb533a61",
+    "adoption_byte_match": "PASS"
+  },
+  "independent_reviews": {
+    "validator": {
+      "receipt": "proposals/quality-rr-01-validator/independent-validator-review.json",
+      "sha256": "6b59d398d271dcf61074f0c4a622c375c9e5cc5543ec9e5efa8698c01fe1ee2d"
+    },
+    "seven_mutations": {
+      "receipt": "proposals/quality-rr-01-validator/independent-regression-static-review.json",
+      "sha256": "c64c3b38e7a1740047820a3a7120f693c7626bb49208bf6023e4e3b1c39d7df6"
+    },
+    "focused_fix": {
+      "receipt": "client-cart-tracking-quality-focused-review.json",
+      "private_original_sha256": "e185189f7217781b61231399bad7b27d3c4c4e20d0ee59a5256d6332fad406a0"
+    }
+  },
+  "private_receipt_sha256": "245046ebf4373221ccabd68ca414452dfe5f827bd94e7ca8d74d0410f5fc6d9e",
+  "canonical_quality_final_pr_head": {
+    "result": "NOT_RUN",
+    "reason": "Snapshot prima della pubblicazione; esito sullo SHA dei successivi Checks, senza anticipazione."
+  },
+  "source_preservation": "lib/native/config/deps e feature test immutati rispetto07649; unico test governance modificato. Ledger37 e negativi eb0 preservati.",
+  "local_sdk_executed": false,
+  "integrated_acceptance": "BLOCKED"
+}

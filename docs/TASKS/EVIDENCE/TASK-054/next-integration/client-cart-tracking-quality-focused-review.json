@@ -1,0 +1,97 @@
+{
+  "schema": "task054.quality-rr-01.focused-fix.independent.v1",
+  "recorded_utc": "2026-10-12T23:47:03.580297+00:00",
+  "role": "CODEX_RE_REVIEWER",
+  "reviewed_source_sha": "21a738db2d13076793aaa60c8d7bd84a9ff4751d",
+  "host_run_id": 38323150416,
+  "host_checkout_sha": "ec4059670abf211be295514e04846b96f8fc7a26",
+  "source_host_scoped_result": "PASS",
+  "review_outcome": "BLOCKED",
+  "integrated_acceptance": "BLOCKED",
+  "finding_status": "OPEN_PENDING_CANONICAL_FULL_QUALITY",
+  "finding_source_focused_status": "RESOLVED_SCOPED",
+  "checks": {
+    "focused_provider_terminal_success": true,
+    "497_pass_0fail_1skip": true,
+    "analyze_0": true,
+    "host_formatter_prepared_sha_published_exact": true,
+    "host_checkout_source_003c_matches_proposal": true,
+    "all13_preexisting_main_tests_byte_identical": true,
+    "14_tests_by_source_count": true,
+    "ci_canonical_selector_byte_identical": true
+  },
+  "commands": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "07649a1253db705091b915adf98b4a7b6028af90",
+        "21a738db2d13076793aaa60c8d7bd84a9ff4751d",
+        "--",
+        "test/features",
+        "lib",
+        "android",
+        "ios",
+        "assets",
+        "config",
+        "pubspec.yaml",
+        "pubspec.lock"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "21a738db2d13076793aaa60c8d7bd84a9ff4751d\n",
+      "stderr": ""
+    }
+  ],
+  "host_prepare_scope": {
+    "format": "400files1changed preparation exit0",
+    "reason": "Raw checkout ec is not formatter-exact; tested prepared file adopted byte-identically in21a",
+    "patch_sha256": "1510bccae31a4d3145867ca1265b921984d44cb6527279b4c19f132a603d0797",
+    "prepared_sha256": "dd1ad12de891fb550b2cbc68d80d4a51cfafde806694dfdf1ec19e83cb533a61"
+  },
+  "real14_governance_tests": {
+    "count": 14,
+    "positive_and_negative": "13originals unchanged plus1new7mutant boundary test",
+    "primary_log_lines": [
+      2467,
+      2468
+    ],
+    "peer_regression_review": "Author of new regression is this reviewer; root/checkout_draft distinct review required and must be associated by parent. This verdict validates runtime/provenance and does not selfapprove regression proposal."
+  },
+  "full_quality_canonical_newhead": {
+    "result": "NOT_RUN",
+    "reason": "Prepublication cutoff; future canonical CI must be read independently. Original ebRED retained."
+  },
+  "mandatory_native_maps_TEST_AT_signing": "BLOCKED; no host transfer",
+  "raw_refs_sha256": {
+    "receipt.json": "245046ebf4373221ccabd68ca414452dfe5f827bd94e7ca8d74d0410f5fc6d9e",
+    "metadata.json": "a3a58cad93e36a56323fee305016038cdc9ef273d999b2bfafa083a660a4ea20",
+    "host.log": "6c1db7154edede8016596dbd24423c9877d6646045e8dc6676ba052e4f73e241",
+    "candidate-preparation.patch": "1510bccae31a4d3145867ca1265b921984d44cb6527279b4c19f132a603d0797",
+    "test__governance__ios_release_configuration_test.dart.prepared.source": "dd1ad12de891fb550b2cbc68d80d4a51cfafde806694dfdf1ec19e83cb533a61"
+  },
+  "governance_boundary": "Writer still FIX at observed snapshot; root will perform authorized handoff to REVIEW with exposed fullQuality/native/live gates. No writer review of its own implementation and no global approval.",
+  "no_local_sdk_WT_edit_retry": true,
+  "reviewer_receipt_sha256": "e185189f7217781b61231399bad7b27d3c4c4e20d0ee59a5256d6332fad406a0",
+  "sanitization": "Path privati relativi; outcome e verifiche del reviewer preservati."
+}

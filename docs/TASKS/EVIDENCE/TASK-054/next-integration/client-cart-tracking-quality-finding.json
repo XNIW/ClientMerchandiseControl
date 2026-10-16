@@ -1,0 +1,65 @@
+{
+  "schema": "task054.pr29.quality-finding.v1",
+  "role": "CODEX_RE_REVIEWER",
+  "recorded_utc": "2026-10-12T23:33:10.899660+00:00",
+  "head": "eb0dc221f142ed02e9b9652672c1f5a91d425a78",
+  "run_id": 38320490620,
+  "finding": {
+    "id": "QUALITY-RR-01",
+    "severity": "P2",
+    "status": "OPEN",
+    "kind": "CI validation contract regression",
+    "position": "test/governance/ios_release_configuration_test.dart:604",
+    "additional_positions": [
+      "test/governance/ios_release_configuration_test.dart:613",
+      "test/governance/ios_release_configuration_test.dart:622",
+      ".github/workflows/ci.yml:10",
+      ".github/workflows/ci.yml:24",
+      ".github/workflows/ci.yml:318"
+    ],
+    "description": "Il validator del job release rifiuta il workflow di CI con selector hosted autorizzato: richiede dispatch null, concurrency group senza gate e job metadata senza if. Il selector introdotto8ee1b19 rende rosso il gate Quality al nuovo head.",
+    "actual_evidence": {
+      "command": "flutter test --coverage --exclude-tags performance",
+      "test": "test/governance/ios_release_configuration_test.dart:127 CI builds and validates an unsigned Release archive",
+      "failure": "StateError workflow trigger or permission boundary invalid",
+      "tests_passed": 1241,
+      "tests_failed": 1,
+      "tests_skipped": 1,
+      "exit_code": 1,
+      "primary_log": "quality/job.log",
+      "primary_lines": [
+        4425,
+        4441
+      ],
+      "primary_command_line": 970
+    },
+    "impact": "La PR non può superare il Quality gate sullo SHA effettivo. Non è un bug applicativo né un timeout hosted; i PASS076 restano validi solo come checkpoint precedente.",
+    "requested_correction": "Aggiornare esclusivamente il validator/test al contratto selector autorizzato e chiuso: inputs.gate choice required/defaultall/opzioni4 esatte, groupgate esatto, ios-release.if canonico non-dispatch oppure all; mantenere branch main, permission read, ref/pins/steps/override guard e tutti negativi. Non rimuovere test né accettare if o dispatch arbitrari.",
+    "regression": "Existing positive test127 è RED reale inCI; regression.patch aggiunge7 mutazioni distinte contro schema dispatch, bypass release suPR/push e concurrency non isolata. Eseguire focused CI e poi gateQuality sul nuovoSHA; nessun Dart locale eseguito.",
+    "recommended_review_outcome": "CHANGES_REQUIRED",
+    "integrated_acceptance": "BLOCKED",
+    "handoff": "CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX"
+  },
+  "private_regression_patch": {
+    "path": "re-review/pr29-eb0dc221/quality-finding/regression.patch",
+    "sha256": "b17a00bee23bcdee8369ee99e3f3df459111c48523f28154199a5d3f999405d4",
+    "apply_check_exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "SDK_execution": "NOT_RUN",
+    "reason": "Regressione esterna preparata; esecuzione SDK solo runner autorizzato"
+  },
+  "source_hashes": {
+    "test/governance/ios_release_configuration_test.dart": "71e9ff245afd50f434beb80e905beb19aa9cecbc6293cf4b10b0f3a2a3b707d0",
+    ".github/workflows/ci.yml": "749b9e1ae82c20e171249764d239128f5a20072c1b437ac7f46c39f4566e840a",
+    "quality/job.log": "1d05adf30e7d6a1e98958eddf332d9c672f90f09c218903fed5d66a4b61ba942"
+  },
+  "scope": "Read-only review, no WT/app edit/retry. Root unico writer e reviewer distinto richiesto dopo Fix.",
+  "supersedes": {
+    "path": "re-review/pr29-eb0dc221/quality-finding/QUALITY-RR-01.json",
+    "sha256": "b4272a7b62c4043c9cf4f9ed3388efb7e8509dc02543d3e9a34f0cc292e8f1f4",
+    "reason": "Corregge soltanto il comando esatto dalla primaria970; finding/severità/risultati/source/regression immutati"
+  },
+  "reviewer_receipt_sha256": "b11194e35aabf996209878682879fa062b8693e4b42f42ec93692130ebcb979b",
+  "sanitization": "Path privati relativi, compreso supersedes; finding, hash e risultati del reviewer preservati."
+}

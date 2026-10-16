@@ -1,0 +1,33 @@
+{
+  "command": [
+    "flutter",
+    "test",
+    "--no-pub",
+    "--coverage",
+    "--exclude-tags",
+    "performance",
+    "--concurrency=1",
+    "--reporter",
+    "expanded"
+  ],
+  "sourceSha": "c796526a799c959408257f4c89c36a4439515b23",
+  "startedUtc": "2026-10-05T20:49:29.014032+00:00",
+  "endedUtc": "2026-10-05T20:52:50.087038+00:00",
+  "result": "PASS",
+  "exitCode": 0,
+  "logSha256": "f285a7d36ef2c2d37be016af42d80bda96a4b876e94e1e0c000f5660172576d6",
+  "platform": "macOS host",
+  "qualification": "Suite globale del candidato congelato dopo blocco CI Quality; concurrency1, nessun device/build nativo o benchmark. Non sostituisce il job CI Linux né proves live/native/physical.",
+  "originalReceipt": {
+    "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/ci-fifth/local-full-coverage.json",
+    "sha256": "74a09808ddddcfea41ba823840e05eb1b12d78ffe003e01e8921c8f39c64cbca"
+  },
+  "durableQualification": "Ricevuta di TASK-054 copiata con outcome e limiti conservati; log completi e artifact locali fuori Git. Il candidato CI è c796526, source50a immutabile. Questo branch documentale non è un nuovo candidato applicativo o una prova di CI sul suo HEAD.",
+  "passed": 986,
+  "pendingOwnedCommands": 0,
+  "limits": [
+    "Prova host macOS con porte sintetiche; non sostituisce Linux CI, backend live, native visual o physical.",
+    "Benchmark nuovi NOT_RUN; i10PASS su302857a nel CI4 restano storici e qualificati.",
+    "I test di re-review62 non si sommano alla suite986 come casi distinti."
+  ]
+}

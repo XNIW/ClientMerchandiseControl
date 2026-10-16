@@ -62,6 +62,9 @@ class CheckoutScreen extends ConsumerWidget {
         CheckoutViewStatus.failure => _CheckoutFailureView(state: state),
         CheckoutViewStatus.ready => _CheckoutFlow(state: state),
       },
+      bottomNavigationBar: state.status == CheckoutViewStatus.ready
+          ? _CheckoutActions(state: state)
+          : null,
     );
   }
 }
@@ -152,6 +155,14 @@ class _CheckoutFailureView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final canRetry =
+        const {
+          CheckoutFailureKind.offline,
+          CheckoutFailureKind.timeout,
+          CheckoutFailureKind.unexpected,
+          CheckoutFailureKind.unavailable,
+        }.contains(state.failureKind) ||
+        !(state.cart?.isEmpty ?? true);
     return StorefrontPage(
       maxWidth: AppSizes.accountContentMaxWidth,
       child: StorefrontEmptyState(
@@ -161,13 +172,13 @@ class _CheckoutFailureView extends ConsumerWidget {
           l10n,
           state.failureKind ?? CheckoutFailureKind.unexpected,
         ),
-        actionLabel: state.cart?.isEmpty ?? true
-            ? l10n.cartExploreCatalog
-            : l10n.checkoutRetryAction,
+        actionLabel: canRetry
+            ? l10n.checkoutRetryAction
+            : l10n.cartExploreCatalog,
         actionKey: const ValueKey('checkout-failure-action'),
-        onAction: state.cart?.isEmpty ?? true
-            ? () => context.go(AppRoutes.catalogLocation)
-            : ref.read(checkoutControllerProvider.notifier).retry,
+        onAction: canRetry
+            ? ref.read(checkoutControllerProvider.notifier).retry
+            : () => context.go(AppRoutes.catalogLocation),
       ),
     );
   }
@@ -223,7 +234,6 @@ class _CheckoutFlow extends ConsumerWidget {
               ),
             ),
           ),
-          _CheckoutActions(state: state),
         ],
       ),
     );
@@ -445,10 +455,10 @@ class _AddressChoice extends StatelessWidget {
     return Card(
       key: ValueKey('checkout-address-${address.id}'),
       clipBehavior: Clip.antiAlias,
-      child: RadioListTile<String>(
-        value: address.id,
+      child: ListTile(
+        selected: enabled,
         enabled: enabled,
-        secondary: Icon(
+        trailing: Icon(
           enabled ? Icons.location_on_outlined : Icons.location_off_outlined,
         ),
         title: Text(address.label),
@@ -633,7 +643,10 @@ class _ConfirmationStep extends StatelessWidget {
     final formatter = ClpCurrencyFormatter();
     final order = state.order;
     if (order != null) {
-      return _OrderReceipt(order: order, timeZone: state.options!.timeZone!);
+      return _OrderReceipt(
+        order: order,
+        timeZone: state.options?.timeZone ?? 'UTC',
+      );
     }
     final quote = state.quote;
     if (quote == null) {
@@ -1047,7 +1060,11 @@ class _CheckoutActions extends ConsumerWidget {
         key: 'checkout-order-continue',
         label: l10n.checkoutContinueShoppingAction,
         enabled: true,
-        action: () async => context.go(AppRoutes.catalogLocation),
+        action: () async {
+          final prepared = await controller.prepareCheckoutFromCart();
+          if (!context.mounted || !prepared) return;
+          context.go(AppRoutes.catalogLocation);
+        },
       ),
       CheckoutStep.confirmation
           when state.pendingOperation?.kind ==
@@ -1087,6 +1104,7 @@ class _CheckoutActions extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Center(
+            heightFactor: 1,
             child: ConstrainedBox(
               constraints: const BoxConstraints(
                 maxWidth: AppSizes.contentMaxWidth,
@@ -1118,7 +1136,12 @@ class _CheckoutActions extends ConsumerWidget {
                     const SizedBox(height: AppSpacing.xs),
                     TextButton(
                       key: const ValueKey('checkout-back-step'),
-                      onPressed: state.isBusy ? null : controller.previousStep,
+                      onPressed:
+                          state.isBusy ||
+                              state.pendingOperation?.kind ==
+                                  CheckoutPendingOperationKind.order
+                          ? null
+                          : controller.previousStep,
                       child: Text(l10n.checkoutBackAction),
                     ),
                   ],

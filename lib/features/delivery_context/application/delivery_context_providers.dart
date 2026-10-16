@@ -19,9 +19,7 @@ import '../domain/delivery_context_repository.dart';
 
 final deliveryContextIdentityProvider = customerAccountIdentityProvider;
 
-final deliveryContextShopSlugProvider = Provider<String?>((ref) {
-  return ref.watch(appConfigProvider).storefrontShopSlug;
-});
+final deliveryContextShopSlugProvider = customerAccountShopSlugProvider;
 
 final deliveryContextRepositoryProvider = Provider<DeliveryContextRepository>((
   ref,

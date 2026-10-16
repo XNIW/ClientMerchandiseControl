@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "finding": "C-NI054-08",
+  "role": "CODEX_FIXER",
+  "base": "a97778697051f93380ace9d6181a226c7f79ca77",
+  "sourceCommit": "262684ae58896a14a18cf1eb1cc961aa686b0485",
+  "recordedAtUtc": "2026-10-05T18:17:27.953100+00:00",
+  "sourceFiles": [
+    {
+      "path": "lib/features/reviews/presentation/customer_reviews.dart",
+      "sha256": "97b9bd11385ea1bc32c2ac7181528c31a5b6c2a1215ee86653edd103a924263a"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart",
+      "sha256": "21cc9815425f0dd7471bac5954feff9846691f3340a08ea21651b462af0c1543"
+    }
+  ],
+  "pocSourceSha256": "9646308f111cdce24f8ce2b9d88249d897cb593d391129c6d457b8518fbea719",
+  "changes": [
+    "Editor vincolato al subject di apertura; guest non può aprirlo",
+    "Invalidazione permanente sulle transizioni identity/AuthController, incluso A-B-A prima del frame",
+    "Bozza svuotata e chiusura delle sole route dialog/rating proprie; dialog secondario preservato",
+    "Guard su ACK/errore/scroll/busy/readback tardivi; refresh metadata dello stesso subject conserva la bozza"
+  ],
+  "verification": [
+    {
+      "command": "flutter test --no-pub build/task054/review-owner-fix/reviews_public_router_auth_test.dart --reporter expanded",
+      "result": "FAIL",
+      "exitCode": 1,
+      "testsFailed": 2,
+      "source": "base",
+      "log": "reproduction-before.log",
+      "observed": "App/router/AuthController/identity reali: expiry conserva dialog/bozza; cambio owner conserva dialog e mostra failure tardiva del precedente owner"
+    },
+    {
+      "command": "flutter test --no-pub test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart --reporter expanded",
+      "result": "PASS",
+      "exitCode": 0,
+      "tests": 9,
+      "log": "owner-regression-corrected.log"
+    },
+    {
+      "command": "flutter test --no-pub test/features/reviews build/task054/feedback-fix/review_error_overlay_reproduction_test.dart build/task054/review-owner-fix/reviews_public_router_auth_test.dart --reporter expanded",
+      "result": "PASS",
+      "exitCode": 0,
+      "tests": 42,
+      "canonicalReviewTests": 39,
+      "newC08Tests": 9,
+      "originalC07Poc": 1,
+      "originalC08Pocs": 2,
+      "log": "reviews-freeze.log"
+    },
+    {
+      "command": "flutter analyze --no-pub lib/features/reviews/presentation/customer_reviews.dart test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart",
+      "result": "PASS",
+      "exitCode": 0,
+      "issues": 0,
+      "log": "analyze.log"
+    },
+    {
+      "command": "dart format --output=none --set-exit-if-changed lib/features/reviews/presentation/customer_reviews.dart test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart",
+      "result": "PASS",
+      "exitCode": 0,
+      "filesChanged": 0
+    },
+    {
+      "command": "git diff --cached --check",
+      "result": "PASS",
+      "exitCode": 0
+    },
+    {
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "architecture.log"
+    },
+    {
+      "command": "bash scripts/check-user-facing-localization.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "localization.log"
+    },
+    {
+      "command": "bash scripts/check-client-security.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "trackedFiles": 856,
+      "log": "security-staged.log"
+    }
+  ],
+  "intermediateFailuresRetained": [
+    {
+      "log": "owner-regression-first.log",
+      "exitCode": 1,
+      "testsPassed": 5,
+      "testsFailed": 3,
+      "observed": "Provider identity derivato accorpa A-B-A; dispose del popup rating aperto causa errore tree-locked"
+    },
+    {
+      "log": "owner-regression-final.log",
+      "exitCode": 1,
+      "testsPassed": 6,
+      "testsFailed": 3,
+      "observed": "Problemi conservati dopo guard apertura; corretti osservando transizioni AuthController e rimuovendo popup proprio fuori dal build"
+    }
+  ],
+  "sdk": {
+    "flutterVersion": "3.44.8",
+    "dartVersion": "3.12.2",
+    "frameworkRevision": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+    "matchesCiPin": true,
+    "publicFlutterApis": [
+      "ModalRoute.of",
+      "ModalRoute.isActive/isCurrent",
+      "PopupRoute",
+      "NavigatorState.pop/removeRoute"
+    ],
+    "privateSdkApisUsedInProduction": false
+  },
+  "fixtureBoundary": "App pubblica/router/AuthController/identity account/dialog reali; solo porte remote/callback e configurazione TEST sintetiche",
+  "C07Coverage": "30 test canonici C07 e PoC originale1 inclusi e PASS nei42 finali; file test feedback byte invariato",
+  "unchanged": [
+    "app_router.dart",
+    "auth_controller.dart",
+    "pubspec.yaml",
+    "pubspec.lock",
+    "customer_review_dialog_feedback_test.dart",
+    "shop/RPC/domain model/harness/global documents"
+  ],
+  "native": {
+    "result": "NOT_RUN",
+    "reason": "Nessun build/emulator/device nella proprietà di questa lane; test widget auth non provano AUTH_LIVE/staging/native"
+  },
+  "commitResponseAmbiguity": "Isolamento UI non dimostra cancellazione o exactly-once se la risposta COMMIT del server è totalmente persa",
+  "writerReviewOutcome": "NOT_RUN; re-review indipendente obbligatoria",
+  "pendingVerificationProcesses": 0,
+  "nativeProcessesStarted": 0,
+  "worktreeClean": true,
+  "pushPerformed": false,
+  "mergePerformed": false,
+  "preservedBranch": "codex/task054-review-feedback a46210ecb6fe9f5c112e72edec20c995f992bbe57",
+  "currentBranch": "codex/task054-review-owner-lifecycle"
+}

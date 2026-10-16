@@ -1,0 +1,78 @@
+{
+  "revision": "da26c15d4078bbc5a5fb94c364dec84b72c04a62",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "scripts/test-task054-os-frame.py"
+      ],
+      "result": "PASS",
+      "exit_code": 0,
+      "log": "build/task054/next/final-runner-0.log",
+      "context": "local"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/test-task054-owned-process.py"
+      ],
+      "result": "PASS",
+      "exit_code": 0,
+      "log": "build/task054/next/final-runner-1.log",
+      "context": "local"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/test-task054-android-runner.py"
+      ],
+      "result": "PASS",
+      "exit_code": 0,
+      "log": "build/task054/next/final-runner-2.log",
+      "context": "local"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/test-task054-visual-runner.py"
+      ],
+      "result": "PASS",
+      "exit_code": 0,
+      "log": "build/task054/next/final-runner-3.log",
+      "context": "local"
+    },
+    {
+      "command": [
+        "dart",
+        "scripts/test-task054-os-sync.dart"
+      ],
+      "result": "PASS",
+      "exit_code": 0,
+      "log": "build/task054/next/final-runner-4.log",
+      "context": "local"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/test-task054-ios-owned.py"
+      ],
+      "result": "PASS",
+      "exit_code": 0,
+      "log": "build/task054/next/final-runner-5.log",
+      "context": "CI-like synthetic"
+    }
+  ],
+  "kind": "TASK-054 root checks on final source",
+  "native_capture": "NOT_RUN",
+  "staging_e2e": "NOT_RUN",
+  "source_sha256": {
+    "scripts/test-task054-os-sync.dart": "5d280d25e9e4b518518f1fa0141b5c353ad1a22b47e98f8f15830e83aa99e737",
+    "scripts/capture-task054-os-frame.py": "a8c1ef54c143bdb57c5bdb8c8e515ebc6ef459d95238996b0283e830a62eace4",
+    "scripts/run-task054-android-visual.py": "c2b0e0203e482811bcbfeed559baea60ce920716a9014d7488a49127bc63a897",
+    "scripts/test-task054-visual.sh": "370bd0b30b7863e44ff10762f09e15d6a5a753d4de2346bd4a5e1ced9e92524e",
+    "scripts/run-task054-ios-owned.py": "bcfeace2cf3a82d55af313640f6b3e951e1c7424291075ba82ac27e3e0cd27e4",
+    "scripts/test-task054-ios-owned.py": "17b5d4e4223b8922644480c8dc28276afc7cf5db78ae44fb7f06149032d5bf62",
+    "integration_test/support/os_frame_sync.dart": "366674393468f1b44cd3a806ba08db3c71592a3c3c0e47bcdbf8eaa250dcfea7",
+    "test_driver/task054_visual.dart": "94f63d570000719fdb4261ee9350df874cae6178d8581eea4906ce21f939c2a8"
+  }
+}

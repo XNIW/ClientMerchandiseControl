@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "run_id": 37838207516,
+  "job_id": 113520593989,
+  "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37838207516",
+  "candidate": "6b5a34ea427cd67b055fa0e0dbfb5855c4e1124c",
+  "result": "FAIL",
+  "exit_code": 124,
+  "scope": "hosted_uuid_filtered_preflight_only",
+  "app": "NOT_RUN",
+  "journal": "NOT_RUN",
+  "smoke": "NOT_RUN",
+  "visual": "NOT_RUN",
+  "bootstatus": "PASS",
+  "postboot_inventory": {
+    "command": "xcrun simctl list devices --json <owned UUID>",
+    "owned_pid_pgid": 2668,
+    "nominal_timeout_seconds": 30,
+    "spawn_seconds": 6.111200833,
+    "communicate_seconds": 30.474575292,
+    "spawn_to_timeout_event_seconds": 36.938054125,
+    "leader_at_timeout": "alive",
+    "output_complete": false,
+    "stdout_bytes": 0,
+    "inherited_pipe": "not_demonstrated"
+  },
+  "process_cleanup": {
+    "result": "FAIL",
+    "term_group_own_only": true,
+    "ps_timeout_nominal_seconds": 2,
+    "ps_spawn_seconds": 0.925146458,
+    "ps_communicate_timeout_seconds": 2.213944916,
+    "ps_spawn_to_timeout_event_seconds": 3.186153375,
+    "ps_leader_reaped_exit_code": -9,
+    "ps_reap_seconds": 0.150974125,
+    "group_kill_errno": 1,
+    "simctl_leader_reap": "NOT_VERIFIED",
+    "owned_group_quiescence": "NOT_VERIFIED",
+    "zombie_only": "NOT_VERIFIED"
+  },
+  "resource_cleanup": "PASS",
+  "cleanup_overall": "FAIL",
+  "cli": {
+    "device_set_supported": true,
+    "search_term_supported": true,
+    "list_help_capture": "stdout_and_stderr"
+  },
+  "historical_113_seconds": "NOT_REPRODUCED; no retrospective diagnosis",
+  "next_hypothesis": "One final isolated device-set CLI-only experiment, same timeouts; no canonical patch or native readiness claim",
+  "artifact": {
+    "id": 11576423029,
+    "node_id": "MDg6QXJ0aWZhY3QxMTU3NjQyMzAyOQ==",
+    "name": "task054-ios-measured",
+    "size_in_bytes": 8039,
+    "url": "https://api.github.com/repos/XNIW/ClientMerchandiseControl/actions/artifacts/11576423029",
+    "archive_download_url": "https://api.github.com/repos/XNIW/ClientMerchandiseControl/actions/artifacts/11576423029/zip",
+    "expired": false,
+    "digest": "sha256:76c4cebbaab2f4e7e98f7b0e47174b9c77ea9d119130a42b39885d4e866fd99f",
+    "created_at": "2026-10-08T20:21:05Z",
+    "updated_at": "2026-10-08T20:21:05Z",
+    "expires_at": "2026-10-15T20:21:04Z",
+    "workflow_run": {
+      "id": 37838207516,
+      "repository_id": 1316800935,
+      "head_repository_id": 1316800935,
+      "head_branch": "codex/task054-ios-preflight-measured",
+      "head_sha": "6b5a34ea427cd67b055fa0e0dbfb5855c4e1124c"
+    }
+  },
+  "annotations": [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/6b5a34ea427cd67b055fa0e0dbfb5855c4e1124c/.github",
+      "start_line": 3,
+      "start_column": null,
+      "end_line": 3,
+      "end_column": null,
+      "annotation_level": "warning",
+      "title": "",
+      "message": "Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/6b5a34ea427cd67b055fa0e0dbfb5855c4e1124c/.github",
+      "start_line": 259,
+      "start_column": null,
+      "end_line": 259,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "Process completed with exit code 124.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/6b5a34ea427cd67b055fa0e0dbfb5855c4e1124c/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    }
+  ],
+  "runner_job_terminal": true,
+  "all_own_processes_terminal": "NOT_VERIFIED: simctl leader lacked reap proof",
+  "prior_runs_preserved": [
+    37817219242,
+    37822118836,
+    37836564977
+  ],
+  "sha256": {
+    "uuid-hosted-artifact/ios-measured/owner.json": "a25869fefdccc2874f876727215555cf82a9f1e9af6f06ba5c398a53658c37ae",
+    "uuid-hosted-artifact/ios-measured/processes.jsonl": "80d92ea84cd0d62651fcae6d50c1421808d0daa371e6f41a9418cbad32b6f9c2",
+    "uuid-hosted-artifact/ios-measured/result.json": "d01921abe413eb1ba85dc7f54845d9cbdeec4f812a30e16230f50b46e2e5cb5d",
+    "uuid-hosted-artifact/ios-measured/simctl-help.txt": "2b66b789f6015d1f82ac88be63a3feb98d3e9e73174b4c82a6bc71e8285fd00b",
+    "uuid-preflight-hosted.log": "f781a1cb053e1fad330b4849e58ae0348ee39d870c60cfed7963ef809f856968"
+  }
+}

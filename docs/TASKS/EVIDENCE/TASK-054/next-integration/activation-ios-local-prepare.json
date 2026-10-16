@@ -1,0 +1,44 @@
+{
+  "schema": "task054-local-prepare-v1",
+  "observed_at_utc": "2026-10-09T23:08:00.343272+00:00",
+  "source_head": "8fc7f8dc5221f22a393ffbe73c4f5827654e171f",
+  "command": [
+    "python3",
+    "scripts/run-task054-ios-owned.py",
+    "prepare",
+    "--receipt",
+    "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/local-prepare-20261009/owner.json"
+  ],
+  "DEVELOPER_DIR": "/Applications/Xcode.app/Contents/Developer",
+  "exit_code": 2,
+  "duration_seconds": 0.055,
+  "status": "FAIL",
+  "stdout": "FAIL: Simulator.app assente nella toolchain selezionata",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "owner": {
+    "schemaVersion": 1,
+    "nonce": "f2e853c024b34a63aa0014f9b85bd408",
+    "device": null,
+    "creationStarted": false,
+    "cleanup": "PASS",
+    "ownerContext": {
+      "GITHUB_RUN_ID": null,
+      "GITHUB_RUN_ATTEMPT": null,
+      "GITHUB_JOB": null,
+      "GITHUB_SHA": null
+    },
+    "name": "CMC-Task054-Owned-f2e853c024b34a63aa0014f9b85bd408",
+    "processCleanupFailed": false,
+    "cleanupAttempts": [
+      {
+        "attempt": 1,
+        "result": "PASS",
+        "resourceCleanup": "PASS",
+        "processCleanupFailed": false
+      }
+    ]
+  },
+  "scope": "Current local Mac guarded preflight only; no build/runtime/interaction inferred",
+  "remote_hosted_retry": false,
+  "N_device_interaction": false
+}

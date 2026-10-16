@@ -1,0 +1,607 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-08T17:26:51.423926+00:00",
+  "source_commit": "bb53892393710d3ed6d2574053fe1206561b87f0",
+  "scope": "local applicable gates; excludes unavailable iOS simulator and authenticated shared TEST",
+  "result": "PASS",
+  "integrated_result": "BLOCKED",
+  "latest_gate_results": [
+    {
+      "name": "toolchain",
+      "command": "bash scripts/resolve-flutter.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.323,
+      "log": "build/task054/operational-20261008/final/toolchain.log",
+      "log_sha256": "2436164fd555d113be0310dc076be7dcfa3a730f7fcf0bccc1afc1d7e5a44156",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "pub",
+      "command": "flutter pub get --enforce-lockfile",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 5.163,
+      "log": "build/task054/operational-20261008/final/pub.log",
+      "log_sha256": "18be66f14b0acf407ec5d5d445c69f1e2c6d5045a487f989597fa91c5a07cf24",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "backend-source",
+      "command": "python3 scripts/check-backend-compatibility.py --source-only",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.083,
+      "log": "build/task054/operational-20261008/final/backend-source.log",
+      "log_sha256": "62f6d2f82f74764e4add1cf1291a0cf9b47d94a7678ff7535c2f7efade89405a",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "backend-test",
+      "command": "python3 scripts/test-backend-compatibility.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.135,
+      "log": "build/task054/operational-20261008/final/backend-test.log",
+      "log_sha256": "7ef4bef0f22816b66d976386b76357e9bd7fea5de01febeac314731ab04c08f0",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "entitlements",
+      "command": "python3 scripts/test-auth-entitlements.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.204,
+      "log": "build/task054/operational-20261008/final/entitlements.log",
+      "log_sha256": "b4616c5bbea5ae05219ddfedd119a4f9ce55830bebaf6ece7e92fffbfdf3b3f9",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "visual-runner",
+      "command": "python3 scripts/test-task054-visual-runner.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.148,
+      "log": "build/task054/operational-20261008/final/visual-runner.log",
+      "log_sha256": "dc747e5522bd655d3491e6c5ea31c877ff31244f876dcc5d4b15e2e5c78b3c10",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "android-runner",
+      "command": "python3 scripts/test-task054-android-runner.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 15.401,
+      "log": "build/task054/operational-20261008/final/android-runner.log",
+      "log_sha256": "f73f975a28fed65b0dd59b136e4ddb446d19127e4418ca559a2fb6da634c8c5f",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "journal-runner",
+      "command": "python3 scripts/test-address-journal-android.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.29,
+      "log": "build/task054/operational-20261008/final/journal-runner.log",
+      "log_sha256": "375fd850a9017311099fe6e3545cb59d88675f509e0447f16cb9b69a169191ef",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "os-frame",
+      "command": "python3 scripts/test-task054-os-frame.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.171,
+      "log": "build/task054/operational-20261008/final/os-frame.log",
+      "log_sha256": "28cf234feb189ea63845584c12766d47c32b08d5790db984e770324248672088",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "owned-process",
+      "command": "python3 scripts/test-task054-owned-process.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 32.454,
+      "log": "build/task054/operational-20261008/final/owned-process.log",
+      "log_sha256": "26f9f3aae63dcfe6029cdb274190644d02d00e00f93470f29361fedebdcecbc4",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "ios-owned",
+      "command": "python3 scripts/test-task054-ios-owned.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 48.273,
+      "log": "build/task054/operational-20261008/final/ios-owned.log",
+      "log_sha256": "a3a4df272d543d58f27e783ffa93ec4a26c5a684f44f60f63a74028c0940fa8d",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "os-sync",
+      "command": "dart scripts/test-task054-os-sync.dart",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.307,
+      "log": "build/task054/operational-20261008/final/os-sync.log",
+      "log_sha256": "b17739f54c784561aa7be95bacc9d74697d84cdf496e5ec296c1281f3331b70a",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "shell",
+      "command": "bash -n scripts/*.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.008,
+      "log": "build/task054/operational-20261008/final/shell.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "pins",
+      "command": "bash scripts/check-action-pins.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.021,
+      "log": "build/task054/operational-20261008/final/pins.log",
+      "log_sha256": "38138780865f2a7928e0418586e6074f6cb89a16a2733965627e36bca9235149",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "security",
+      "command": "bash scripts/check-client-security.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 48.196,
+      "log": "build/task054/operational-20261008/final/security.log",
+      "log_sha256": "13392529318aed6eabe499ca71a195b4c5f47b0e477eed1050f24e633a052c28",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "security-tests",
+      "command": "bash scripts/test-client-security-scan.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 110.772,
+      "log": "build/task054/operational-20261008/final/security-tests.log",
+      "log_sha256": "24d99ff298c056cb63f8c6f169b8e402bd1647a4b6dd148095a9745cad52cb42",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "telemetry",
+      "command": "bash scripts/check-telemetry-privacy.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.148,
+      "log": "build/task054/operational-20261008/final/telemetry.log",
+      "log_sha256": "8dc5be66d3a66c21fb097b146ab7877431210e60354f0de45fac562ae23052d9",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "localization",
+      "command": "bash scripts/check-user-facing-localization.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.051,
+      "log": "build/task054/operational-20261008/final/localization.log",
+      "log_sha256": "3327d2169a76cf880d2cf28a6be01c3a7570273b2468a83e9627240da6e1717f",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "localization-tests",
+      "command": "bash scripts/test-user-facing-localization-scan.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.107,
+      "log": "build/task054/operational-20261008/final/localization-tests.log",
+      "log_sha256": "c02b83ac0cdafcd8d888ddc8dfed2b7879e94de999fea7e7765e9b7b293393eb",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "governance",
+      "command": "bash scripts/check-governance-state.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.193,
+      "log": "build/task054/operational-20261008/final/governance.log",
+      "log_sha256": "96b4282341db88b3bde66b6e74f38905388d1445500d8e064203c8b0fc585569",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:58:29.812143+00:00"
+    },
+    {
+      "name": "governance-tests",
+      "command": "bash scripts/test-governance-release-train.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 80.09,
+      "log": "build/task054/operational-20261008/final/governance-tests.log",
+      "log_sha256": "b29da57197cf36f45139d94db665391d15ed1a49f931db5dda674931480a5dc6",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:58:29.812143+00:00"
+    },
+    {
+      "name": "architecture",
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 12.816,
+      "log": "build/task054/operational-20261008/final/architecture.log",
+      "log_sha256": "da205cb7b3c8e3a5d67d97dd855433c0e182e607166674fbc2a6a022c68f88f4",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:58:29.812143+00:00"
+    },
+    {
+      "name": "architecture-tests",
+      "command": "bash scripts/test-architecture-boundaries.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 213.621,
+      "log": "build/task054/operational-20261008/final/architecture-tests.log",
+      "log_sha256": "2a785265fb0678c09e74ed4cdd7110e657ddddcfc34b150c108527f141aec10a",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:58:29.812143+00:00"
+    },
+    {
+      "name": "l10n",
+      "command": "flutter gen-l10n",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 1.077,
+      "log": "build/task054/operational-20261008/final/l10n.log",
+      "log_sha256": "97362974d3ec503ef18e205dbcc7d8e1ca57e5426c80a4966c6608571fa88609",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:58:29.812143+00:00"
+    },
+    {
+      "name": "generated",
+      "command": "git diff --exit-code -- pubspec.lock lib/l10n/generated",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.024,
+      "log": "build/task054/operational-20261008/final/generated.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:58:29.812143+00:00"
+    },
+    {
+      "name": "release-metadata",
+      "command": "bash scripts/check-release-metadata.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.537,
+      "log": "build/task054/operational-20261008/final/release-metadata.log",
+      "log_sha256": "ce80994513af4a9548e85d7020130a283a91844cbffe65a6d9a3133e345ea9f7",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:58:29.812143+00:00"
+    },
+    {
+      "name": "android-release-source",
+      "command": "bash scripts/check-android-release.sh --source-only",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.06,
+      "log": "build/task054/operational-20261008/final/android-release-source.log",
+      "log_sha256": "99e0089acb2d8a0221bd4effbecf88d10b436601a55457708bba799100f0f8a5",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:58:29.812143+00:00"
+    },
+    {
+      "name": "ios-release-source",
+      "command": "bash scripts/check-ios-release.sh --source-only",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.08,
+      "log": "build/task054/operational-20261008/final/ios-release-source.log",
+      "log_sha256": "245860d72153226ea773aa2c5c95bb7a40ae2b890db75a85a933665f8e0048ec",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:58:29.812143+00:00"
+    },
+    {
+      "name": "format",
+      "command": "dart format --output=none --set-exit-if-changed .",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 1.682,
+      "log": "build/task054/operational-20261008/final/20261008T171424Z/format.log",
+      "log_sha256": "000f631dfc1d3d7ea9b5628d4978f185617fc9fe65879fe2e9372f75c18f1a86",
+      "source_commit_at_run": "bb53892393710d3ed6d2574053fe1206561b87f0",
+      "run_started_utc": "2026-10-08T17:14:24.162266+00:00"
+    },
+    {
+      "name": "analyze",
+      "command": "flutter analyze",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 5.086,
+      "log": "build/task054/operational-20261008/final/20261008T171424Z/analyze.log",
+      "log_sha256": "79698ca03ea123c96036ab6eebe982fb7d471c804ffd5fd790106b3fc8b5192c",
+      "source_commit_at_run": "bb53892393710d3ed6d2574053fe1206561b87f0",
+      "run_started_utc": "2026-10-08T17:14:24.162266+00:00"
+    },
+    {
+      "name": "flutter-suite",
+      "command": "flutter test --coverage --exclude-tags performance --concurrency=1 --reporter expanded",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 316.326,
+      "log": "build/task054/operational-20261008/final/20261008T171424Z/flutter-suite.log",
+      "log_sha256": "fecaf256d7fba8b155a9c03bbed39e8fa53b782870d832b969e4a40e38a33aef",
+      "source_commit_at_run": "bb53892393710d3ed6d2574053fe1206561b87f0",
+      "run_started_utc": "2026-10-08T17:14:24.162266+00:00"
+    },
+    {
+      "name": "resilience",
+      "command": "CMC_TASK034_REPEAT_COUNT=5 bash scripts/test-task034-resilience-repeat.sh",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 46.407,
+      "log": "build/task054/operational-20261008/final/20261008T171424Z/resilience.log",
+      "log_sha256": "88945fba4a3f25d398e90c3632c30ee26686cb66b8b00a87254e8094219622a9",
+      "source_commit_at_run": "bb53892393710d3ed6d2574053fe1206561b87f0",
+      "run_started_utc": "2026-10-08T17:14:24.162266+00:00"
+    },
+    {
+      "name": "performance",
+      "command": "flutter test --tags performance --concurrency=1 --reporter expanded",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 100.459,
+      "log": "build/task054/operational-20261008/final/20261008T171424Z/performance.log",
+      "log_sha256": "89812707d5f016cae70f5726bd7b6f92d69c540b9ba140bfb731223acb349a28",
+      "source_commit_at_run": "bb53892393710d3ed6d2574053fe1206561b87f0",
+      "run_started_utc": "2026-10-08T17:14:24.162266+00:00"
+    },
+    {
+      "name": "android-debug",
+      "command": "flutter build apk --debug",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 43.36,
+      "log": "build/task054/operational-20261008/final/20261008T171424Z/android-debug.log",
+      "log_sha256": "1af9e5df8ba104c30391ef4760f781d214013ece74da031b4932e2e5087b2e63",
+      "source_commit_at_run": "bb53892393710d3ed6d2574053fe1206561b87f0",
+      "run_started_utc": "2026-10-08T17:14:24.162266+00:00"
+    },
+    {
+      "name": "android-unit",
+      "command": "cd android && ./gradlew :app:testDebugUnitTest --no-daemon --max-workers=2",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 20.359,
+      "log": "build/task054/operational-20261008/final/20261008T171424Z/android-unit.log",
+      "log_sha256": "c11359f3e0d90f52311b325ec83efc72ecb306bc3ffe5a7ad00a69e861dcac6e",
+      "source_commit_at_run": "bb53892393710d3ed6d2574053fe1206561b87f0",
+      "run_started_utc": "2026-10-08T17:14:24.162266+00:00"
+    },
+    {
+      "name": "android-security",
+      "command": "bash scripts/check-client-security.sh --artifact build/app/outputs/flutter-apk/app-debug.apk",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 96.675,
+      "log": "build/task054/operational-20261008/final/20261008T171424Z/android-security.log",
+      "log_sha256": "31132d3428ce57b69c211cb907518d5776ff4bc893bf5cdf5a6884ca09e68dab",
+      "source_commit_at_run": "bb53892393710d3ed6d2574053fe1206561b87f0",
+      "run_started_utc": "2026-10-08T17:14:24.162266+00:00"
+    },
+    {
+      "name": "diff",
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "PASS",
+      "duration_seconds": 0.041,
+      "log": "build/task054/operational-20261008/final/20261008T171424Z/diff.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_commit_at_run": "bb53892393710d3ed6d2574053fe1206561b87f0",
+      "run_started_utc": "2026-10-08T17:14:24.162266+00:00"
+    }
+  ],
+  "failed_attempts_preserved": [
+    {
+      "name": "governance",
+      "command": "bash scripts/check-governance-state.sh",
+      "exit_code": 1,
+      "result": "FAIL",
+      "duration_seconds": 0.359,
+      "log": "build/task054/operational-20261008/final/governance-initial-fail.log",
+      "log_sha256": "1a991873fde9ca02f333408892aac82642774668f4a41db61492dcf098d13b08",
+      "recovery_note": "Original log path overwritten on retry; exact stdout recovered from exec receipt and SHA256 matches recorded original.",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:53:53.178057+00:00"
+    },
+    {
+      "name": "format",
+      "command": "dart format --output=none --set-exit-if-changed .",
+      "exit_code": 1,
+      "result": "FAIL",
+      "duration_seconds": 1.874,
+      "log": "build/task054/operational-20261008/final/format.log",
+      "log_sha256": "633745f0bc0a524e9f210419a60f3956383e91dc3937bf6646b03d84fc8131ab",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T16:58:29.812143+00:00"
+    },
+    {
+      "name": "flutter-suite",
+      "command": "flutter test --coverage --exclude-tags performance --concurrency=1 --reporter expanded",
+      "exit_code": 1,
+      "result": "FAIL",
+      "duration_seconds": 316.409,
+      "log": "build/task054/operational-20261008/final/20261008T170426Z/flutter-suite.log",
+      "log_sha256": "9c889ba88126e0018a10ddddce63b0f10962ffaefffa1215267ab2d645e97c34",
+      "source_commit_at_run": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "run_started_utc": "2026-10-08T17:04:26.053767+00:00"
+    }
+  ],
+  "final_flutter_tests": 1044,
+  "resilience": {
+    "iterations": 5,
+    "races_per_iteration": 14,
+    "total": 70,
+    "result": "PASS"
+  },
+  "performance": {
+    "tests": 11,
+    "canonical": 10,
+    "supplemental": 1,
+    "result": "PASS",
+    "evidence": "performance-operational-20261008.json"
+  },
+  "android_junit": [
+    {
+      "file": "build/app/test-results/testDebugUnitTest/TEST-com.xniw.clientmerchandisecontrol.AddressCreationDurabilityTest.xml",
+      "sha256": "2ba1bb4a9c92aa3d5e5bd78c9a60852dd8eb2d5771c42a538dfbad3aadb91375",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "file": "build/app/test-results/testDebugUnitTest/TEST-com.xniw.clientmerchandisecontrol.CustomerNotificationDeepLinkMapperTest.xml",
+      "sha256": "26ad2a4ac8095cfb46674bbe6ba7645533112d7f8f50148e9d508681298c9c4d",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "android_apk": {
+    "path": "build/app/outputs/flutter-apk/app-debug.apk",
+    "bytes": 174184675,
+    "sha256": "eab4b7b8743487efb172ea28010044ad444fc6f1ef4af5c6eca895f8462eeada",
+    "build": "PASS",
+    "security": "PASS",
+    "install_smoke": "NOT_RUN"
+  },
+  "diagnostic_relocation": {
+    "files": 18,
+    "byte_identical": true,
+    "manifest": "build/task054/operational-20261008/diagnostic-relocation.json",
+    "manifest_sha256": "5d3b4bde58edd45f789da13d5387f7d8ac6cb04931eb308619f9ef9eaf7e9ba5",
+    "archive_root": "/Users/minxiang/.codex/outputs/task054-client-diagnostics-20261008",
+    "reason": "Initial format FAIL was limited to ignored local diagnostic sources; moved without modifying bytes or adding exclusions."
+  },
+  "source_review": {
+    "evidence": "docs/TASKS/EVIDENCE/TASK-054/next-integration/client-source-review-20261008.json",
+    "sha256": "4b905d6f9a9ffe7466890e7f48b74165402cb6601c70a2bceede78d566711f7c",
+    "result": "APPROVED",
+    "scope": "SOURCE_CODE_ONLY"
+  },
+  "native_journal_review_association": {
+    "evidence": "docs/TASKS/EVIDENCE/TASK-054/next-integration/native-journal-review-20261008.json",
+    "reviewed_files_identical": {
+      ".github/workflows/ci.yml": true,
+      "integration_test/address_creation_journal_native_test.dart": true,
+      "scripts/run-address-journal-android.py": true,
+      "scripts/run-task054-android-visual.py": true,
+      "scripts/test-address-journal-android.py": true,
+      "test_driver/address_creation_journal.dart": true
+    },
+    "result": "PASS",
+    "native_restart": "NOT_RUN"
+  },
+  "source_delta_since_earlier_static_gates": [
+    "lib/l10n/app_zh.arb",
+    "lib/l10n/generated/app_localizations_zh.dart",
+    "test/governance/ci_performance_gate_test.dart"
+  ],
+  "scope_of_reused_static_gates": "Earlier static gates retain their edfec536 revision. Only four technical fallback values/generated and CI cardinality changed; final format/analyze/full suite/performance/Android run on bb538923. Lockfile, version pins, runtime account, manifest and native sources unchanged.",
+  "limits": {
+    "local_ios_simulator": {
+      "result": "BLOCKED",
+      "reason": "Local Xcode27 SDK minimum15 conflicts with unchanged target14 and Simulator.app absent; no retry or target change. Hosted compatible job still required."
+    },
+    "final_ci": "NOT_RUN",
+    "native_visuals": "NOT_RUN",
+    "native_journal_restart": "NOT_RUN",
+    "authenticated_TEST": "BLOCKED",
+    "physical_profile_and_assistive_accessibility": "NOT_RUN",
+    "distribution": "BLOCKED"
+  },
+  "warnings": [
+    "93 newer package versions reported; lockfile and SDK versions unchanged.",
+    "Java native-access and Gradle deprecation warnings preserved; no build failure."
+  ],
+  "logs_versioned": false,
+  "final_document_gates": [
+    {
+      "name": "governance",
+      "command": [
+        "bash",
+        "scripts/check-governance-state.sh"
+      ],
+      "exit_code": 0,
+      "log": "build/task054/operational-20261008/final-document-gates/governance.log",
+      "sha256": "2be8f49e9bf8bd3632ff7c6606f111bf82a828dcda157b7237d6d127e93a3fcb"
+    },
+    {
+      "name": "security",
+      "command": [
+        "bash",
+        "scripts/check-client-security.sh"
+      ],
+      "exit_code": 0,
+      "log": "build/task054/operational-20261008/final-document-gates/security.log",
+      "sha256": "ceb25e628f70f55cfc75fd3dc639694f14e797790b92a7e9a14141d5b58e5113"
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "build/task054/operational-20261008/final-document-gates/diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "staged-diff",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "build/task054/operational-20261008/final-document-gates/staged-diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "original_checkout_preserved": {
+    "head": "8423c868f345ee87eee7ed58ee9eb793d98412db",
+    "untracked": [
+      "supabase/"
+    ],
+    "verified": true
+  },
+  "document_alignment_history": [
+    {
+      "result": "FAIL",
+      "exit_code": 1,
+      "cause": "During temporary phase transition the backlog row remained ACTIVE while the header was BLOCKED; two governance violations."
+    },
+    {
+      "result": "PASS",
+      "exit_code": 0,
+      "resolution": "Aligned TASK-054 backlog row and reran governance; no protocol change."
+    }
+  ]
+}

@@ -6250,3 +6250,23 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
 - **Negativo governance**: primo check exit1 per riga handoff canonica mancante;
   FAIL preservato, formato del worklog riallineato senza modifica ai gate.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-17 — TASK-054 ripresa dei due interleaving applicativi
+
+- Review source75 mirate: CART-REFRESH-QUEUE-RR-01/P2 e AS-QUERY-01/P2,
+  CHANGES_REQUIRED; strategia distinta97b649b9 APPROVED scoped, runtimeNOT_RUN.
+- Transizione a BLOCKED/FIX, root unico writer. Preparare RED tests-only con
+  provider/router reali e repository sintetici su GitHub separato; poi fix e
+  re-review/gate impattati. Nessun SDK Mac o retry visual invariato.
+- Riallineati gli esiti75 già terminali: QualityPASS, journalPASS scoped,
+  visualFAIL/EPERM e discovery senza fonte lifecycle pertinente; non trasferiti
+  al futuro source modificato. Log completi/artifact restano privati.
+- Metadata TEST list_migrations163, quattro versioni canoniche non presenti;
+  nessun catalogo/runtime inferito. Chiamata conclusa prima della preparazione
+  riserva Mobile/WeChat; nessuna attività TEST, CUA o device mantenuta attiva.
+- PR29 OPEN/draft/head75 confermati readonly; worktree iniziale pulito0/0,
+  nessun branch nuovo, reset, deploy, merge o DONE. Gate nuovi NOT_RUN.
+- **Negativo governance**: primo check exit1, cinque metadati non allineati;
+  ricevuta privata preservata, corretti fase/indicatore/snapshot e heading/handoff.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

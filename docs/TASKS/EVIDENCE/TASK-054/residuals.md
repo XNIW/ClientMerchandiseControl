@@ -1,5 +1,22 @@
 # TASK-054 — Registro unico dei residui operativi
 
+## Stato corrente — ripresa17ottobre, source75 e due fix mirati
+
+| Residuo / stato | Prossima azione e condizione di chiusura |
+|---|---|
+| CART-REFRESH-QUEUE-RR-01/P2 / FIX | RED hosted della coda refresh, fix scope/generation e dedup; re-review e gate impattati |
+| AS-QUERY-01/P2 / FIX | RED router reale query A→B, key del form e conservazione checkpoint; re-review e gate |
+| Quality75 / PASS storico scoped |38900797928:1252PASS/1SKIP+11performance,analyze0; nuovi gate NOT_RUN |
+| Journal iOS75 / PASS storico scoped |38904203138:RAWsuccessv2, due processi/cleanupPASS; ramo FAILv5 non attraversato |
+| Visual iOS75 / FAIL |38904198648:TERM/EPERM observer, wait.25timeout, prepare2/cleanupFAIL; fonte lifecycle pertinente non identificata nella discovery, nessun retry invariato |
+| TEST / BLOCKED | Ledger readonly17ott163, quattro versioni canoniche assenti; catalogo/runtime non qualificati. Nessuna attività TEST durante riserva Mobile/WeChat |
+| R13/R14/R17/R24, AT/IME/fisico e distribuzione / aperti | Prerequisiti specifici sotto preservati; fixture, nominale provider e build non sono acceptance |
+
+[Review mirate](next-integration/client-resume-20261017-source-review.json).
+Root unico writer, stesso branch/PR29 draft/HOLD. Nessun SDK/CUA/device Mac,
+nessun nuovo accesso, SQL/deploy/spesa/merge/DONE. Le sezioni seguenti conservano
+i cutoff precedenti e non descrivono automaticamente lo stato corrente.
+
 ## Stato corrente — fix QUALITY-RR-01 dopo CI eb0
 
 [Dossier e capsula](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md): CIeb0 terminale

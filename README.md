@@ -3,7 +3,8 @@
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
 Merchandise Control. Il codice include catalogo, account, carrello, checkout,
 ordini, consegna, inbox, assistenza e recensioni. Il ledger TEST readonly del
-12 ottobre contiene161ricevute e quattro migration Client canoniche ancora assenti.
+17 ottobre contiene163ricevute; le quattro versioni canoniche Client non compaiono
+nel ledger. Catalogo, RLS e runtime correnti non sono qualificati dal conteggio.
 Il dato32/57RPC è storico del10ottobre; non descrive il catalogo corrente.
 OAuth, mappa TEST, push, percorsi autenticati e distribuzione restano da qualificare:
 il prodotto non è dichiarato operativamente completo. Il
@@ -195,8 +196,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti

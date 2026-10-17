@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -2372,3 +2372,42 @@ Solo resource-first usa stream/self-timeout 1s entro capture 3s; show legacy, Bo
 Exit 0/cleanup qualifica la raccolta: 0 righe mantiene coverage UNKNOWN; nonzero/refusal/errore resta STOP, senza fallback o causa inferita.
 Support test owner dbc129/50 casi è storico: attuale 516 usa 8c1abc69/54; nessuna equivalenza o riesecuzione dei 54 dichiarata.
 Globale **BLOCKED**, handoff `CODEX_REVIEW_BLOCKED`; nuova Quality/native exact-SHA `NOT_RUN`; FAIL 516 e precedenti preservati.
+
+
+## Review mirata di ripresa — 2026-10-17
+
+Attribuzione ai reviewer read-only distinti; ricevuta sintetica
+`next-integration/client-resume-20261017-source-review.json` nella directory evidence.
+Sul source75bff91, `/root/cart_review` assegna CHANGES_REQUIRED a
+CART-REFRESH-QUEUE-RR-01/P2: refresh incrementa la generazione e perde addB
+ammesso nella coda dello stesso owner/shop. `/root/journal_origin_diagnostic`
+assegna CHANGES_REQUIRED a AS-QUERY-01/P2: query ordine A→B sulla stessa route
+riusa righe/nota/selezione A mentre il draft usa B. Sono sequenze source,
+non ancora RED eseguiti; nessun duplicato o commit server viene dichiarato.
+Review strategia distinta97b649b9 APPROVED soltanto piano, non implementazione.
+
+## Fix di ripresa — 2026-10-17
+
+CODEX_FIXER, stesso writer/checkout/PR29. Stato BLOCKED/FIX e
+CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX. Prima regressioni tests-only sul lib75,
+Dart/Flutter solo GitHub separato già autorizzato; nuovi risultati NOT_RUN.
+Poi fix limitato ai due finding e re-review prima della consegna. Cart separa
+scope identità dalla generazione delle letture, senza rilassare callback attivi,
+Auth/shop ABA, pending ambigui o idempotenza. Form vincolato a orderId, senza
+cancellare checkpoint per caseId. Nessun refactor o API nuova.
+
+Riallineamento degli esiti precedenti: source75 conserva Quality38900797928
+PASS411/0format,analyze0,1252PASS/1SKIP+11performance e384Python; journal iOS
+38904203138 PASS scoped (due processi, RAWsuccessv2, cleanupPASS), non il ramo
+FAILv5. Visual38904198648 FAIL dopo primoTERM/EPERM; prepare2, cleanupFAIL,
+query/readiness/liveNOT_RUN e finale probe/gruppoUNKNOWN. Discovery documentale
+finita (manifest5c7ec5a1/review8024a94a): fonte lifecycle pertinente non
+identificata nello scope, nessun retry invariato o nuova causa.
+
+Unica lettura metadata TEST già conclusa prima della riserva Mobile/WeChat:
+list_migrations restituisce163righe; le quattro versioni canoniche restano
+assenti dal ledger. Nuove140f20261014205635/20261015190210 preservate. Questo
+non verifica catalogo, RLS, Worker o semantica delle migrazioni; tali gate restano
+NOT_RUN/BLOCKED. Nessuna nuova attività TEST/SDK/CUA/device Mac durante riserva.
+Nessuna modifica backend, spesa, deploy, firma, merge o DONE. R13/R14/R17/R24,
+AT/IME/fisico e distribuzione restano distinti.

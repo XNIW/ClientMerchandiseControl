@@ -1,13 +1,24 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
+`BLOCKED / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
 Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
+
+## Ripresa applicativa 17 ottobre
+
+Sul sorgente75bff91, Quality38900797928 PASS e journal38904203138 PASS scoped;
+visual38904198648 FAIL con TERM/EPERM, app/live NOT_RUN. Discovery precedente
+conclusa: fonte lifecycle pertinente non identificata, nessun retry invariato.
+Review source distinte CART-REFRESH-QUEUE-RR-01/P2 e AS-QUERY-01/P2 richiedono
+fix: prima RED causale su runner GitHub separato, poi implementazione minima,
+re-review e gate impattati. Test nuovi NOT_RUN; il75 resta baseline immutata.
+Nessun SDK/CUA/device/TEST Mac durante la riserva WeChat, root unico writer.
+Maps e acceptance autentica rimangono gate distinti; PR29 draft, merge HOLD.
 
 ## Terminali 516 e diagnosi corrente
 

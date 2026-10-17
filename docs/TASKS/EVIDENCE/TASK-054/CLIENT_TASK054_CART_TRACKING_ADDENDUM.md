@@ -1,5 +1,18 @@
 # TASK-054 — Addendum carrello e consegna
 
+## Ripresa 17 ottobre — due finding source, RED da eseguire
+
+Baseline75bff91; nuovo mandato di ripresa sullo stesso branch/PR29. Review
+mirate CHANGES_REQUIRED: CART-REFRESH-QUEUE-RR-01/P2 (comando ammesso dopo
+refresh perso nella coda) e AS-QUERY-01/P2 (form A riusato dalla query ordine B).
+[Review source](next-integration/client-resume-20261017-source-review.json).
+BLOCKED/FIX; prima RED tests-only hosted, poi fix minimo/re-review/gate.
+Nuove prove NOT_RUN. Il75 conserva Quality38900797928 PASS e journal38904203138
+PASS scoped; visual38904198648 FAIL/EPERM, readiness/liveNOT_RUN. Discovery
+conclusa senza fonte lifecycle pertinente: nessun nuovo retry invariato.
+Nessun SDK/CUA/TEST/device Mac; riserva Mobile/WeChat preservata. I checkpoint
+sotto restano storici al proprio cutoff, senza trasferire PASS al nuovo source.
+
 ## Snapshot corrente di re-review — cleanup e origine
 
 Stato `CODEX_REVIEW_BLOCKED`, task BLOCKED / REVIEW. Sei postimage corrispondono

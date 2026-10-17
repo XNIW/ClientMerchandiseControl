@@ -8,26 +8,23 @@
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: pubblicare il candidato successivo a516bb9e,
-  sei postimage source e sette documenti. Journal218b49a8, review4397c850
-  APPROVED source/pure/privacy: metadata finiti dei sei input terminali, congiunto
-  invariato e teardown indisponibile distinto da fallito;95mask,64implica8.
-  Finding statico candidate-promotion chiuso solo sorgente; nuovi SDK NOT_RUN.
-  Querylive4fa45f1e, review9467c7d4 APPROVED source/pure: sola query resource-first
-  nominale1s entro capture3s, stessaownership/cap/STOP, legacy/Boot invariati.
-  Copertura diversa dallo storico;0righe UNKNOWN, nessuna causa dimostrata.
-  Nuova Quality exact-SHA NOT_RUN, poi solo dopo PASS le due nuove domande
-  native motivate. FullCI7 NOT_RUN; budget300/30 e guard invariati.
-  Solo516 conserva Quality38893955534 PASS, visual38895852835 FAIL124 e
-  journal38895857215 recoverFAIL1 dopo prepare/seedPASS; cleanupPASS separato.
-  Nessun SDK Mac, nuovo branch/WT/accesso, reset, SQL/deploy/merge/DONE.
-  Maps/live e altri gate distinti; root writer attivo, PR29 draft, merge HOLD.
+- **Prossima azione autorizzata**: ripresa utente17ottobre sullo stesso branch/PR29.
+  Review mirate source75bff91: CART-REFRESH-QUEUE-RR-01 e AS-QUERY-01, due P2
+  CHANGES_REQUIRED; prima RED causale su GitHub separato, poi fix minimo,
+  re-review e gate Quality/build impattati. RED e nuovi gate NOT_RUN al cutoff.
+  Nessun SDK/CUA/device/TEST sul Mac durante la riserva coordinata Mobile/WeChat.
+  Il75 conserva Quality38900797928 PASS, journal38904203138 PASS scoped,
+  visual38904198648 FAIL dopo TERM/EPERM; readiness/live non attraversati.
+  Discovery documentale conclusa/revisionata: fonte lifecycle pertinente non
+  identificata, nessun retry visual invariato. FullCI7 e acceptance live aperti.
+  Budget/guard invariati; nessun nuovo branch/WT/accesso, SQL/deploy/merge/DONE.
+  Maps/live restano distinti; root writer attivo, PR29 draft, merge HOLD.
 
 ## Repository coinvolti
 
@@ -41,12 +38,12 @@
 - `XNIW/iOSMerchandiseControl` — owner N riferisce PR21 merged, mainb869c9b e Proper2cb5de installato; N riferisce primoSaveB localePASS/3pending, remotoB assente al solo readback00:28:52UTC del10ottobre; diagnostica errori8ott storica, ACK/convergenza da provare; R24 NOT_RUN.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
-- Supabase TEST — ledger readonly API del12ottobre:161ricevute, tre nuove
-  versioni POS e quattro versioni canoniche Client ancora assenti. Postapply165
-  solo se161 invariato; conteggio non certifica schema. RPC32/57,25mancanti e1/2
-  indici restano fotografia10ottobre20:49UTC/history158, non catalogo corrente.
-  Source Adminmain6d2bcf1/PR136/CI38243799965 riconciliata readonly; recovery,
-  profilo operator155 e TLS/catalago correnti da qualificare prima di apply.
+- Supabase TEST — ledger readonly API del17ottobre:163ricevute, incluse due
+  versioni staff/Admin successive alla fotografia161 del12ottobre. Le quattro
+  versioni canoniche Client non compaiono nel ledger; il conteggio non certifica
+  schema/equivalenza. RPC32/57,25mancanti e1/2indici restano fotografia10ottobre
+  20:49UTC/history158, non catalogo corrente. Recovery, profilo operator/TLS,
+  catalogo e RLS correnti da qualificare dall'owner prima di eventuale apply.
   Nessun apply/cron/Worker da Client; CA e Cloudflare già disponibili.
 - Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 

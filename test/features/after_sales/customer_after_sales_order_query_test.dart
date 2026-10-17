@@ -54,12 +54,27 @@ void main() {
     );
 
     final submit = find.byKey(const ValueKey('after-sales-submit'));
+    await tester.scrollUntilVisible(
+      submit,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.ensureVisible(submit);
     await tester.tap(submit);
     await tester.pump();
     expect(repository.drafts, isEmpty);
+    await tester.scrollUntilVisible(
+      find.byType(Checkbox),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.ensureVisible(find.byType(Checkbox));
     await tester.tap(find.byType(Checkbox));
+    await tester.scrollUntilVisible(
+      submit,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.ensureVisible(submit);
     await tester.tap(submit);
     await tester.pumpAndSettle();

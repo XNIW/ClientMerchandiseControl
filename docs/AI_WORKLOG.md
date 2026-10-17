@@ -6275,4 +6275,8 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
 - **RED reale**: 9475319/run39076768104, analyze0 e508PASS/6FAIL/1SKIP,
   exit1; cart4 e queryordine2 pertinenti, ABA2PASS. Lib75 byteidentico,
   formatterpatch0B. Fix epoch FIFO e formkey applicato, review/GREEN pendenti.
+- **Primo fix hosted**: 4f4be1b/run39077194321 FAIL1, analyze0,
+  513PASS/1FAIL/1SKIP; cart6 e after-saleslatePASS. UnicoFAIL nel nuovo
+  ensureVisible submit noncostruito dal ListView lazy; aggiunto scroll bounded,
+  assert invariati. Review source cart658f285d/AS e49fdd9f APPROVED scoped.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

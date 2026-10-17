@@ -81,6 +81,29 @@
     "status": "APPLIED_GREEN_NOT_RUN",
     "scope": "Epoch FIFO carrello e key orderId form after-sales",
     "newCartAssertions": "CartActionResult è corrente dopo il refresh",
-    "sourceReview": "PENDING"
+    "sourceReview": {
+      "cart": {
+        "verdict": "APPROVED_SOURCE_ONLY",
+        "sha256": "658f285dd0e578058041875bea1cb5df6ae5a7294655f0556cb4f270145a563b"
+      },
+      "afterSales": {
+        "verdict": "APPROVED_SOURCE_ONLY",
+        "sha256": "e49fdd9f932af3d67a1ae7d544f218933ae8b6471e045b600a537526f69140e4"
+      }
+    }
+  },
+  "firstFixHosted": {
+    "sha": "4f4be1b28253865425148a47bc6e2cf093fa4875",
+    "runId": 39077194321,
+    "result": "FAIL",
+    "exitCode": 1,
+    "analyze": "PASS",
+    "passed": 513,
+    "failed": 1,
+    "skipped": 1,
+    "cause": "ensureVisible del nuovo test senza scroll del ListView lazy; corretto harness, assert invariati",
+    "cartSixRegressions": "PASS",
+    "afterSalesLateRead": "PASS",
+    "afterSalesSubmitAssertions": "NOT_RUN"
   }
 }

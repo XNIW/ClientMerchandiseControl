@@ -42,7 +42,10 @@ final class CustomerAfterSalesScreen extends ConsumerWidget {
       body: SafeArea(
         top: false,
         child: orderId != null
-            ? _AfterSalesCreateForm(orderId: orderId!)
+            ? _AfterSalesCreateForm(
+                key: ValueKey<String>(orderId!),
+                orderId: orderId!,
+              )
             : caseId != null
             ? _AfterSalesCaseDetail(value: selected, state: state)
             : _AfterSalesList(state: state),
@@ -255,7 +258,7 @@ final class _AfterSalesCaseDetail extends ConsumerWidget {
 }
 
 final class _AfterSalesCreateForm extends ConsumerStatefulWidget {
-  const _AfterSalesCreateForm({required this.orderId});
+  const _AfterSalesCreateForm({required this.orderId, super.key});
 
   final String orderId;
 

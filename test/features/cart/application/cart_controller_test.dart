@@ -83,6 +83,7 @@ void main() {
     final result = await second;
 
     expect(result.outcome, CartActionOutcome.accountConfirmed);
+    expect(controller.isCurrentActionResult(result), isTrue);
     expect(remote.mutationRequests, hasLength(2));
     expect(remote.mutationRequests.last.publicationId, _rejectedId);
     expect(remote.mutationRequests.last.expectedVersion, 5);
@@ -240,6 +241,7 @@ void main() {
     final duplicateResult = await duplicate;
 
     expect(result.outcome, CartActionOutcome.accountConfirmed);
+    expect(controller.isCurrentActionResult(result), isTrue);
     expect(duplicateResult.outcome, CartActionOutcome.ignored);
     expect(remote.mutationRequests, hasLength(2));
     expect(remote.mutationRequests.last.publicationId, _rejectedId);

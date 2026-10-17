@@ -6272,4 +6272,7 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
 - **Primo hosted tests-only**: cc0f17d/run39076549743 FAIL1 analyze per
   unnecessary_import nel nuovo test after-sales; test/RED NOT_RUN. Conservati
   log e artifact, adottato formatter hosted e rimosso il solo import ridondante.
+- **RED reale**: 9475319/run39076768104, analyze0 e508PASS/6FAIL/1SKIP,
+  exit1; cart4 e queryordine2 pertinenti, ABA2PASS. Lib75 byteidentico,
+  formatterpatch0B. Fix epoch FIFO e formkey applicato, review/GREEN pendenti.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

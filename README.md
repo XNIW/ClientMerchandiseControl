@@ -202,6 +202,12 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
 
+Ripresa17ottobre: RED9475319/run39076768104 con analyze0,508PASS/6FAIL/1SKIP;
+sei regressioni pertinenti al refresh carrello e al cambio ordine assistenza.
+Fix epoch FIFO/formkey applicati, review distinte e GREEN nuovi pendenti.
+Baseline75 conserva QualityPASS e journalPASS scoped, visualFAIL/EPERM;
+nessuna nuova prova native/live o retry visual invariato. PR29 draft/HOLD.
+
 Sul pubblicato `516bb9e`, Quality `38893955534` è PASS: 1252 test/1 SKIP,
 11 performance e 365 Python; format 411/0, analyze 0. Visual `38895852835`
 è FAIL124 readiness: la query UUID parte ma resta BLOCKED/0 byte; cleanup

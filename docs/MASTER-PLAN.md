@@ -15,9 +15,10 @@
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
 - **Prossima azione autorizzata**: ripresa utente17ottobre sullo stesso branch/PR29.
-  Review mirate source75bff91: CART-REFRESH-QUEUE-RR-01 e AS-QUERY-01, due P2
-  CHANGES_REQUIRED; prima RED causale su GitHub separato, poi fix minimo,
-  re-review e gate Quality/build impattati. RED e nuovi gate NOT_RUN al cutoff.
+  Due P2 source75 riprodotti con RED9475319/run39076768104: analyze0,
+  508PASS/6FAIL/1SKIP (cart4/queryordine2), negativi ABA2PASS; setupFAIL
+  precedente preservato. Applicati fix epoch FIFO/formkey, review distinte
+  e GREEN/new Quality/build ancora NOT_RUN al cutoff. Stesso branch/PR29.
   Nessun SDK/CUA/device/TEST sul Mac durante la riserva coordinata Mobile/WeChat.
   Il75 conserva Quality38900797928 PASS, journal38904203138 PASS scoped,
   visual38904198648 FAIL dopo TERM/EPERM; readiness/live non attraversati.

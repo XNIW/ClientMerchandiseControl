@@ -60,5 +60,27 @@
     "cause": "unnecessary_import nel nuovo test after-sales; corretto senza modifica lib",
     "DartTests": "NOT_RUN",
     "formatterPatchAdopted": true
+  },
+  "causalRED": {
+    "runId": 39076768104,
+    "sha": "9475319cbd8f24c37297a2f57f31cebe8be521bb",
+    "jobId": 117525427878,
+    "analyze": "PASS",
+    "passed": 508,
+    "failed": 6,
+    "skipped": 1,
+    "exitCode": 1,
+    "libByteIdenticalToBaseline": true,
+    "formatterPatchBytes": 0,
+    "cartFailures": 4,
+    "afterSalesFailures": 2,
+    "observedOwnerShopABA": "PASS",
+    "serverOrNativeAcceptance": false
+  },
+  "implementation": {
+    "status": "APPLIED_GREEN_NOT_RUN",
+    "scope": "Epoch FIFO carrello e key orderId form after-sales",
+    "newCartAssertions": "CartActionResult è corrente dopo il refresh",
+    "sourceReview": "PENDING"
   }
 }

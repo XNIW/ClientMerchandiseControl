@@ -2411,3 +2411,21 @@ non verifica catalogo, RLS, Worker o semantica delle migrazioni; tali gate resta
 NOT_RUN/BLOCKED. Nessuna nuova attività TEST/SDK/CUA/device Mac durante riserva.
 Nessuna modifica backend, spesa, deploy, firma, merge o DONE. R13/R14/R17/R24,
 AT/IME/fisico e distribuzione restano distinti.
+
+### RED causale e fix applicato
+
+Primo tests-only cc0f17d/run39076549743 FAIL analyze per import ridondante;
+test NOT_RUN, negativo conservato. Formatter hosted adottato e solo import
+rimosso in9475319. Run39076768104/job117525427878: analyze0,508PASS/6FAIL/1SKIP,
+exit1; due query ordine FAIL (B non letto), quattro carrello FAIL (add/dedup
+contextChanged, quantity/remove una RPC anziché due). Due negativi owner/shop
+ABA osservati PASS; lib identico75, formatterpatch0byte. È RED deterministico,
+non acceptance autenticata o native.
+
+Fix root: epoch owner/shop/dispose distinto da generation; binding della
+coda alla generation solo al turno FIFO, contesto immutabile dopo gli await,
+slot add per epoch. Cambio shop osservabile invalida anche busy/pending;
+refresh conserva intent/chiavi dello stesso scope. Result conserva la generation
+del comando eseguito, con due assert sulla sua validità UI. Form after-sales
+key per orderId, callback A dismessi al cambio B, checkpoint per caseId invariati.
+Review source distinte e GREEN/new Quality/build NOT_RUN al cutoff.

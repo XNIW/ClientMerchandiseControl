@@ -27,6 +27,7 @@ final class CartController extends Notifier<CartState> {
   String? _contextKey;
   String? _shopSlug;
   var _generation = 0;
+  var _scopeEpoch = 0;
   var _disposed = false;
   Future<void>? _operation;
   final _adding = <(int, String)>{};
@@ -40,6 +41,7 @@ final class CartController extends Notifier<CartState> {
     ref.onDispose(() {
       _disposed = true;
       _generation++;
+      _scopeEpoch++;
     });
     ref.listen(authControllerProvider, (previous, next) {
       String? owner(AuthState? value) => switch (value) {
@@ -47,16 +49,19 @@ final class CartController extends Notifier<CartState> {
         _ => null,
       };
       if (owner(previous) != owner(next)) {
-        ++_generation;
-        _contextKey = null;
-        _lastState = null;
-        _pendingMerge = null;
-        _pendingMutation = null;
-        _pendingRevalidation = null;
-        state = CartState.loading(isAuthenticated: owner(next) != null);
-        ref.invalidateSelf();
+        _invalidateScope(isAuthenticated: owner(next) != null);
       }
     });
+    ref.listen(
+      appConfigProvider.select((config) => config.storefrontShopSlug),
+      (previous, next) {
+        if (previous != next) {
+          _invalidateScope(
+            isAuthenticated: ref.read(customerAccountIdentityProvider) != null,
+          );
+        }
+      },
+    );
     final shopSlug = ref.watch(
       appConfigProvider.select((config) => config.storefrontShopSlug),
     );
@@ -67,6 +72,7 @@ final class CartController extends Notifier<CartState> {
     if (_contextKey == contextKey && _lastState != null) {
       return _lastState!;
     }
+    _scopeEpoch++;
     _contextKey = contextKey;
     _shopSlug = shopSlug;
     _pendingMerge = null;
@@ -89,9 +95,9 @@ final class CartController extends Notifier<CartState> {
   }
 
   Future<void> retry() {
-    final context = _captureContext();
+    final invocation = _captureContext();
     return _serialize(() async {
-      if (context == null || !_isCurrentContext(context)) return;
+      if (_bindQueuedContext(invocation) == null) return;
       final generation = ++_generation;
       if (_pendingMutation != null) {
         await _retryMutation(generation);
@@ -104,9 +110,9 @@ final class CartController extends Notifier<CartState> {
   }
 
   Future<void> refresh() {
-    final context = _captureContext();
+    final invocation = _captureContext();
     return _serialize(() async {
-      if (context == null || !_isCurrentContext(context)) return;
+      if (_bindQueuedContext(invocation) == null) return;
       final generation = ++_generation;
       if (_pendingMutation != null) {
         await _retryMutation(generation);
@@ -124,8 +130,8 @@ final class CartController extends Notifier<CartState> {
     StorefrontProductSummary product, {
     int quantity = 1,
   }) async {
-    final context = _captureContext();
-    if (context == null) {
+    final invocation = _captureContext();
+    if (invocation == null) {
       return CartActionResult(
         outcome: CartActionOutcome.rejected,
         generation: _generation,
@@ -134,14 +140,15 @@ final class CartController extends Notifier<CartState> {
         failureKind: CartFailureKind.invalidInput,
       );
     }
-    final slot = (context.generation, product.id);
+    final slot = (invocation.scopeEpoch, product.id);
     if (state.busyPublicationIds.contains(product.id) || !_adding.add(slot)) {
-      return _result(context, CartActionOutcome.ignored);
+      return _result(invocation, CartActionOutcome.ignored);
     }
     final clock = ref.read(appClockProvider);
     final result = await _serialize(() async {
-      if (!_isCurrentContext(context)) {
-        return _result(context, CartActionOutcome.contextChanged);
+      final context = _bindQueuedContext(invocation);
+      if (context == null) {
+        return _result(invocation, CartActionOutcome.contextChanged);
       }
       // Il retry riconcilia la mutation ambigua con la stessa chiave. Un nuovo
       // add non può sostituire l'intent o sommare di nuovo una quantità già accettata.
@@ -830,10 +837,11 @@ final class CartController extends Notifier<CartState> {
     if (state.busyPublicationIds.contains(publicationId)) {
       return Future<void>.value();
     }
-    final context = _captureContext();
-    if (context == null) return Future<void>.value();
+    final invocation = _captureContext();
+    if (invocation == null) return Future<void>.value();
     return _serialize(() async {
-      if (!_isCurrentContext(context)) return;
+      final context = _bindQueuedContext(invocation);
+      if (context == null) return;
       final pendingFailure = _pendingFailure;
       if (pendingFailure != null) {
         _setFailure(
@@ -868,10 +876,11 @@ final class CartController extends Notifier<CartState> {
   Future<void> _withGlobalBusy(
     Future<void> Function(_CartInvocationContext context) action,
   ) {
-    final context = _captureContext();
-    if (context == null) return Future<void>.value();
+    final invocation = _captureContext();
+    if (invocation == null) return Future<void>.value();
     return _serialize(() async {
-      if (!_isCurrentContext(context)) return;
+      final context = _bindQueuedContext(invocation);
+      if (context == null) return;
       final pendingFailure = _pendingFailure;
       if (pendingFailure != null) {
         _setFailure(
@@ -966,6 +975,36 @@ final class CartController extends Notifier<CartState> {
     state = value;
   }
 
+  void _invalidateScope({required bool isAuthenticated}) {
+    ++_generation;
+    ++_scopeEpoch;
+    _contextKey = null;
+    _lastState = null;
+    _pendingMerge = null;
+    _pendingMutation = null;
+    _pendingRevalidation = null;
+    state = CartState.loading(isAuthenticated: isAuthenticated);
+    ref.invalidateSelf();
+  }
+
+  // Un refresh conserva la coda dello stesso owner/shop. Ogni comando cattura
+  // la generazione corrente una sola volta al proprio turno, prima degli await.
+  _CartInvocationContext? _bindQueuedContext(
+    _CartInvocationContext? invocation,
+  ) {
+    if (invocation == null || _disposed) return null;
+    final current = _captureContext();
+    if (current == null ||
+        current.scopeEpoch != invocation.scopeEpoch ||
+        current.contextKey != invocation.contextKey ||
+        current.shopSlug != invocation.shopSlug ||
+        current.subjectId != invocation.subjectId ||
+        !_isCurrentContext(current)) {
+      return null;
+    }
+    return current;
+  }
+
   bool _isCurrent(int generation) => !_disposed && generation == _generation;
 
   _CartInvocationContext? _captureContext({int? generation}) {
@@ -973,6 +1012,7 @@ final class CartController extends Notifier<CartState> {
     if (shop == null) return null;
     return _CartInvocationContext(
       generation: generation ?? _generation,
+      scopeEpoch: _scopeEpoch,
       contextKey: _contextKey,
       shopSlug: shop,
       subjectId: ref.read(customerAccountIdentityProvider)?.subjectId,
@@ -980,24 +1020,28 @@ final class CartController extends Notifier<CartState> {
   }
 
   bool _isCurrentContext(_CartInvocationContext context) {
-    return _isCurrent(context.generation) &&
-        _contextKey == context.contextKey &&
+    if (_disposed) return false;
+    return _contextKey == context.contextKey &&
         _shopSlug == context.shopSlug &&
         ref.read(appConfigProvider).storefrontShopSlug == context.shopSlug &&
         ref.read(customerAccountIdentityProvider)?.subjectId ==
-            context.subjectId;
+            context.subjectId &&
+        _isCurrent(context.generation) &&
+        _scopeEpoch == context.scopeEpoch;
   }
 }
 
 final class _CartInvocationContext {
   const _CartInvocationContext({
     required this.generation,
+    required this.scopeEpoch,
     required this.contextKey,
     required this.shopSlug,
     required this.subjectId,
   });
 
   final int generation;
+  final int scopeEpoch;
   final String? contextKey;
   final String shopSlug;
   final String? subjectId;

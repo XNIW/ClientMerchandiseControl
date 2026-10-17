@@ -6280,3 +6280,21 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   ensureVisible submit noncostruito dal ListView lazy; aggiunto scroll bounded,
   assert invariati. Review source cart658f285d/AS e49fdd9f APPROVED scoped.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-10-17 — TASK-054 consegna epoch carrello e form ordine
+
+- **Fix**: scope epoch FIFO distinto da generation, dedup stabile sul refresh,
+  result bound al comando; key orderId form assistenza, caseId preservato.
+- **RED**: 9475319/run39076768104,508PASS/6FAIL/1SKIP eanalyze0; lib75 identico.
+- **GREEN**: 93ea7a8/run39077576033,514PASS/1SKIP,analyze0,format406/0,patch0B.
+  Otto regressioni nuovePASS; submit/draftB e risultato corrente verificati.
+- **Negativi**: setupFAIL cc0 e harnessFAIL4f preservati; scroll bounded del
+  solo test review8c54d5d1 APPROVED. Nessun indebolimento di assert.
+- **Re-review attribuite**: cart658f285d e AS e49fdd9f APPROVED soloSOURCE,
+  autori distinti dai reviewer; integrated/native/TEST non approvati.
+- **Gate finali**: Quality completa e unsignedAndroid/iOS richiedono terminali
+  exact-SHA nei Checks PR29/ricevuta locale, NOT_RUN al cutoff documentale.
+- **Transizione**: CODEX_FIX_BLOCKED_TO_RE_REVIEW; globale BLOCKED, faseREVIEW.
+  FullCI7 e R13/R14/R17/R24/Maps/AT/IME/fisico/firma restano aperti. Mac aMobile,
+  nessun SDK/CUA/device/TESTClient locale, nuovo accesso, SQL/deploy/merge/DONE.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

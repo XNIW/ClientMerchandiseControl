@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_REVIEW_BLOCKED
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -2429,3 +2429,25 @@ refresh conserva intent/chiavi dello stesso scope. Result conserva la generation
 del comando eseguito, con due assert sulla sua validità UI. Form after-sales
 key per orderId, callback A dismessi al cambio B, checkpoint per caseId invariati.
 Review source distinte e GREEN/new Quality/build NOT_RUN al cutoff.
+
+### Consegna del Fix e re-review attribuita
+
+Run39077576033 su93ea7a8: PASS, exit0,514PASS/1SKIP,analyze0,format406/0,
+artifact preparazione0B. Otto nuovi test PASS incluse righe/draftB e validità
+UI dell'esito carrello. Intermedio4f/run39077194321 resta FAIL513/1/1 per
+ensureVisible sul submit non costruito dal ListView lazy; correzione solo
+harness con tre scroll, review8c54d5d1 APPROVED scoped. SetupFAIL cc0 preservato.
+
+Re-review read-only cart658f285d APPROVED solo SOURCE: epoch/dedup/binding al
+turno, activeguard e corpi di merge/mutation/readback byte invariati. Re-review
+AS e49fdd9f APPROVED solo SOURCE: key/super.key, dismissione StateA, checkpoint
+per caseId invariati. Nessun finding source residuo nei due delta; nessun ruolo
+autore approva il proprio lavoro. Native/TEST e review integrata non qualificati.
+
+Handoff fixer CODEX_FIX_BLOCKED_TO_RE_REVIEW; fase REVIEW, globale BLOCKED /
+CODEX_REVIEW_BLOCKED. Quality completa e unsigned Android/iOS del commit finale
+saranno associate con receipt terminale/Checks PR29, senza risultati anticipati
+al cutoff documentale. Il dossier locale di ripresa conserva i terminali e la
+provenienza; fullCI7, R13/R14/R17/R24, Maps nativa, AT/IME/fisico e firma restano
+aperti. Nessun retry visual invariato, SDK Mac, accesso privilegiato, SQL/deploy,
+merge o DONE. Root unico writer, PR29 draft/HOLD e WIP originale preservato.

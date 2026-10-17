@@ -196,17 +196,20 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
 
-Ripresa17ottobre: RED9475319/run39076768104 con analyze0,508PASS/6FAIL/1SKIP;
-sei regressioni pertinenti al refresh carrello e al cambio ordine assistenza.
-Fix epoch FIFO/formkey applicati, review distinte e GREEN nuovi pendenti.
-Baseline75 conserva QualityPASS e journalPASS scoped, visualFAIL/EPERM;
-nessuna nuova prova native/live o retry visual invariato. PR29 draft/HOLD.
+Ripresa17ottobre: fix della coda carrello e del modulo assistenza per ordine,
+con review source distinte APPROVED scoped. RED9475319/run39076768104:
+508PASS/6FAIL/1SKIP → GREEN93ea7a8/run39077576033:514PASS/1SKIP,analyze0,
+format406/0. Quality completa e unsigned del commit finale sono gate separati,
+da leggere nei Checks/ricevuta terminale PR29 senza PASS anticipati al cutoff.
+R13/R14/R17/R24 e native/TEST autentico restano aperti; nessun merge o DONE.
+Baseline75 conserva QualityPASS/journalPASS scoped e visualFAIL/TERM-EPERM;
+nessun retry visual invariato. PR29 draft/HOLD, worktree isolato preservato.
 
 Sul pubblicato `516bb9e`, Quality `38893955534` è PASS: 1252 test/1 SKIP,
 11 performance e 365 Python; format 411/0, analyze 0. Visual `38895852835`

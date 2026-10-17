@@ -1,17 +1,21 @@
 # TASK-054 — Addendum carrello e consegna
 
-## Ripresa 17 ottobre — due finding source, RED da eseguire
+## Ripresa 17 ottobre — epoch carrello e modulo per ordine
 
-Baseline75bff91; nuovo mandato di ripresa sullo stesso branch/PR29. Review
-mirate CHANGES_REQUIRED: CART-REFRESH-QUEUE-RR-01/P2 (comando ammesso dopo
-refresh perso nella coda) e AS-QUERY-01/P2 (form A riusato dalla query ordine B).
-[Review source](next-integration/client-resume-20261017-source-review.json).
-BLOCKED/FIX; prima RED tests-only hosted, poi fix minimo/re-review/gate.
-Nuove prove NOT_RUN. Il75 conserva Quality38900797928 PASS e journal38904203138
-PASS scoped; visual38904198648 FAIL/EPERM, readiness/liveNOT_RUN. Discovery
-conclusa senza fonte lifecycle pertinente: nessun nuovo retry invariato.
-Nessun SDK/CUA/TEST/device Mac; riserva Mobile/WeChat preservata. I checkpoint
-sotto restano storici al proprio cutoff, senza trasferire PASS al nuovo source.
+CART-REFRESH-QUEUE-RR-01/P2 e AS-QUERY-01/P2 corretti nello stesso branch/PR29.
+RED tests-only9475319/run39076768104 con lib75 byteidentico:508PASS/6FAIL/1SKIP.
+GREEN93ea7a8/run39077576033:514PASS/1SKIP,analyze0,format406/0,patch0B.
+Confermati add/quantity/remove oltre refresh, risultato corrente, dedup e ABA
+osservati; form B con sole righe B e nessuna nota A, risposta A tardiva scartata,
+A-A conserva bozza, querynull torna alla lista. La risposta tardiva è completata
+prima di aprire la lista: quel controllo non attesta un arrivo successivo.
+Review source distinte cart658f285d/AS e49fdd9f APPROVED scoped; checkpoint
+per caseId invariati. [Prove](next-integration/client-resume-20261017-source-review.json).
+Quality completa e unsigned finali richiedono terminali exact-SHA separati.
+BLOCKED/REVIEW/CODEX_REVIEW_BLOCKED per gate native/TEST ancora aperti.
+Il75 conserva journalPASS scoped e visualFAIL/TERM-EPERM; nessun retry invariato.
+Mac assegnato aMobile, Client solo FILE/CPU e GitHub separato autorizzato.
+I checkpoint sotto restano storici al proprio cutoff, senza trasferire PASS.
 
 ## Snapshot corrente di re-review — cleanup e origine
 

@@ -8,24 +8,24 @@
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: ripresa utente17ottobre sullo stesso branch/PR29.
-  Due P2 source75 riprodotti con RED9475319/run39076768104: analyze0,
-  508PASS/6FAIL/1SKIP (cart4/queryordine2), negativi ABA2PASS; setupFAIL
-  precedente preservato. Applicati fix epoch FIFO/formkey, review distinte
-  e GREEN/new Quality/build ancora NOT_RUN al cutoff. Stesso branch/PR29.
-  Nessun SDK/CUA/device/TEST sul Mac durante la riserva coordinata Mobile/WeChat.
-  Il75 conserva Quality38900797928 PASS, journal38904203138 PASS scoped,
-  visual38904198648 FAIL dopo TERM/EPERM; readiness/live non attraversati.
-  Discovery documentale conclusa/revisionata: fonte lifecycle pertinente non
-  identificata, nessun retry visual invariato. FullCI7 e acceptance live aperti.
-  Budget/guard invariati; nessun nuovo branch/WT/accesso, SQL/deploy/merge/DONE.
-  Maps/live restano distinti; root writer attivo, PR29 draft, merge HOLD.
+- **Prossima azione autorizzata**: consegna dei due fix applicativi in Review,
+  CODEX_FIX_BLOCKED_TO_RE_REVIEW e attribuzione globale CODEX_REVIEW_BLOCKED.
+  RED9475319/run39076768104:508PASS/6FAIL/1SKIP; GREEN93ea7a8/run39077576033:
+  514PASS/1SKIP,analyze0,format406/0. Review distinte cart658f285d e AS e49fdd9f
+  APPROVED solo source; nessuna acceptance integrata anticipata.
+  Associare al commit finale Quality completa e unsigned Android/iOS mediante
+  ricevuta terminale/Checks PR29, senza anticiparne qui il risultato al cutoff.
+  FullCI7 resta NOT_RUN, nessun retry visual invariato: il75 conserva journalPASS
+  scoped e visualFAIL/TERM-EPERM, fonte lifecycle pertinente non identificata.
+  TEST/R13/R14/R17/R24, Maps reale, AT/IME/fisico e firma restano gate distinti.
+  Mac assegnato aMobile anche dopo releaseWeChat, nessuno slotClient locale.
+  Root unico writer, branch/PR29 draft/HOLD, nessun SQL/deploy/spesa/merge/DONE.
 
 ## Repository coinvolti
 

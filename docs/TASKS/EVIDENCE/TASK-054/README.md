@@ -1,7 +1,7 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
@@ -11,14 +11,18 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 
 ## Ripresa applicativa 17 ottobre
 
-Sul sorgente75bff91, Quality38900797928 PASS e journal38904203138 PASS scoped;
-visual38904198648 FAIL con TERM/EPERM, app/live NOT_RUN. Discovery precedente
-conclusa: fonte lifecycle pertinente non identificata, nessun retry invariato.
-Review source distinte CART-REFRESH-QUEUE-RR-01/P2 e AS-QUERY-01/P2 richiedono
-fix: prima RED causale su runner GitHub separato, poi implementazione minima,
-re-review e gate impattati. Test nuovi NOT_RUN; il75 resta baseline immutata.
-Nessun SDK/CUA/device/TEST Mac durante la riserva WeChat, root unico writer.
-Maps e acceptance autentica rimangono gate distinti; PR29 draft, merge HOLD.
+Due P2 CART-REFRESH-QUEUE-RR-01 e AS-QUERY-01 corretti con epoch FIFO e key
+per ordine; source review cart658f285d/AS e49fdd9f APPROVED scoped.
+RED9475319/run39076768104:508PASS/6FAIL/1SKIP → GREEN93ea7a8/run39077576033:
+514PASS/1SKIP,analyze0,format406/0 e patch0B. Otto nuovi test PASS; setupFAIL e
+harnessFAIL intermedi conservati. [Ricevuta](next-integration/client-resume-20261017-source-review.json).
+Quality completa e unsigned finali richiedono i terminali exact-SHA nei Checks
+PR29/ricevuta locale; al cutoff di questo documento non sono anticipati.
+
+Il75 conserva journal38904203138 PASS scoped e visual38904198648 FAIL con
+TERM/EPERM, app/liveNOT_RUN; discovery conclusa senza fonte lifecycle pertinente,
+nessun retry invariato. Maps/TEST, R13/R14/R17/R24 e AT/IME/fisico restano aperti.
+Mac tornato aMobile, nessun SDK/CUA/device/TEST Client locale. PR29 draft/HOLD.
 
 ## Terminali 516 e diagnosi corrente
 

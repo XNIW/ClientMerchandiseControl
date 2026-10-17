@@ -41,8 +41,8 @@
       "Key del form per orderId; checkpoint per caseId invariati"
     ]
   },
-  "state": "BLOCKED / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX",
-  "newSDKRuntimeTests": "NOT_RUN",
+  "state": "BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED",
+  "newSDKRuntimeTests": "PASS",
   "liveAcceptance": "BLOCKED",
   "sourceImplementationChangedAtReviewCutoff": false,
   "noDuplicateOrServerCommitClaimed": true,
@@ -78,7 +78,7 @@
     "serverOrNativeAcceptance": false
   },
   "implementation": {
-    "status": "APPLIED_GREEN_NOT_RUN",
+    "status": "PASS_HOSTED_REGRESSIONS_SOURCE_REVIEW_SCOPED",
     "scope": "Epoch FIFO carrello e key orderId form after-sales",
     "newCartAssertions": "CartActionResult è corrente dopo il refresh",
     "sourceReview": {
@@ -105,5 +105,39 @@
     "cartSixRegressions": "PASS",
     "afterSalesLateRead": "PASS",
     "afterSalesSubmitAssertions": "NOT_RUN"
+  },
+  "greenHosted": {
+    "runId": 39077576033,
+    "sha": "93ea7a8a09a27a83e43b79740e05fe0ff238f5f3",
+    "jobId": 117527815765,
+    "result": "PASS",
+    "exitCode": 0,
+    "analyze": "PASS zero issues",
+    "format": {
+      "files": 406,
+      "changed": 0
+    },
+    "tests": {
+      "passed": 514,
+      "failed": 0,
+      "skipped": 1
+    },
+    "newTestsPassed": 8,
+    "formatterPatchBytes": 0,
+    "scope": "HOSTED_REGRESSIONS_NOT_NATIVE_AUTH_ACCEPTANCE"
+  },
+  "newSDKRuntimeTestsScope": "Hosted regressions only, native/auth acceptance not qualified",
+  "canonicalFinalGatesAtDocumentCutoff": {
+    "Quality": "NOT_RUN",
+    "AndroidUnsigned": "NOT_RUN",
+    "iOSUnsigned": "NOT_RUN",
+    "source": "Final Checks PR29 and private canonical-terminal.json; no anticipatory PASS"
+  },
+  "readinessMetadata": {
+    "historyRows": 163,
+    "receiptSha256": "31772d83819740257df0172b75b3f4f9132c2a700409cc7a7f1a1d3c104ee718",
+    "canonicalFourAbsentFromLedger": true,
+    "catalogRlsRuntime": "NOT_RUN",
+    "externalWrites": false
   }
 }

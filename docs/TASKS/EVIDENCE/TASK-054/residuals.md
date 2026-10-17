@@ -1,19 +1,20 @@
 # TASK-054 — Registro unico dei residui operativi
 
-## Stato corrente — ripresa17ottobre, source75 e due fix mirati
+## Stato corrente — ripresa17ottobre, fix applicativi verificati su host
 
-| Residuo / stato | Prossima azione e condizione di chiusura |
+| Residuo / risultato | Prossima azione e limite della prova |
 |---|---|
-| CART-REFRESH-QUEUE-RR-01/P2 / FIX | RED hosted della coda refresh, fix scope/generation e dedup; re-review e gate impattati |
-| AS-QUERY-01/P2 / FIX | RED router reale query A→B, key del form e conservazione checkpoint; re-review e gate |
-| Quality75 / PASS storico scoped |38900797928:1252PASS/1SKIP+11performance,analyze0; nuovi gate NOT_RUN |
-| Journal iOS75 / PASS storico scoped |38904203138:RAWsuccessv2, due processi/cleanupPASS; ramo FAILv5 non attraversato |
-| Visual iOS75 / FAIL |38904198648:TERM/EPERM observer, wait.25timeout, prepare2/cleanupFAIL; fonte lifecycle pertinente non identificata nella discovery, nessun retry invariato |
-| TEST / BLOCKED | Ledger readonly17ott163, quattro versioni canoniche assenti; catalogo/runtime non qualificati. Nessuna attività TEST durante riserva Mobile/WeChat |
-| R13/R14/R17/R24, AT/IME/fisico e distribuzione / aperti | Prerequisiti specifici sotto preservati; fixture, nominale provider e build non sono acceptance |
+| CART-REFRESH-QUEUE-RR-01/P2 / PASS scoped | Epoch FIFO/dedup; quattro RED → quattro GREEN e due controlli ABA. Review source distinta; ordine TEST non attestato |
+| AS-QUERY-01/P2 / PASS scoped | Form key orderId; due RED → due GREEN, draft B e risposta A tardiva. Checkpoint per caseId invariati; nessuna prova server |
+| Regressioni93ea7a8 / PASS |39077576033:514PASS/1SKIP,analyze0,format406/0; setupFAIL/harnessFAIL preservati |
+| Quality/unsigned finali / NOT_RUN al cutoff documentale | Associare terminali exact-SHA nei Checks PR29 e ricevuta locale; nessun PASS anticipato |
+| Journal iOS75 / PASS storico scoped |38904203138:RAWsuccessv2, due processi/cleanupPASS; ramo FAILv5 non attraversato, nuovo head non attestato nativamente |
+| Visual iOS75 / FAIL |38904198648:TERM/EPERM observer, wait.25timeout, prepare2/cleanupFAIL; fonte lifecycle pertinente non identificata, nessun retry invariato |
+| TEST / BLOCKED | Ledger readonly17ott163, quattro versioni canoniche assenti dal solo ledger; catalogo/runtime non qualificati, authority backend invariata |
+| R13/R14/R17/R24, AT/IME/fisico e distribuzione / BLOCKED | Prerequisiti specifici sotto preservati; fixture e unsigned non qualificano acceptance autentica |
 
-[Review mirate](next-integration/client-resume-20261017-source-review.json).
-Root unico writer, stesso branch/PR29 draft/HOLD. Nessun SDK/CUA/device Mac,
+[Prove e review](next-integration/client-resume-20261017-source-review.json).
+Root unico writer, stesso branch/PR29 draft/HOLD. Nessun SDK/CUA/device/TEST Mac,
 nessun nuovo accesso, SQL/deploy/spesa/merge/DONE. Le sezioni seguenti conservano
 i cutoff precedenti e non descrivono automaticamente lo stato corrente.
 

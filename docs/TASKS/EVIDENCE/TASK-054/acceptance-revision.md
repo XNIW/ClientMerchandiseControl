@@ -2,6 +2,19 @@
 
 Nuova revisione autorizzata dal mandato successivo del 2026-09-28. Non ricostruisce né certifica retroattivamente E2E-01…25: la loro provenance assente e lo stato storico BLOCKED restano nel task. Fonti: TASK-050–053, CA del nuovo emendamento TASK-054, test Client/Admin indicati. La ricerca mirata già registrata non è stata ripetuta. Questa matrice deve essere approvata dai reviewer prima del closeout.
 
+## Ripresa17ottobre — associazione parziale delle nuove regressioni
+
+| Requisito / casi esistenti | Prova deterministica | Risultato e limite |
+|---|---|---|
+| CA-O6/T-O6, R03/R08 e addendum carrello | cart_controller_test: sei test coda/dedup/ABA; RED947 → GREEN93ea | PASS su host; ordine/readback TEST e riavvio restano distinti |
+| CA-O6/T-O6, R21 | customer_after_sales_order_query_test: due test router/query/draft/risposta tardiva | PASS su host; case/Admin/server non attestati |
+| CA-05/T-05 | Quality e unsigned del commit finale | NOT_RUN al cutoff del documento, richiedono ricevuta terminale exact-SHA nei Checks PR29 |
+| CA-O5/T-O5, CA-06/T-06, R13/R14/R17/R24 | native, autenticazione, mappa, due origini N e acceptance | BLOCKED secondo i prerequisiti esistenti; nessun nuovo PASS |
+
+GREEN93ea7a8/run39077576033:514PASS/1SKIP,analyze0,format406/0; otto nuovi test.
+Review source distinte APPROVED scoped, non review integrata del train. Le30
+righe operative e i25 E2E storici sotto conservano criteri e risultato end-to-end.
+
 ## CI eb0 e fix QUALITY-RR-01 — nuova associazione parziale
 
 [Dossier](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md): eb0 conserva QualityFAIL e

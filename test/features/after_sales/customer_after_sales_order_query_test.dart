@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:client_merchandise_control/app/router/app_router.dart';
-import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/features/after_sales/application/customer_after_sales_controller.dart';
 import 'package:client_merchandise_control/features/after_sales/domain/customer_after_sales_models.dart';
 import 'package:client_merchandise_control/features/after_sales/domain/customer_after_sales_repository.dart';
@@ -19,7 +18,9 @@ const _nameB = 'Riga ordine B';
 const _noteA = 'Nota soltanto per ordine A';
 
 void main() {
-  testWidgets('query ordine mantiene A-A e separa il nuovo form B', (tester) async {
+  testWidgets('query ordine mantiene A-A e separa il nuovo form B', (
+    tester,
+  ) async {
     final repository = _OrderQueryRepository();
     final rig = await openCustomerSessionRoute(
       tester,
@@ -36,7 +37,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(repository.lineRequests, [orderTestOrder]);
     expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isTrue);
-    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, _noteA);
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      _noteA,
+    );
 
     router.go(AppRoutes.afterSalesCreateLocation(_orderB));
     await tester.pumpAndSettle();
@@ -44,7 +48,10 @@ void main() {
     expect(find.text(_nameA), findsNothing);
     expect(find.text(_nameB), findsOneWidget);
     expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isFalse);
-    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, isEmpty);
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      isEmpty,
+    );
 
     final submit = find.byKey(const ValueKey('after-sales-submit'));
     await tester.ensureVisible(submit);
@@ -63,8 +70,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('risposta ordine A tardiva non entra nel form B o nella lista',
-      (tester) async {
+  testWidgets('risposta ordine A tardiva non entra nel form B o nella lista', (
+    tester,
+  ) async {
     final repository = _OrderQueryRepository(deferA: true);
     addTearDown(() {
       if (!repository.pendingA.isCompleted) {
@@ -102,20 +110,21 @@ void main() {
   });
 }
 
-CustomerAfterSalesOrderLines _lines(String orderId) => CustomerAfterSalesOrderLines(
-  orderId: orderId,
-  shopSlug: orderTestShop,
-  items: [
-    CustomerAfterSalesOrderLine(
-      orderItemId: orderId == orderTestOrder ? _lineA : _lineB,
-      name: orderId == orderTestOrder ? _nameA : _nameB,
-      orderedQuantity: 1,
-      existingOpenQuantity: 0,
-      maximumRequestQuantity: 1,
-    ),
-  ],
-  serverTime: orderTestNow,
-);
+CustomerAfterSalesOrderLines _lines(String orderId) =>
+    CustomerAfterSalesOrderLines(
+      orderId: orderId,
+      shopSlug: orderTestShop,
+      items: [
+        CustomerAfterSalesOrderLine(
+          orderItemId: orderId == orderTestOrder ? _lineA : _lineB,
+          name: orderId == orderTestOrder ? _nameA : _nameB,
+          orderedQuantity: 1,
+          existingOpenQuantity: 0,
+          maximumRequestQuantity: 1,
+        ),
+      ],
+      serverTime: orderTestNow,
+    );
 
 final class _OrderQueryRepository implements CustomerAfterSalesRepository {
   _OrderQueryRepository({this.deferA = false});
@@ -126,7 +135,8 @@ final class _OrderQueryRepository implements CustomerAfterSalesRepository {
   final drafts = <CustomerAfterSalesDraft>[];
 
   @override
-  Future<List<CustomerAfterSalesCase>> list({required String shopSlug}) async => [];
+  Future<List<CustomerAfterSalesCase>> list({required String shopSlug}) async =>
+      [];
 
   @override
   Future<CustomerAfterSalesOrderLines> listOrderLines(String orderId) async {

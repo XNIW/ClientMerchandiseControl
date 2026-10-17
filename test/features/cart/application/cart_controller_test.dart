@@ -96,84 +96,89 @@ void main() {
   });
 
   for (final remove in [false, true]) {
-    test('refresh conserva ${remove ? 'remove' : 'quantity'} ammesso in coda',
-        () async {
-      final firstAck = Completer<CartRemoteResponse>();
-      final remote = _FakeRemoteRepository(
-        readResponse: CartRemoteResponse(
-          status: CartRemoteStatus.ok,
-          snapshot: _snapshot(
-            source: CartSource.account,
-            version: 4,
-            items: [_line(_rejectedId)],
+    test(
+      'refresh conserva ${remove ? 'remove' : 'quantity'} ammesso in coda',
+      () async {
+        final firstAck = Completer<CartRemoteResponse>();
+        final remote = _FakeRemoteRepository(
+          readResponse: CartRemoteResponse(
+            status: CartRemoteStatus.ok,
+            snapshot: _snapshot(
+              source: CartSource.account,
+              version: 4,
+              items: [_line(_rejectedId)],
+            ),
           ),
-        ),
-        mutationOutcomes: [
-          firstAck.future,
+          mutationOutcomes: [
+            firstAck.future,
+            CartRemoteResponse(
+              status: CartRemoteStatus.ok,
+              snapshot: _snapshot(
+                source: CartSource.account,
+                version: 6,
+                items: [
+                  _line(_publicationId),
+                  if (!remove) _line(_rejectedId).copyWith(quantity: 3),
+                ],
+              ),
+            ),
+          ],
+        );
+        final container = _container(
+          guest: _FakeGuestStore(),
+          remote: remote,
+          identity: _identity(),
+        );
+        final operations = <Future<void>>[];
+        _registerQueueCleanup(container, operations, [firstAck]);
+        await _waitFor(
+          container,
+          (state) => state.status == CartViewStatus.ready,
+        );
+        final controller = container.read(cartControllerProvider.notifier);
+        final first = controller.addProduct(_product());
+        operations.add(first.then<void>((_) {}));
+        await _flushUntil(() => remote.mutationRequests.length == 1);
+        final refresh = container.read(checkoutCartRefreshProvider)();
+        operations.add(refresh);
+        final queued = remove
+            ? controller.remove(_rejectedId)
+            : controller.setQuantity(_rejectedId, 3);
+        operations.add(queued);
+        firstAck.complete(
           CartRemoteResponse(
             status: CartRemoteStatus.ok,
             snapshot: _snapshot(
               source: CartSource.account,
-              version: 6,
-              items: [
-                _line(_publicationId),
-                if (!remove) _line(_rejectedId).copyWith(quantity: 3),
-              ],
+              version: 5,
+              items: [_line(_publicationId), _line(_rejectedId)],
             ),
           ),
-        ],
-      );
-      final container = _container(
-        guest: _FakeGuestStore(),
-        remote: remote,
-        identity: _identity(),
-      );
-      final operations = <Future<void>>[];
-    _registerQueueCleanup(container, operations, [firstAck]);
-      await _waitFor(container, (state) => state.status == CartViewStatus.ready);
-      final controller = container.read(cartControllerProvider.notifier);
-      final first = controller.addProduct(_product());
-    operations.add(first.then<void>((_) {}));
-      await _flushUntil(() => remote.mutationRequests.length == 1);
-      final refresh = container.read(checkoutCartRefreshProvider)();
-    operations.add(refresh);
-      final queued = remove
-          ? controller.remove(_rejectedId)
-          : controller.setQuantity(_rejectedId, 3);
-      operations.add(queued);
-      firstAck.complete(
-        CartRemoteResponse(
-          status: CartRemoteStatus.ok,
-          snapshot: _snapshot(
-            source: CartSource.account,
-            version: 5,
-            items: [_line(_publicationId), _line(_rejectedId)],
-          ),
-        ),
-      );
-      await first;
-      await refresh;
-      await queued;
+        );
+        await first;
+        await refresh;
+        await queued;
 
-      expect(remote.mutationRequests, hasLength(2));
-      expect(remote.mutationRequests.last.publicationId, _rejectedId);
-      expect(remote.mutationRequests.last.expectedVersion, 5);
-      expect(
-        remote.mutationRequests.last.operation,
-        remove ? CartMutationOperation.remove : CartMutationOperation.set,
-      );
-      expect(remote.mutationRequests.last.quantity, remove ? isNull : 3);
-      final snapshot = container.read(cartControllerProvider).snapshot!;
-      expect(snapshot.version, 6);
-      final remaining = snapshot.items.where(
-        (item) => item.publicationId == _rejectedId,
-      );
-      if (remove) {
-        expect(remaining, isEmpty);
-      } else {
-        expect(remaining.single.quantity, 3);
-      }
-    });
+        expect(remote.mutationRequests, hasLength(2));
+        expect(remote.mutationRequests.last.publicationId, _rejectedId);
+        expect(remote.mutationRequests.last.expectedVersion, 5);
+        expect(
+          remote.mutationRequests.last.operation,
+          remove ? CartMutationOperation.remove : CartMutationOperation.set,
+        );
+        expect(remote.mutationRequests.last.quantity, remove ? isNull : 3);
+        final snapshot = container.read(cartControllerProvider).snapshot!;
+        expect(snapshot.version, 6);
+        final remaining = snapshot.items.where(
+          (item) => item.publicationId == _rejectedId,
+        );
+        if (remove) {
+          expect(remaining, isEmpty);
+        } else {
+          expect(remaining.single.quantity, 3);
+        }
+      },
+    );
   }
 
   test('refresh non riapre il doppio tap di un add ancora accodato', () async {
@@ -224,7 +229,9 @@ void main() {
     operations.add(queued.then<void>((_) {}));
     firstAck.complete(afterFirst);
     await _flushUntil(() => remote.readCalls == 2);
-    final duplicate = controller.addProduct(_product(publicationId: _rejectedId));
+    final duplicate = controller.addProduct(
+      _product(publicationId: _rejectedId),
+    );
     operations.add(duplicate.then<void>((_) {}));
     refreshRead.complete(afterFirst);
     await first;
@@ -240,58 +247,65 @@ void main() {
   });
 
   for (final changeShop in [false, true]) {
-    test('add in coda non attraversa ${changeShop ? 'shop' : 'owner'} A-B-A',
-        () async {
-      final firstAck = Completer<CartRemoteResponse>();
-      final remote = _FakeRemoteRepository(
-        readResponse: CartRemoteResponse(
-          status: CartRemoteStatus.ok,
-          snapshot: _snapshot(source: CartSource.account, version: 4),
-        ),
-        mutationOutcomes: [firstAck.future],
-      );
-      final container = _container(
-        guest: _FakeGuestStore(),
-        remote: remote,
-        identity: _identity(),
-      );
-      final operations = <Future<void>>[];
-    _registerQueueCleanup(container, operations, [firstAck]);
-      await _waitFor(container, (state) => state.status == CartViewStatus.ready);
-      final controller = container.read(cartControllerProvider.notifier);
-      final first = controller.addProduct(_product());
-    operations.add(first.then<void>((_) {}));
-      await _flushUntil(() => remote.mutationRequests.length == 1);
-      final queued = controller.addProduct(_product(publicationId: _rejectedId));
-    operations.add(queued.then<void>((_) {}));
-      if (changeShop) {
-        container.read(_cartShopProvider.notifier).state = 'storefront-other';
-      } else {
-        container.read(_identityProvider.notifier).state = _identity(
-          subjectId: '10000000-0000-4000-8000-000000000002',
-        );
-      }
-      container.read(cartControllerProvider);
-      if (changeShop) {
-        container.read(_cartShopProvider.notifier).state = 'storefront-test';
-      } else {
-        container.read(_identityProvider.notifier).state = _identity();
-      }
-      container.read(cartControllerProvider);
-      firstAck.complete(
-        CartRemoteResponse(
-          status: CartRemoteStatus.ok,
-          snapshot: _snapshot(
-            source: CartSource.account,
-            version: 5,
-            items: [_line(_publicationId)],
+    test(
+      'add in coda non attraversa ${changeShop ? 'shop' : 'owner'} A-B-A',
+      () async {
+        final firstAck = Completer<CartRemoteResponse>();
+        final remote = _FakeRemoteRepository(
+          readResponse: CartRemoteResponse(
+            status: CartRemoteStatus.ok,
+            snapshot: _snapshot(source: CartSource.account, version: 4),
           ),
-        ),
-      );
-      await first;
-      expect((await queued).outcome, CartActionOutcome.contextChanged);
-      expect(remote.mutationRequests, hasLength(1));
-    });
+          mutationOutcomes: [firstAck.future],
+        );
+        final container = _container(
+          guest: _FakeGuestStore(),
+          remote: remote,
+          identity: _identity(),
+        );
+        final operations = <Future<void>>[];
+        _registerQueueCleanup(container, operations, [firstAck]);
+        await _waitFor(
+          container,
+          (state) => state.status == CartViewStatus.ready,
+        );
+        final controller = container.read(cartControllerProvider.notifier);
+        final first = controller.addProduct(_product());
+        operations.add(first.then<void>((_) {}));
+        await _flushUntil(() => remote.mutationRequests.length == 1);
+        final queued = controller.addProduct(
+          _product(publicationId: _rejectedId),
+        );
+        operations.add(queued.then<void>((_) {}));
+        if (changeShop) {
+          container.read(_cartShopProvider.notifier).state = 'storefront-other';
+        } else {
+          container.read(_identityProvider.notifier).state = _identity(
+            subjectId: '10000000-0000-4000-8000-000000000002',
+          );
+        }
+        container.read(cartControllerProvider);
+        if (changeShop) {
+          container.read(_cartShopProvider.notifier).state = 'storefront-test';
+        } else {
+          container.read(_identityProvider.notifier).state = _identity();
+        }
+        container.read(cartControllerProvider);
+        firstAck.complete(
+          CartRemoteResponse(
+            status: CartRemoteStatus.ok,
+            snapshot: _snapshot(
+              source: CartSource.account,
+              version: 5,
+              items: [_line(_publicationId)],
+            ),
+          ),
+        );
+        await first;
+        expect((await queued).outcome, CartActionOutcome.contextChanged);
+        expect(remote.mutationRequests, hasLength(1));
+      },
+    );
   }
 
   test('telemetry add-to-cart non espone prodotto o publication id', () async {
@@ -1553,28 +1567,29 @@ CartLine _line(String id, {bool isGuest = false}) => CartLine(
   isGuest: isGuest,
 );
 
-StorefrontProductSummary _product({String publicationId = _publicationId}) => StorefrontProductSummary(
-  id: publicationId,
-  category: const StorefrontCategory(
-    id: '40000000-0000-4000-8000-000000000001',
-    slug: 'bebidas',
-    name: 'Bebidas',
-    sortRank: 1,
-  ),
-  name: 'Café público',
-  priceClp: 1200,
-  featured: false,
-  sortRank: 1,
-  availability: StorefrontAvailability.available,
-  fulfillment: const StorefrontFulfillment(
-    pickup: true,
-    delivery: true,
-    reservation: false,
-  ),
-  catalogVersion: 7,
-  publishedAt: DateTime.utc(2026, 8, 1),
-  updatedAt: DateTime.utc(2026, 8, 1),
-);
+StorefrontProductSummary _product({String publicationId = _publicationId}) =>
+    StorefrontProductSummary(
+      id: publicationId,
+      category: const StorefrontCategory(
+        id: '40000000-0000-4000-8000-000000000001',
+        slug: 'bebidas',
+        name: 'Bebidas',
+        sortRank: 1,
+      ),
+      name: 'Café público',
+      priceClp: 1200,
+      featured: false,
+      sortRank: 1,
+      availability: StorefrontAvailability.available,
+      fulfillment: const StorefrontFulfillment(
+        pickup: true,
+        delivery: true,
+        reservation: false,
+      ),
+      catalogVersion: 7,
+      publishedAt: DateTime.utc(2026, 8, 1),
+      updatedAt: DateTime.utc(2026, 8, 1),
+    );
 
 final class _FakeGuestStore implements GuestCartStore {
   _FakeGuestStore({

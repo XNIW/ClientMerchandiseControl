@@ -52,5 +52,13 @@
     "receiptSha256": "4378dbcbeb8389e6f78569eeaff1e60494b4997c66572828ff3f7d9d25d9c854",
     "previousChangesRequiredPreserved": true,
     "runtime": "NOT_RUN"
+  },
+  "preRedHostedAttempt": {
+    "runId": 39076549743,
+    "sha": "cc0f17df655cff9a385f9b950ea16edee8e79d32",
+    "result": "FAIL",
+    "cause": "unnecessary_import nel nuovo test after-sales; corretto senza modifica lib",
+    "DartTests": "NOT_RUN",
+    "formatterPatchAdopted": true
   }
 }

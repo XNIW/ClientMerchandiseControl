@@ -6269,4 +6269,7 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   nessun branch nuovo, reset, deploy, merge o DONE. Gate nuovi NOT_RUN.
 - **Negativo governance**: primo check exit1, cinque metadati non allineati;
   ricevuta privata preservata, corretti fase/indicatore/snapshot e heading/handoff.
+- **Primo hosted tests-only**: cc0f17d/run39076549743 FAIL1 analyze per
+  unnecessary_import nel nuovo test after-sales; test/RED NOT_RUN. Conservati
+  log e artifact, adottato formatter hosted e rimosso il solo import ridondante.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

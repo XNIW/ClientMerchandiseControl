@@ -478,6 +478,20 @@ jobs:
         run: bash scripts/resolve-flutter.sh
       - name: Resolve dependencies
         run: flutter pub get --enforce-lockfile
+      - name: Validate journal diagnostic Dart formatting
+        run: >-
+          dart format --output=none --set-exit-if-changed
+          integration_test/address_creation_journal_native_test.dart
+          integration_test/support/native_framework_notice.dart
+          test/integration_support/native_framework_notice_test.dart
+      - name: Analyze journal diagnostic candidate
+        run: flutter analyze
+      - name: Test journal diagnostic Dart helper
+        run: flutter test test/integration_support/native_framework_notice_test.dart
+      - name: Validate native journal receipt and Android boundaries
+        run: |
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-native-file.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-android.py
       - name: Prepare one owned iOS Simulator for journal restart
         run: |
           mkdir -p build/task054

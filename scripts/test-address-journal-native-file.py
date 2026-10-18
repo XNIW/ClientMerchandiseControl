@@ -122,7 +122,7 @@ class NativeAddressFileTest(unittest.TestCase):
             self.assertEqual(runner.results, {})
             self.assertFalse((runner.output / 'seed.json').exists())
 
-    def failure_artifact(self, error_type, *, expected_phase='seed', **changes):
+    def failure_artifact(self, error_type, *, expected_phase='seed', receipt_text=None, **changes):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             runner = I.IosAddressJournalFileRunner(root, root / 'owner.json')
@@ -134,7 +134,7 @@ class NativeAddressFileTest(unittest.TestCase):
             data = {'apiVersion': 'address-journal-native-evidence.v2', 'phase': expected_phase,
                     'runId': RUN_ID, 'processId': current_pid, 'status': 'FAIL', 'errorType': error_type}
             data.update(changes)
-            source.write_text(json.dumps(data))
+            source.write_text(json.dumps(data) if receipt_text is None else receipt_text)
 
             def execute():
                 runner.output.mkdir(parents=True)
@@ -159,6 +159,98 @@ class NativeAddressFileTest(unittest.TestCase):
             self.assertFalse((runner.output / (expected_phase + '.json')).exists())
             attest.assert_called_once_with(current_pid)
             return artifact, artifact_text
+
+    def test_validated_failure_snapshot_is_immutable_and_still_fails_roundtrip(self):
+        for version in range(2, 7):
+            for phase, current in (('seed', 12), ('recover', 13)):
+                data = {'apiVersion': 'address-journal-native-evidence.v' + str(version),
+                    'phase': phase, 'runId': RUN_ID, 'processId': current,
+                    'status': 'FAIL', 'errorType': 'assertion'}
+                if version >= 3:
+                    data['failureOrigin'] = 'terminal_gate'
+                if version >= 4:
+                    data['failureCheckpoint'] = None
+                if version >= 5:
+                    data['terminalGateMask'] = 21
+                if version >= 6:
+                    data['postTestFailureOrigins'] = ['liveTestFailing']
+                expected = json.loads(json.dumps(data))
+                with self.subTest(version=version, phase=phase):
+                    with self.assertRaises(A.Failure) as raised:
+                        A.validate_native_receipt(data, phase, RUN_ID, current, 12)
+                    snapshot = getattr(raised.exception, 'native_terminal_receipt_json', None)
+                    self.assertIs(type(snapshot), str)
+                    self.assertEqual(json.loads(snapshot), expected)
+                    data['runId'] = 'mutated'
+                    if version >= 6:
+                        data['postTestFailureOrigins'].append('SECRET_RAW_ORIGIN')
+                    self.assertEqual(json.loads(snapshot), expected)
+                    with self.assertRaises(A.Failure) as replay:
+                        A.validate_native_receipt(json.loads(snapshot), phase, RUN_ID, current, 12)
+                    self.assertEqual(replay.exception.code, 1)
+                    self.assertEqual(replay.exception.native_terminal_receipt_json, snapshot)
+
+    def test_ios_retains_complete_qualified_failure_without_success_or_more_commands(self):
+        for version in range(2, 7):
+            for phase in ('seed', 'recover'):
+                fields = {'apiVersion': 'address-journal-native-evidence.v' + str(version)}
+                if version >= 3:
+                    fields['failureOrigin'] = 'terminal_gate'
+                if version >= 4:
+                    fields['failureCheckpoint'] = None
+                if version >= 5:
+                    fields['terminalGateMask'] = 21
+                if version >= 6:
+                    fields['postTestFailureOrigins'] = ['liveTestFailing']
+                with self.subTest(version=version, phase=phase):
+                    artifact, text = self.failure_artifact('assertion', expected_phase=phase, **fields)
+                    expected = {**fields, 'phase': phase, 'runId': RUN_ID,
+                        'processId': 12 if phase == 'seed' else 13,
+                        'status': 'FAIL', 'errorType': 'assertion'}
+                    self.assertEqual(artifact['diagnostics'][phase].get('native_terminal_receipt'), expected)
+                    self.assertNotIn('same_bundle_and_containers', artifact['results'])
+
+    def test_unqualified_failure_never_has_a_snapshot_in_exception_or_artifact(self):
+        changes = ({'runId': 'foreign'}, {'processId': 99}, {'phase': 'seed'},
+            {'apiVersion': 'address-journal-native-evidence.v5'}, {'terminalGateMask': True},
+            {'postTestFailureOrigins': []}, {'postTestFailureOrigins': ['SECRET_RAW_ORIGIN']},
+            {'failureCheckpoint': 'restored_identity'}, {'rawMessage': 'SECRET_RAW_MESSAGE'})
+        for change in changes:
+            data = {**self.posttest_failure(['liveTestFailing']), **change}
+            with self.subTest(change=change):
+                with self.assertRaises(A.Failure) as raised:
+                    A.validate_native_receipt(data, 'recover', RUN_ID, 13, 12)
+                self.assertFalse(hasattr(raised.exception, 'native_terminal_receipt_json'))
+                artifact, text = self.failure_artifact('assertion', expected_phase='recover',
+                    receipt_text=json.dumps(data))
+                self.assertNotIn('native_terminal_receipt', artifact['diagnostics'].get('recover', {}))
+                self.assertNotIn('SECRET_RAW', text)
+
+    def test_duplicate_json_keys_do_not_retain_discarded_raw_values(self):
+        data = self.posttest_failure(['liveTestFailing'], phase='seed')
+        # JSON parsing discards the first duplicate; evidence must use validated values.
+        raw = '{"errorType":"SECRET_RAW_MESSAGE",' + json.dumps(data)[1:]
+        self.assertIn('SECRET_RAW_MESSAGE', raw)
+        artifact, text = self.failure_artifact('assertion', receipt_text=raw)
+        self.assertEqual(artifact['diagnostics']['seed'].get('native_terminal_receipt'), data)
+        self.assertNotIn('SECRET_RAW_MESSAGE', text)
+
+    def test_ios_success_transport_keeps_success_output_and_has_no_failure_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            runner = I.IosAddressJournalFileRunner(root, root / 'owner.json')
+            runner.run_id, runner.data = RUN_ID, root / 'owned-data'
+            source = runner.data / 'Library/Application Support' / A.receipt_relative_path(RUN_ID, 'seed')
+            source.parent.mkdir(parents=True)
+            source.write_text(json.dumps(receipt()))
+            runner.output.mkdir(parents=True)
+            with patch.object(runner, 'attest_pid') as attest, \
+                 patch.object(runner, 'command', side_effect=AssertionError('native command forbidden')):
+                runner.drive('seed', 12, 12, [])
+            self.assertEqual(json.loads((runner.output / 'seed.json').read_text()), receipt())
+            self.assertEqual(runner.results['seed'], receipt())
+            self.assertNotIn('native_terminal_receipt', runner.diagnostics.get('seed', {}))
+            self.assertEqual(attest.call_count, 2)
 
     def test_ios_native_failure_safe_enum_survives_into_runner_artifact(self):
         for category in ('assertion', 'filesystem', 'unexpected'):
@@ -445,9 +537,9 @@ class NativeAddressFileTest(unittest.TestCase):
         self.assertLess(source.index('final restored = await SecureAddressCreationJournal().read(_fixtureOwner);'),
             source.index("publisher.checkRecover('restored_identity'"))
 
-    def test_fixture_v6_export_guards_error_type_and_phase_and_keeps_origin(self):
+    def test_fixture_v7_export_guards_error_type_and_phase_and_keeps_origin(self):
         compact = re.sub(r'\s+', '', self.fixture_source())
-        self.assertIn("const_failureApiVersion='address-journal-native-evidence.v6';", compact)
+        self.assertIn("const_failureApiVersion='address-journal-native-evidence.v7';", compact)
         self.assertIn("finalcheckpoint=bodyErrorType=='assertion'&&phase=='recover'?failureCheckpoint:null;", compact)
         self.assertIn("'failureCheckpoint':checkpoint,", compact)
         self.assertIn("'failureOrigin':bodyErrorType==null?'terminal_gate':'body',", compact)
@@ -786,6 +878,149 @@ class NativeAddressFileTest(unittest.TestCase):
         self.assertIn('_postTestFailureOrigins.add(origin);', binding)
         self.assertIn('finally{postTestCompleted=true;}', binding)
         self.assertIn("'postTestFailureOrigins':bodyErrorType==null?postTestFailureOrigins:null,", compact)
+
+    def notice_failure(self, notice, *, phase='recover', origin='terminal_gate'):
+        return {**self.posttest_failure(['liveTestFailing'] if origin == 'terminal_gate' else None,
+            21 if origin == 'terminal_gate' else None, phase=phase, origin=origin),
+            'apiVersion': 'address-journal-native-evidence.v7', 'firstFrameworkNotice': notice}
+
+    def first_notice(self, category='testFailure', candidate=False):
+        return {'status': 'observed', 'origin': 'framework_notice',
+            'category': category, 'candidateAssignedAtNotice': candidate}
+
+    def no_notice(self):
+        return {'status': 'not_observed', 'origin': None,
+            'category': None, 'candidateAssignedAtNotice': None}
+
+    def test_v7_observed_categories_and_candidate_bools_preserve_all_v6_failure_rules(self):
+        for category in ('testFailure', 'filesystem', 'flutterError', 'assertionError', 'other'):
+            for candidate in (False, True):
+                for phase in ('seed', 'recover'):
+                    for origin in ('body', 'terminal_gate'):
+                        data = self.notice_failure(self.first_notice(category, candidate),
+                            phase=phase, origin=origin)
+                        with self.subTest(data=data):
+                            with self.assertRaises(A.Failure) as raised:
+                                A.validate_native_receipt(data, phase, RUN_ID,
+                                    12 if phase == 'seed' else 13, 12)
+                            self.assertEqual(raised.exception.code, 1)
+                            self.assertEqual(str(raised.exception),
+                                'journal-' + phase + ': fixture nativa segnala failure sanitizzata')
+                            self.assertEqual(json.loads(raised.exception.native_terminal_receipt_json), data)
+
+    def test_v7_not_observed_stays_explicit_and_snapshot_roundtrip_is_immutable_failure(self):
+        for phase in ('seed', 'recover'):
+            for notice in (self.no_notice(), self.first_notice('assertionError', True)):
+                data = self.notice_failure(notice, phase=phase)
+                current = 12 if phase == 'seed' else 13
+                expected = json.loads(json.dumps(data))
+                with self.subTest(phase=phase, notice=notice):
+                    with self.assertRaises(A.Failure) as raised:
+                        A.validate_native_receipt(data, phase, RUN_ID, current, 12)
+                    snapshot = getattr(raised.exception, 'native_terminal_receipt_json', None)
+                    self.assertIs(type(snapshot), str)
+                    notice['category'] = 'SECRET_RAW_CATEGORY'
+                    data['postTestFailureOrigins'].append('SECRET_RAW_ORIGIN')
+                    self.assertEqual(json.loads(snapshot), expected)
+                    with self.assertRaises(A.Failure) as replay:
+                        A.validate_native_receipt(json.loads(snapshot), phase, RUN_ID, current, 12)
+                    self.assertEqual(replay.exception.native_terminal_receipt_json, snapshot)
+                    self.assertEqual(replay.exception.code, 1)
+
+    def test_v7_notice_never_infers_final_candidate_mask_or_body_error_category(self):
+        base = self.notice_failure(self.first_notice('assertionError', True))
+        cases = [
+            {**base, 'terminalGateMask': 1, 'postTestFailureOrigins': []},
+            {**base, 'terminalGateMask': 32, 'postTestFailureOrigins': []},
+            {**base, 'failureOrigin': 'body', 'errorType': 'filesystem',
+                'terminalGateMask': None, 'postTestFailureOrigins': None},
+            {**base, 'failureOrigin': 'body', 'errorType': 'unexpected',
+                'terminalGateMask': None, 'postTestFailureOrigins': None},
+        ]
+        for data in cases:
+            with self.subTest(data=data):
+                with self.assertRaises(A.Failure) as raised:
+                    A.validate_native_receipt(data, 'recover', RUN_ID, 13, 12)
+                self.assertEqual(json.loads(raised.exception.native_terminal_receipt_json), data)
+                self.assertEqual(raised.exception.code, 1)
+
+    def test_v7_invalid_nested_fields_types_aliases_and_raw_values_export_nothing(self):
+        invalid = [None, [], 'SECRET_RAW_NOTICE', True, {},
+            {**self.first_notice(), 'rawMessage': 'SECRET_RAW_MESSAGE'}]
+        for key in self.first_notice():
+            data = self.first_notice()
+            del data[key]
+            invalid.append(data)
+        for key, values in (
+                ('status', (None, True, 'unknown', 'observed ', ['observed'])),
+                ('origin', (None, 'frameworkNotice', 'reportExceptionNoticed', 'SECRET_RAW_ORIGIN', [])),
+                ('category', (None, True, 'TestFailure', 'fileSystemException', 'assertion_error',
+                    'SECRET_RAW_CATEGORY', ['testFailure'])),
+                ('candidateAssignedAtNotice', (None, 0, 1, 0.0, 1.0, 'false', [], {}))):
+            invalid.extend({**self.first_notice(), key: value} for value in values)
+        for key, value in (('origin', 'framework_notice'), ('category', 'other'),
+                ('candidateAssignedAtNotice', False)):
+            invalid.append({**self.no_notice(), key: value})
+        for notice in invalid:
+            with self.subTest(notice=notice), self.assertRaises(A.Failure) as raised:
+                A.validate_native_receipt(self.notice_failure(notice), 'recover', RUN_ID, 13, 12)
+            for field in ('native_terminal_receipt_json', 'native_error_type',
+                    'native_post_test_failure_origins'):
+                self.assertFalse(hasattr(raised.exception, field))
+            self.assertNotIn('SECRET_RAW', str(raised.exception))
+
+    def test_v7_does_not_widen_identity_mask_origins_legacy_or_success(self):
+        valid = self.notice_failure(self.first_notice())
+        for changes in ({'runId': 'foreign'}, {'phase': 'seed'}, {'processId': 99},
+                {'terminalGateMask': True}, {'terminalGateMask': 1},
+                {'postTestFailureOrigins': []}, {'failureCheckpoint': 'restored_identity'},
+                {'rawMessage': 'SECRET_RAW_MESSAGE'}):
+            with self.subTest(changes=changes), self.assertRaises(A.Failure) as raised:
+                A.validate_native_receipt({**valid, **changes}, 'recover', RUN_ID, 13, 12)
+            self.assertFalse(hasattr(raised.exception, 'native_terminal_receipt_json'))
+        for version in range(2, 7):
+            with self.subTest(version=version), self.assertRaises(A.Failure) as raised:
+                A.validate_native_receipt({**valid,
+                    'apiVersion': 'address-journal-native-evidence.v' + str(version)},
+                    'recover', RUN_ID, 13, 12)
+            self.assertFalse(hasattr(raised.exception, 'native_terminal_receipt_json'))
+        del valid['firstFrameworkNotice']
+        with self.assertRaises(A.Failure) as raised:
+            A.validate_native_receipt(valid, 'recover', RUN_ID, 13, 12)
+        self.assertFalse(hasattr(raised.exception, 'native_terminal_receipt_json'))
+        for changes in ({'firstFrameworkNotice': self.no_notice()},
+                {'apiVersion': 'address-journal-native-evidence.v7'},
+                {'apiVersion': 'address-journal-native-evidence.v7', 'firstFrameworkNotice': self.first_notice()}):
+            with self.subTest(changes=changes), self.assertRaises(A.Failure):
+                A.validate_native_receipt({**receipt(), **changes}, 'seed', RUN_ID, 12, 12)
+
+    def test_ios_v7_retains_qualified_notice_in_failed_artifact_without_new_attest_or_success(self):
+        for phase in ('seed', 'recover'):
+            for notice in (self.no_notice(), self.first_notice('other', True)):
+                data = self.notice_failure(notice, phase=phase)
+                with self.subTest(phase=phase, notice=notice):
+                    artifact, text = self.failure_artifact('assertion', expected_phase=phase,
+                        receipt_text=json.dumps(data))
+                    self.assertEqual(artifact['diagnostics'].get(phase, {}).get('native_terminal_receipt'), data)
+                    self.assertNotIn('same_bundle_and_containers', artifact['results'])
+        invalid = self.notice_failure({**self.first_notice(), 'rawMessage': 'SECRET_RAW_MESSAGE'})
+        artifact, text = self.failure_artifact('assertion', expected_phase='recover',
+            receipt_text=json.dumps(invalid))
+        self.assertNotIn('native_terminal_receipt', artifact['diagnostics'].get('recover', {}))
+        self.assertNotIn('SECRET_RAW', text)
+
+    def test_fixture_notice_hook_closes_before_same_invoker_read_and_is_not_a_gate(self):
+        compact = re.sub(r'\s+', '', self.fixture_source())
+        self.assertIn('voidpostTest(){noticeRecorder.close();'
+            'finalentryFailing=Invoker.current?.liveTest.state.result.isFailing;', compact)
+        self.assertEqual(compact.count('voidreportExceptionNoticed('), 1)
+        self.assertIn('noticeRecorder.observeAndDelegate(details,'
+            'candidateAssignedAtNotice:publisher.successCandidate!=null,'
+            'delegate:(value)=>super.reportExceptionNoticed(value),);', compact)
+        self.assertIn('finalfirstFrameworkNotice=binding.noticeRecorder.snapshot;', compact)
+        self.assertIn("'firstFrameworkNotice':firstFrameworkNotice,", compact)
+        gate = compact[compact.index('finalterminalPassed='):compact.index('finalcheckpoint=')]
+        self.assertNotIn('firstFrameworkNotice', gate)
 
     def test_paths_cannot_escape_run_scope(self):
         for run, phase in [('../other', 'seed'), (RUN_ID, '../recover'), (RUN_ID, 'other')]:

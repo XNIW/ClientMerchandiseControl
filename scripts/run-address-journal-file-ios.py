@@ -51,6 +51,8 @@ class IosAddressJournalFileRunner(ADDRESS.IosJournalRunner):
             native_error_type = getattr(error, 'native_error_type', None)
             if native_error_type in FILE.NATIVE_ERROR_TYPES:
                 self.diagnostics.setdefault(phase, {})['native_terminal_error_type'] = native_error_type
+                self.diagnostics[phase]['native_terminal_receipt'] = json.loads(
+                    error.native_terminal_receipt_json)
                 native_failure_origin = getattr(error, 'native_failure_origin', None)
                 if native_failure_origin in FILE.NATIVE_FAILURE_ORIGINS:
                     self.diagnostics[phase]['native_terminal_failure_origin'] = native_failure_origin

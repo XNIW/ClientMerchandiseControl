@@ -24,6 +24,18 @@ NATIVE_FAILURE_ORIGINS = ('body', 'terminal_gate')
 NATIVE_FAILURE_CHECKPOINTS = ('recover_marker', 'recover_process',
     'restored_identity', 'restored_payload', 'cleared_readback')
 NATIVE_POST_TEST_FAILURE_ORIGINS = ('entryInvokerUnavailable', 'liveTestFailing', 'superException')
+NATIVE_NOTICE_CATEGORIES = ('testFailure', 'filesystem', 'flutterError', 'assertionError', 'other')
+
+
+def valid_first_framework_notice(value):
+    if type(value) is not dict or set(value) != {
+            'status', 'origin', 'category', 'candidateAssignedAtNotice'}:
+        return False
+    if value.get('status') == 'not_observed':
+        return all(value[key] is None for key in ('origin', 'category', 'candidateAssignedAtNotice'))
+    return (value.get('status') == 'observed' and value.get('origin') == 'framework_notice'
+        and value.get('category') in NATIVE_NOTICE_CATEGORIES
+        and type(value.get('candidateAssignedAtNotice')) is bool)
 
 
 def valid_terminal_gate_mask(value):
@@ -86,9 +98,14 @@ def validate_native_receipt(data, phase, run_id, process_id, seed_pid):
                 or (data['failureOrigin'] == 'terminal_gate'
                     and valid_terminal_gate_mask(terminal_gate_mask))))
         post_test_origins = data.get('postTestFailureOrigins')
-        post_test_origin_failure = (set(data) == expected_keys | {
-                'failureOrigin', 'failureCheckpoint', 'terminalGateMask', 'postTestFailureOrigins'}
-            and data.get('apiVersion') == 'address-journal-native-evidence.v6'
+        post_test_keys = expected_keys | {
+            'failureOrigin', 'failureCheckpoint', 'terminalGateMask', 'postTestFailureOrigins'}
+        post_test_version = (set(data) == post_test_keys
+            and data.get('apiVersion') == 'address-journal-native-evidence.v6')
+        notice_version = (set(data) == post_test_keys | {'firstFrameworkNotice'}
+            and data.get('apiVersion') == 'address-journal-native-evidence.v7'
+            and valid_first_framework_notice(data.get('firstFrameworkNotice')))
+        post_test_origin_failure = ((post_test_version or notice_version)
             and data.get('failureOrigin') in NATIVE_FAILURE_ORIGINS
             and (data['failureOrigin'] != 'terminal_gate' or data.get('errorType') == 'assertion')
             and (checkpoint is None or (checkpoint in NATIVE_FAILURE_CHECKPOINTS
@@ -115,6 +132,8 @@ def validate_native_receipt(data, phase, run_id, process_id, seed_pid):
             failure.native_terminal_gate_mask = terminal_gate_mask
         if post_test_origin_failure and post_test_origins is not None:
             failure.native_post_test_failure_origins = tuple(post_test_origins)
+        # Snapshot immutabile dei soli valori validati, mai byte raw del file.
+        failure.native_terminal_receipt_json = json.dumps(data, sort_keys=True, separators=(',', ':'))
         raise failure
     return ADDRESS.validate_receipt(data, phase, run_id, process_id, seed_pid)
 

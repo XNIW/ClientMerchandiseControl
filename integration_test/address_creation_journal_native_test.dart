@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:client_merchandise_control/features/account/data/secure_address_creation_journal.dart';
 import 'package:client_merchandise_control/features/account/domain/address_creation_intent.dart';
 import 'package:client_merchandise_control/features/account/domain/customer_account_models.dart';
+import 'package:flutter/foundation.dart' as foundation show FlutterErrorDetails;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/common.dart' as integration_results;
@@ -17,8 +18,10 @@ import 'package:test_api/src/backend/invoker.dart' show Invoker;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
+import 'support/native_framework_notice.dart';
+
 const _apiVersion = 'address-journal-native-evidence.v2';
-const _failureApiVersion = 'address-journal-native-evidence.v6';
+const _failureApiVersion = 'address-journal-native-evidence.v7';
 const _fixtureOwner = 'f0540000-0000-4000-8000-000000000001';
 
 CustomerAddressDraft _draft(String runId, int seedPid) => CustomerAddressDraft(
@@ -41,7 +44,7 @@ void main() {
   // Registrazione precedente al binding SDK: tearDownAll LIFO pubblica il file
   // solo dopo postTest e dopo report/cleanup native SDK, con Future atteso.
   tearDownAll(() => publisher.publish(binding));
-  binding = _NativeAddressTestBinding();
+  binding = _NativeAddressTestBinding(publisher);
   testWidgets('journal indirizzo: persistenza nativa dopo processo terminato', (
     tester,
   ) async {
@@ -144,9 +147,22 @@ enum _NativePostTestFailureOrigin {
 }
 
 class _NativeAddressTestBinding extends IntegrationTestWidgetsFlutterBinding {
+  _NativeAddressTestBinding(this.publisher);
+
+  final _NativeAddressTerminalPublisher publisher;
+  final noticeRecorder = NativeFrameworkNoticeRecorder();
   bool postTestCompleted = false;
   bool postTestFailed = false;
   final _postTestFailureOrigins = <_NativePostTestFailureOrigin>{};
+
+  @override
+  void reportExceptionNoticed(foundation.FlutterErrorDetails details) {
+    noticeRecorder.observeAndDelegate(
+      details,
+      candidateAssignedAtNotice: publisher.successCandidate != null,
+      delegate: (value) => super.reportExceptionNoticed(value),
+    );
+  }
 
   void _recordPostTestFailure(_NativePostTestFailureOrigin origin) {
     postTestFailed = true;
@@ -159,6 +175,7 @@ class _NativeAddressTestBinding extends IntegrationTestWidgetsFlutterBinding {
 
   @override
   void postTest() {
+    noticeRecorder.close();
     final entryFailing = Invoker.current?.liveTest.state.result.isFailing;
     if (entryFailing ?? true) {
       _recordPostTestFailure(
@@ -220,6 +237,7 @@ class _NativeAddressTerminalPublisher {
     final failureMethodsEmpty = binding.failureMethodsDetails.isEmpty;
     final candidate = successCandidate;
     final bodyErrorType = errorType;
+    final firstFrameworkNotice = binding.noticeRecorder.snapshot;
     final terminalPassed =
         sdkPassed &&
         postTestCompleted &&
@@ -259,6 +277,7 @@ class _NativeAddressTerminalPublisher {
                 ? postTestFailureOrigins
                 : null,
             'errorType': bodyErrorType ?? 'assertion',
+            'firstFrameworkNotice': firstFrameworkNotice,
           };
     binding.reportData = result;
     await _publishTerminalJson(

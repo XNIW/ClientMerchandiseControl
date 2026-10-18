@@ -23,12 +23,24 @@ NATIVE_ERROR_TYPES = ('assertion', 'filesystem', 'unexpected')
 NATIVE_FAILURE_ORIGINS = ('body', 'terminal_gate')
 NATIVE_FAILURE_CHECKPOINTS = ('recover_marker', 'recover_process',
     'restored_identity', 'restored_payload', 'cleared_readback')
+NATIVE_POST_TEST_FAILURE_ORIGINS = ('entryInvokerUnavailable', 'liveTestFailing', 'superException')
 
 
 def valid_terminal_gate_mask(value):
     # Bit64 (Invoker assente) conserva il fail-closed bit8; mai un esito positivo.
     return (type(value) is int and 1 <= value <= 127
         and (not value & 64 or bool(value & 8)))
+
+
+def valid_post_test_failure_origins(value, mask):
+    if not valid_terminal_gate_mask(mask) or type(value) is not list:
+        return False
+    if any(type(origin) is not str or origin not in NATIVE_POST_TEST_FAILURE_ORIGINS
+            for origin in value):
+        return False
+    canonical = [origin for origin in NATIVE_POST_TEST_FAILURE_ORIGINS if origin in value]
+    return (value == canonical and bool(value) == bool(mask & 4)
+        and not ('entryInvokerUnavailable' in value and 'liveTestFailing' in value))
 
 
 def receipt_relative_path(run_id, phase):
@@ -73,7 +85,21 @@ def validate_native_receipt(data, phase, run_id, process_id, seed_pid):
             and ((data['failureOrigin'] == 'body' and terminal_gate_mask is None)
                 or (data['failureOrigin'] == 'terminal_gate'
                     and valid_terminal_gate_mask(terminal_gate_mask))))
-        if (not (legacy_failure or origin_failure or checkpoint_failure or terminal_mask_failure)
+        post_test_origins = data.get('postTestFailureOrigins')
+        post_test_origin_failure = (set(data) == expected_keys | {
+                'failureOrigin', 'failureCheckpoint', 'terminalGateMask', 'postTestFailureOrigins'}
+            and data.get('apiVersion') == 'address-journal-native-evidence.v6'
+            and data.get('failureOrigin') in NATIVE_FAILURE_ORIGINS
+            and (data['failureOrigin'] != 'terminal_gate' or data.get('errorType') == 'assertion')
+            and (checkpoint is None or (checkpoint in NATIVE_FAILURE_CHECKPOINTS
+                and data.get('failureOrigin') == 'body' and phase == 'recover'
+                and data.get('errorType') == 'assertion'))
+            and ((data['failureOrigin'] == 'body' and terminal_gate_mask is None
+                    and post_test_origins is None)
+                or (data['failureOrigin'] == 'terminal_gate'
+                    and valid_post_test_failure_origins(post_test_origins, terminal_gate_mask))))
+        if (not (legacy_failure or origin_failure or checkpoint_failure or terminal_mask_failure
+                    or post_test_origin_failure)
                 or data.get('phase') != phase or data.get('runId') != run_id
                 or data.get('processId') != process_id
                 or data.get('errorType') not in NATIVE_ERROR_TYPES):
@@ -81,12 +107,14 @@ def validate_native_receipt(data, phase, run_id, process_id, seed_pid):
         failure = Failure('journal-' + phase, 1, 'fixture nativa segnala failure sanitizzata')
         # Solo enum gia validati; mai payload, messaggi, stack o log nativi.
         failure.native_error_type = data['errorType']
-        if origin_failure or checkpoint_failure or terminal_mask_failure:
+        if origin_failure or checkpoint_failure or terminal_mask_failure or post_test_origin_failure:
             failure.native_failure_origin = data['failureOrigin']
-        if (checkpoint_failure or terminal_mask_failure) and checkpoint is not None:
+        if (checkpoint_failure or terminal_mask_failure or post_test_origin_failure) and checkpoint is not None:
             failure.native_failure_checkpoint = checkpoint
-        if terminal_mask_failure and terminal_gate_mask is not None:
+        if (terminal_mask_failure or post_test_origin_failure) and terminal_gate_mask is not None:
             failure.native_terminal_gate_mask = terminal_gate_mask
+        if post_test_origin_failure and post_test_origins is not None:
+            failure.native_post_test_failure_origins = tuple(post_test_origins)
         raise failure
     return ADDRESS.validate_receipt(data, phase, run_id, process_id, seed_pid)
 

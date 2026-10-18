@@ -6298,3 +6298,31 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   FullCI7 e R13/R14/R17/R24/Maps/AT/IME/fisico/firma restano aperti. Mac aMobile,
   nessun SDK/CUA/device/TESTClient locale, nuovo accesso, SQL/deploy/merge/DONE.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+## 2026-10-17 — TASK-054 FAILv6, osservabilità postTest
+
+- CI automatica6dc39078074948 qualificata6PASS/1FAIL, journal seedFAIL1/mask21,
+  candidatepresent/postTestFailedtrue, recoverNOT_RUN/cleanupPASS. Corretto filtro
+  manuale incompleto; tutte CI/cancellazioni/negativi conservati, niente causaSDK inferita.
+- SourceSDK pinned e test_api digestlock letti senzaSDKexec: sentinella producegià
+  Failure, mancano3origini finite. Minimo FAILv6 con stesso snapshot/catch e5insiemi,
+  nullbody, bit4coerente, niente raw/guard/timeout/SUCCESS/legacychange.
+- RED47pure(source6dc invariato),2failure13errors nei subtest; GREEN47exit0.
+  Review source/pure distinta e nuovaCI unica ancoraNOT_RUN al cutoff.
+- Capture6dc review12+12scoped, noIME/AT/auth/Maps.93prepare124/cleanupPASS e
+  4f/cc0cleanupFAIL/finaleUNKNOWN storici, sourceunwind/CLI previsto senza raceprovata.
+- FaseFIX,rootunicosourcewriter,Mac aMobile dopo releaseWeChat00:01:08UTC;
+  nessunSDK/CUA/device/TESTlocale, SQL/deploy/spesa/merge/DONE.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Handoff del delta FAILv6
+
+- Review cold538fd3f1 e SDK1c876972 APPROVED soloSOURCE_PURE, patch25c3c3a7
+  invariata; cold47+2093JSONPASS, autore168purePASS. NuovoDart/nativeNOT_RUN.
+- Primo governanceFIXFAIL3metadati(README/snapshot) conservato; allineamento
+  prima della faseREVIEW. Nessun test o budget indebolito.
+- Unica pubblicazione del source revisionato attiverà CI automatica; nessun
+  workflow_dispatch duplicato. Terminali futuri nei Checks/ricevuta privata,
+  senza nuovo push documentale per soli risultati. Negativi6dc/intermedi intatti.
+- **Transizione**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

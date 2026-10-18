@@ -18,7 +18,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 const _apiVersion = 'address-journal-native-evidence.v2';
-const _failureApiVersion = 'address-journal-native-evidence.v5';
+const _failureApiVersion = 'address-journal-native-evidence.v6';
 const _fixtureOwner = 'f0540000-0000-4000-8000-000000000001';
 
 CustomerAddressDraft _draft(String runId, int seedPid) => CustomerAddressDraft(
@@ -137,12 +137,20 @@ void main() {
   });
 }
 
+enum _NativePostTestFailureOrigin {
+  entryInvokerUnavailable,
+  liveTestFailing,
+  superException,
+}
+
 class _NativeAddressTestBinding extends IntegrationTestWidgetsFlutterBinding {
   bool postTestCompleted = false;
   bool postTestFailed = false;
+  final _postTestFailureOrigins = <_NativePostTestFailureOrigin>{};
 
-  void _recordPostTestFailure() {
+  void _recordPostTestFailure(_NativePostTestFailureOrigin origin) {
     postTestFailed = true;
+    _postTestFailureOrigins.add(origin);
     results['address-journal-postTest'] = integration_results.Failure(
       'address-journal-postTest',
       'sanitized_post_test_failure',
@@ -151,13 +159,18 @@ class _NativeAddressTestBinding extends IntegrationTestWidgetsFlutterBinding {
 
   @override
   void postTest() {
-    if (Invoker.current?.liveTest.state.result.isFailing ?? true) {
-      _recordPostTestFailure();
+    final entryFailing = Invoker.current?.liveTest.state.result.isFailing;
+    if (entryFailing ?? true) {
+      _recordPostTestFailure(
+        entryFailing == null
+            ? _NativePostTestFailureOrigin.entryInvokerUnavailable
+            : _NativePostTestFailureOrigin.liveTestFailing,
+      );
     }
     try {
       super.postTest();
     } catch (_) {
-      _recordPostTestFailure();
+      _recordPostTestFailure(_NativePostTestFailureOrigin.superException);
       rethrow;
     } finally {
       postTestCompleted = true;
@@ -199,6 +212,11 @@ class _NativeAddressTerminalPublisher {
     // Un solo snapshot sincrono: il gate e la diagnosi usano gli stessi valori.
     final postTestCompleted = binding.postTestCompleted;
     final postTestFailed = binding.postTestFailed;
+    final postTestFailureOrigins = List<String>.unmodifiable(
+      _NativePostTestFailureOrigin.values
+          .where(binding._postTestFailureOrigins.contains)
+          .map((origin) => origin.name),
+    );
     final failureMethodsEmpty = binding.failureMethodsDetails.isEmpty;
     final candidate = successCandidate;
     final bodyErrorType = errorType;
@@ -237,6 +255,9 @@ class _NativeAddressTerminalPublisher {
             'failureOrigin': bodyErrorType == null ? 'terminal_gate' : 'body',
             'failureCheckpoint': checkpoint,
             'terminalGateMask': bodyErrorType == null ? terminalGateMask : null,
+            'postTestFailureOrigins': bodyErrorType == null
+                ? postTestFailureOrigins
+                : null,
             'errorType': bodyErrorType ?? 'assertion',
           };
     binding.reportData = result;

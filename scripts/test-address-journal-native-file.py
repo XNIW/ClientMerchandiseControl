@@ -445,9 +445,9 @@ class NativeAddressFileTest(unittest.TestCase):
         self.assertLess(source.index('final restored = await SecureAddressCreationJournal().read(_fixtureOwner);'),
             source.index("publisher.checkRecover('restored_identity'"))
 
-    def test_fixture_v5_export_guards_error_type_and_phase_and_keeps_origin(self):
+    def test_fixture_v6_export_guards_error_type_and_phase_and_keeps_origin(self):
         compact = re.sub(r'\s+', '', self.fixture_source())
-        self.assertIn("const_failureApiVersion='address-journal-native-evidence.v5';", compact)
+        self.assertIn("const_failureApiVersion='address-journal-native-evidence.v6';", compact)
         self.assertIn("finalcheckpoint=bodyErrorType=='assertion'&&phase=='recover'?failureCheckpoint:null;", compact)
         self.assertIn("'failureCheckpoint':checkpoint,", compact)
         self.assertIn("'failureOrigin':bodyErrorType==null?'terminal_gate':'body',", compact)
@@ -641,6 +641,151 @@ class NativeAddressFileTest(unittest.TestCase):
             '(candidate!=null?0:32)|(teardownResult==null?64:0);', snapshot)
         self.assertIn("'terminalGateMask':bodyErrorType==null?terminalGateMask:null,", compact)
         self.assertIn('finalresult=terminalPassed?candidate:', compact)
+
+    def posttest_failure(self, origins, mask=21, *, phase='recover', origin='terminal_gate',
+            category='assertion', checkpoint=None):
+        return {**self.mask_failure(mask, phase=phase, origin=origin,
+            category=category, checkpoint=checkpoint),
+            'apiVersion': 'address-journal-native-evidence.v6', 'postTestFailureOrigins': origins}
+
+    def test_v6_distinguishes_five_posttest_origin_sets_on_the_same_failed_mask(self):
+        combinations = (['entryInvokerUnavailable'], ['liveTestFailing'], ['superException'],
+            ['entryInvokerUnavailable', 'superException'], ['liveTestFailing', 'superException'])
+        observed = []
+        for phase in ('seed', 'recover'):
+            for origins in combinations:
+                with self.subTest(phase=phase, origins=origins), self.assertRaises(A.Failure) as raised:
+                    A.validate_native_receipt(self.posttest_failure(origins, phase=phase),
+                        phase, RUN_ID, 12 if phase == 'seed' else 13, 12)
+                failure = raised.exception
+                self.assertEqual(failure.code, 1)
+                self.assertEqual(failure.native_terminal_gate_mask, 21)
+                self.assertEqual(failure.native_post_test_failure_origins, tuple(origins))
+                observed.append(failure.native_post_test_failure_origins)
+                self.assertNotIn('sanitized_post_test_failure', str(failure))
+        self.assertEqual(len(set(observed)), 5)
+
+    def test_v6_empty_origins_require_posttest_bit_absent_and_preserve_other_masks(self):
+        for mask in (1, 8, 16, 32, 72, 123):
+            with self.subTest(mask=mask), self.assertRaises(A.Failure) as raised:
+                A.validate_native_receipt(self.posttest_failure([], mask), 'recover', RUN_ID, 13, 12)
+            self.assertEqual(raised.exception.native_terminal_gate_mask, mask)
+            self.assertEqual(raised.exception.native_post_test_failure_origins, ())
+
+    def test_v6_body_keeps_null_origins_and_exact_v4_checkpoint_rules(self):
+        for phase in ('seed', 'recover'):
+            for category in ('assertion', 'filesystem', 'unexpected'):
+                with self.subTest(phase=phase, category=category), self.assertRaises(A.Failure) as raised:
+                    A.validate_native_receipt(self.posttest_failure(None, None,
+                        phase=phase, origin='body', category=category), phase, RUN_ID,
+                        12 if phase == 'seed' else 13, 12)
+                self.assertEqual(raised.exception.native_failure_origin, 'body')
+                self.assertFalse(hasattr(raised.exception, 'native_post_test_failure_origins'))
+                self.assertFalse(hasattr(raised.exception, 'native_terminal_gate_mask'))
+        for checkpoint in A.NATIVE_FAILURE_CHECKPOINTS:
+            with self.subTest(checkpoint=checkpoint), self.assertRaises(A.Failure) as raised:
+                A.validate_native_receipt(self.posttest_failure(None, None,
+                    origin='body', checkpoint=checkpoint), 'recover', RUN_ID, 13, 12)
+            self.assertEqual(raised.exception.native_failure_checkpoint, checkpoint)
+
+    def test_v6_invalid_origin_sets_masks_schema_and_identity_export_nothing(self):
+        invalid = [self.posttest_failure(value) for value in (None, [], True, 1, 'superException',
+            {}, [['superException']], ['SECRET_RAW_ORIGIN'], ['superException', 'superException'],
+            ['entryInvokerUnavailable', 'liveTestFailing'],
+            ['entryInvokerUnavailable', 'liveTestFailing', 'superException'],
+            ['superException', 'entryInvokerUnavailable'], ['superException', 'liveTestFailing'])]
+        invalid += [self.posttest_failure(['superException'], mask) for mask in
+            (None, 0, 1, 16, 32, 64, 65, 96, 128, True, 21.0, '21')]
+        invalid += [self.posttest_failure(value, None, origin='body') for value in ([], ['superException'])]
+        invalid += [self.posttest_failure(None, None, origin='body', phase='seed',
+            checkpoint='restored_identity'), self.posttest_failure(None, None,
+                origin='body', category='filesystem', checkpoint='restored_identity'),
+            self.posttest_failure(['superException'], checkpoint='restored_identity')]
+        for changes in ({'runId': 'foreign'}, {'processId': 99}, {'phase': 'seed'},
+                {'rawMessage': 'SECRET_RAW_MESSAGE'}, {'errorType': 'filesystem'},
+                {'apiVersion': 'address-journal-native-evidence.v5'}):
+            invalid.append({**self.posttest_failure(['superException']), **changes})
+        for missing in self.posttest_failure(['superException']):
+            data = self.posttest_failure(['superException'])
+            del data[missing]
+            invalid.append(data)
+        for data in invalid:
+            with self.subTest(data=data), self.assertRaises(A.Failure) as raised:
+                A.validate_native_receipt(data, 'recover', RUN_ID, 13, 12)
+            for field in ('native_error_type', 'native_failure_origin', 'native_failure_checkpoint',
+                    'native_terminal_gate_mask', 'native_post_test_failure_origins'):
+                self.assertFalse(hasattr(raised.exception, field))
+            self.assertNotIn('SECRET_RAW', str(raised.exception))
+
+    def test_v6_does_not_widen_legacy_failure_or_success_contracts(self):
+        for version in (2, 3, 4, 5):
+            data = {'apiVersion': 'address-journal-native-evidence.v' + str(version),
+                'phase': 'recover', 'runId': RUN_ID, 'processId': 13,
+                'status': 'FAIL', 'errorType': 'assertion'}
+            if version >= 3:
+                data['failureOrigin'] = 'terminal_gate'
+            if version >= 4:
+                data['failureCheckpoint'] = None
+            if version >= 5:
+                data['terminalGateMask'] = 21
+            with self.subTest(version=version), self.assertRaises(A.Failure) as old:
+                A.validate_native_receipt(data, 'recover', RUN_ID, 13, 12)
+            self.assertEqual(old.exception.native_error_type, 'assertion')
+            self.assertFalse(hasattr(old.exception, 'native_post_test_failure_origins'))
+            for origins in (None, [], ['superException']):
+                with self.subTest(version=version, origins=origins), self.assertRaises(A.Failure) as invalid:
+                    A.validate_native_receipt({**data, 'postTestFailureOrigins': origins},
+                        'recover', RUN_ID, 13, 12)
+                self.assertFalse(hasattr(invalid.exception, 'native_error_type'))
+        for changes in ({'apiVersion': 'address-journal-native-evidence.v6'},
+                {'postTestFailureOrigins': None}, {'postTestFailureOrigins': []}):
+            with self.subTest(changes=changes), self.assertRaises(A.Failure):
+                A.validate_native_receipt({**receipt(), **changes}, 'seed', RUN_ID, 12, 12)
+
+    def test_ios_v6_keeps_each_validated_origin_set_in_failure_without_success_artifact(self):
+        for phase in ('seed', 'recover'):
+            for origins in (['entryInvokerUnavailable'], ['liveTestFailing'], ['superException'],
+                    ['entryInvokerUnavailable', 'superException'], ['liveTestFailing', 'superException']):
+                with self.subTest(phase=phase, origins=origins):
+                    artifact, text = self.failure_artifact('assertion', expected_phase=phase,
+                        apiVersion='address-journal-native-evidence.v6', failureOrigin='terminal_gate',
+                        failureCheckpoint=None, terminalGateMask=21, postTestFailureOrigins=origins)
+                    diagnostic = artifact['diagnostics'][phase]
+                    self.assertEqual(diagnostic.get('native_terminal_gate_mask'), 21)
+                    self.assertEqual(diagnostic.get('native_post_test_failure_origins'), origins)
+                    self.assertNotIn('same_bundle_and_containers', artifact['results'])
+                    self.assertNotIn('sanitized_post_test_failure', text)
+
+    def test_ios_v6_invalid_raw_values_and_contradictions_export_no_diagnostics(self):
+        for changes in ({'postTestFailureOrigins': ['SECRET_RAW_ORIGIN']},
+                {'postTestFailureOrigins': []}, {'postTestFailureOrigins': ['liveTestFailing', 'entryInvokerUnavailable']},
+                {'terminalGateMask': 1}, {'runId': 'foreign'}, {'processId': 99},
+                {'rawMessage': 'SECRET_RAW_MESSAGE'}):
+            fields = {'apiVersion': 'address-journal-native-evidence.v6', 'failureOrigin': 'terminal_gate',
+                'failureCheckpoint': None, 'terminalGateMask': 21,
+                'postTestFailureOrigins': ['superException'], **changes}
+            with self.subTest(changes=changes):
+                artifact, text = self.failure_artifact('assertion', expected_phase='recover', **fields)
+                diagnostic = artifact['diagnostics'].get('recover', {})
+                for field in ('native_terminal_error_type', 'native_terminal_failure_origin',
+                        'native_terminal_failure_checkpoint', 'native_terminal_gate_mask',
+                        'native_post_test_failure_origins'):
+                    self.assertNotIn(field, diagnostic)
+                self.assertNotIn('SECRET_RAW', text)
+                self.assertIn('ricevuta failure non conforme', artifact['failure_reason'])
+
+    def test_fixture_v6_classifies_entry_once_and_retains_super_exception_separately(self):
+        compact = re.sub(r'\s+', '', self.fixture_source())
+        binding = compact[compact.index('class_NativeAddressTestBinding'):compact.index('class_NativeAddressTerminalPublisher')]
+        self.assertEqual(binding.count('Invoker.current?.liveTest.state.result.isFailing'), 1)
+        self.assertIn('finalentryFailing=Invoker.current?.liveTest.state.result.isFailing;', binding)
+        self.assertIn('if(entryFailing??true)', binding)
+        self.assertIn('entryFailing==null?_NativePostTestFailureOrigin.entryInvokerUnavailable:'
+            '_NativePostTestFailureOrigin.liveTestFailing', binding)
+        self.assertIn('catch(_){_recordPostTestFailure(_NativePostTestFailureOrigin.superException);rethrow;}', binding)
+        self.assertIn('_postTestFailureOrigins.add(origin);', binding)
+        self.assertIn('finally{postTestCompleted=true;}', binding)
+        self.assertIn("'postTestFailureOrigins':bodyErrorType==null?postTestFailureOrigins:null,", compact)
 
     def test_paths_cannot_escape_run_scope(self):
         for run, phase in [('../other', 'seed'), (RUN_ID, '../recover'), (RUN_ID, 'other')]:

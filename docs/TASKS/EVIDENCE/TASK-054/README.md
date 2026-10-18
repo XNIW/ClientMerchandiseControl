@@ -9,7 +9,24 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
-## Ripresa applicativa 17 ottobre
+## Diagnostica postTest17ottobre — dopo CI6dc
+
+CI39078074948 exact6dc,6jobPASS/1FAIL: iOSjournal seedFAIL1, terminal_gate/assertion
+mask21, candidatepresent/postTestFailedtrue, recoverNOT_RUN e cleanupPASS. Il filtro
+precedente dei soli runmanuali era incompleto; negativo e storico preservati.
+Review SDKsource non dimostra guardbug: sentinellaFailure e bit1/16 non sono cause
+indipendenti. Mancano le origini di registrazione postTestFailed. FAILv6 aggiunge
+un campo finito, same-snapshot, niente raw/guardchange/SUCCESS/legacychange;
+47purePythonGREEN dopoRED; review distinte cold538fd3f1/SDK1c876972
+APPROVED soloSOURCE_PURE, un unico push/autoCI dopo il freeze.
+Nuovi gateDart/native ancoraNOT_RUN, fixture e unsigned non diventano TEST.
+[Capsula del delta](next-integration/client-posttest-origins-v6.json).
+
+Capture6dc137Flutter+4OS perpiattaforma, review12+12frameAPPROVEDscoped; IME/AT e
+interocorpus nonapprovati.93prepare124/cleanup2PASS,4f/cc0resourcecleanupFAIL e
+finaleUNKNOWN storici; sourcetrace/CLI previsto, nessuna race oMacresource inferita.
+
+## Checkpoint precedente — ripresa applicativa 17 ottobre
 
 Due P2 CART-REFRESH-QUEUE-RR-01 e AS-QUERY-01 corretti con epoch FIFO e key
 per ordine; source review cart658f285d/AS e49fdd9f APPROVED scoped.

@@ -60,6 +60,10 @@ class IosAddressJournalFileRunner(ADDRESS.IosJournalRunner):
                 terminal_gate_mask = getattr(error, 'native_terminal_gate_mask', None)
                 if FILE.valid_terminal_gate_mask(terminal_gate_mask):
                     self.diagnostics[phase]['native_terminal_gate_mask'] = terminal_gate_mask
+                post_test_origins = getattr(error, 'native_post_test_failure_origins', None)
+                if (type(post_test_origins) is tuple and FILE.valid_post_test_failure_origins(
+                        list(post_test_origins), terminal_gate_mask)):
+                    self.diagnostics[phase]['native_post_test_failure_origins'] = list(post_test_origins)
             # I moduli ereditati hanno classi Failure distinte: il run() base
             # deve ricevere la propria classe per conservare exit/cleanup/receipt.
             raise ADDRESS.Failure(self.phase, error.code, str(error)) from None

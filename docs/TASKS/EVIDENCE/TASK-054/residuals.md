@@ -1,6 +1,21 @@
 # TASK-054 — Registro unico dei residui operativi
 
-## Stato corrente — ripresa17ottobre, fix applicativi verificati su host
+## Stato corrente — diagnostica minima postTest dopo CI6dc
+
+| Residuo / risultato | Prossima azione e limite |
+|---|---|
+| CI6dc39078074948 / FAIL6PASS1FAIL | Journal iOS seedFAIL1/mask21, cleanupPASS; altri6jobPASS. Nessuna acceptance autentica. |
+| PostTest origini / REVIEW,47purePASS | FAILv6 exact10keys,5insiemi finiti e bit4; SUCCESSv2 e legacystrictv2–v5 invariati. Review source/pure distinte APPROVED; un solo push/autoCI, niente manualdup. |
+| Cart/AS / PASS source+host6dc | Due fix e8regressioni giàverificati; lib invariato nel delta diagnostico. Runtime del nuovoSHA non ereditato. |
+| Capture6dc / PASS scoped |137Flutter+4OS perpiattaforma,12+12immagini viste; AT/IME/interocorpus nonqualificati. |
+| Cleanup93/4f/cc0 / storico |93prepare124/cleanupPASS;4f/cc0resourceFAIL e finaleUNKNOWN. Nessuna causa o risorsa Mac inferita. |
+| TEST/Maps/R13/R14/R17/R24/AT/firma / BLOCKED | Dipendenze owner e pacchetti sotto preservati. Nessuna nuova autorità o secret richiesto in chat. |
+
+Le sezioni sotto conservano i cutoff precedenti. Il nuovo run è NOT_RUN; trigger
+preciso: distinguere ramo ingresso postTest e superException, informazione che mask21,
+artifact e contratti SDK non contengono. Protezioni e primiFAIL invariati.
+
+## Checkpoint precedente — ripresa17ottobre, fix applicativi verificati su host
 
 | Residuo / risultato | Prossima azione e limite della prova |
 |---|---|

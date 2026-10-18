@@ -202,14 +202,14 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
 
-Ripresa17ottobre: fix della coda carrello e del modulo assistenza per ordine,
-con review source distinte APPROVED scoped. RED9475319/run39076768104:
-508PASS/6FAIL/1SKIP → GREEN93ea7a8/run39077576033:514PASS/1SKIP,analyze0,
-format406/0. Quality completa e unsigned del commit finale sono gate separati,
-da leggere nei Checks/ricevuta terminale PR29 senza PASS anticipati al cutoff.
-R13/R14/R17/R24 e native/TEST autentico restano aperti; nessun merge o DONE.
-Baseline75 conserva QualityPASS/journalPASS scoped e visualFAIL/TERM-EPERM;
-nessun retry visual invariato. PR29 draft/HOLD, worktree isolato preservato.
+Ripresa17ottobre: i due fix carrello e form ordine hanno regressioni e review
+source distinte. La CI canonica6dc39078074948 è FAIL6PASS/1FAIL: journal iOS
+seed terminal_gate/mask21, cleanupPASS; gli altri sei job PASS. Capture Android/iOS
+con fixture e review12+12frame scoped, non acceptance AT/IME/TEST/Maps.
+Ora minimo diagnostico FAILv6: tre origini postTest finite, stesso snapshot e guard,
+SUCCESSv2/legacyv2–v5 invariati;47PythonPASS dopo RED, review prima del solo push
+che attiverà CI automatica. Nuovi Dart/native NOT_RUN al cutoff. Nessun doppio
+workflow manuale o SDK/CUA/device/TESTMac. PR29 draft/HOLD, nessun merge o DONE.
 
 Sul pubblicato `516bb9e`, Quality `38893955534` è PASS: 1252 test/1 SKIP,
 11 performance e 365 Python; format 411/0, analyze 0. Visual `38895852835`

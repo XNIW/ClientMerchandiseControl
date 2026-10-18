@@ -14,18 +14,20 @@
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: consegna dei due fix applicativi in Review,
-  CODEX_FIX_BLOCKED_TO_RE_REVIEW e attribuzione globale CODEX_REVIEW_BLOCKED.
-  RED9475319/run39076768104:508PASS/6FAIL/1SKIP; GREEN93ea7a8/run39077576033:
-  514PASS/1SKIP,analyze0,format406/0. Review distinte cart658f285d e AS e49fdd9f
-  APPROVED solo source; nessuna acceptance integrata anticipata.
-  Associare al commit finale Quality completa e unsigned Android/iOS mediante
-  ricevuta terminale/Checks PR29, senza anticiparne qui il risultato al cutoff.
-  FullCI7 resta NOT_RUN, nessun retry visual invariato: il75 conserva journalPASS
-  scoped e visualFAIL/TERM-EPERM, fonte lifecycle pertinente non identificata.
-  TEST/R13/R14/R17/R24, Maps reale, AT/IME/fisico e firma restano gate distinti.
-  Mac assegnato aMobile anche dopo releaseWeChat, nessuno slotClient locale.
-  Root unico writer, branch/PR29 draft/HOLD, nessun SQL/deploy/spesa/merge/DONE.
+- **Prossima azione autorizzata**: diagnosi minima del journal iOS dopo CI automatica
+  39078074948 su6dc9258:6PASS/1FAIL. Seed FAIL1 terminal_gate/assertion/mask21,
+  candidate assegnata e postTestFailedtrue; recover/clearNOT_RUN, cleanupPASS.
+  Registrare origini finite postTest con FAILv6 strict, stessa lettura nullable,
+  nessun raw SDK/guardchange; SUCCESSv2 e FAILv2–v5 invariati. RED puro su source6dc,
+  GREEN47Python; cold538fd3f1 e SDK1c876972 APPROVED soloSOURCE_PURE.
+  CODEX_FIX_BLOCKED_TO_RE_REVIEW, nuovoDart/nativeNOT_RUN al cutoff. Unica CI automatica
+  del futuro SHA, nessuna lane manuale duplicata o replay invariato.
+  Canonica6dc e negativi intermedi preservati:93prepare124/cleanupPASS,
+  4f/cc0cleanupFAIL e risorsa storicaUNKNOWN. Review visuali12+12 frame scoped;
+  nessuna acceptance AT/IME/TEST/Maps. Slot Mac restituito aMobile dopo release
+  effettivaWeChat00:01:08UTC; Client solo FILE/CPU e GitHub già autorizzato.
+  TEST/R13/R14/R17/R24, Maps reale, AT/IME/fisico e firma restano distinti.
+  Root unico writer, stesso branch/PR29 draft/HOLD, nessun SQL/deploy/spesa/merge/DONE.
 
 ## Repository coinvolti
 

@@ -2451,3 +2451,62 @@ al cutoff documentale. Il dossier locale di ripresa conserva i terminali e la
 provenienza; fullCI7, R13/R14/R17/R24, Maps nativa, AT/IME/fisico e firma restano
 aperti. Nessun retry visual invariato, SDK Mac, accesso privilegiato, SQL/deploy,
 merge o DONE. Root unico writer, PR29 draft/HOLD e WIP originale preservato.
+
+## Fix diagnostico postTest — 17 ottobre, terminali6dc qualificati
+
+CODEX_FIXER, solo TASK-054 e stesso writer/branch/PR. La CI automatica
+39078074948 su6dc9258 è terminale FAIL:6PASS/1FAIL. Quality1260PASS/1SKIP,
+11performance e384Python; Android debug/release/journal e iOSdebug/releasePASS.
+iOSrelease89/89fixture unsigned. iOSjournal seedFAIL1 terminal_gate/assertion
+mask21, candidate presente/postTestFailedtrue; recover/clearNOT_RUN e cleanupPASS.
+Manual39078077057 Quality/AndroidPASS, iOSCancelled dopo PASScanonico: nonPASS.
+Il precedente “FullCI7NOT_RUN” era un filtro incompleto; terminali corretti qui,
+Checks e dossier, senza cancellare i negativi automatici delle revisioni intermedie.
+
+Review SDKsource del framework validato e test_api con digestlock: nessun
+guardbug dimostrato. La sentinella postTest inserisce una Failure, quindi
+sdkPassedfalse e failureMethodsDetails non vuota non sono cause indipendenti.
+Manca il ramo che ha registrato postTestFailed. Osservabilità minima dentro
+lo scope: FAILv6 exact10keys, origini finite entryInvokerUnavailable,
+liveTestFailing,superException; ingresso esclusivo, catch coesistente. Stesso
+snapshot nullable e catch, lista immutabile nello snapshot terminale; nessuna
+lettura SDK aggiuntiva, rawstring/stack, timeout, guard o SUCCESSv2 modificati.
+Bodyv6 originsnull/masknull; checkpoint invariati. Validator legacyv2–v5
+esatti preservati, bridge esporta soltanto metadati pienamente qualificati.
+
+Regressione pura Python: source6dc byte-identico,47test RED2failure/13error
+(subtest) perinformazione assente;47GREEN dopo il delta. Native e Dart del futuro
+SHA NOT_RUN. Review source/pure distinta prima di pubblicare; se APPROVED scoped,
+un solo push/CI automatica sul nuovo codice per distinguere i rami e raccogliere
+il terminale completo. Nessun workflow_dispatch duplicato, nessun retry invariato.
+
+UI: review distinta12Android+12iOS attuali,8Flutter+4OS ciascuna, APPROVED scoped.
+Viewport parziali e label recensione ellittica200 conservati; sourcefocus/scroll
+non dimostra nuovo difetto layout. IME/AT, autenticazione e intero corpus non
+approvati. Canonica6dc preserva anche readinessquery0/174B/0rowsUNKNOWN e sample
+osservatoreBLOCKED, distinti da smoke/capturePASS.93prepare124/cleanup2PASS,
+4f/cc0jobcancelled con resourcecleanupFAIL/finaleUNKNOWN rimangono storici; source
+spiega doppio unwind/CLI previsto, non dimostra una race. Visual75EPERM invariato.
+
+| CA / test | Prova / limite | Esito |
+|---|---|---|
+| CA-C1 / T-C1 | FAILv6 origini postTest, parser/bridge con schema/identità/bit4;47pure, nativefuturoNOT_RUN | PASS puro; BLOCKED nativo |
+| CA-05 / T-05 | Quality6dc,buildunsigned e6/7job; futuroSHA richiede propri gate | FAIL CI6dc, NOT_RUN futuro |
+| CA-06 / T-06 | Terminale nuovo discriminante, nessun guardbug inferito; Maps/live distinti | BLOCKED |
+
+Handoff in FIX: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX. Root unico writer; noSDK/CUA/
+device/TESTMac, SQL/deploy, provider/billing, inputN, merge o DONE. Slotlocale aMobile.
+
+### Consegna FAILv6 alla re-review
+
+Review distinte source/pure APPROVED: cold538fd3f1 (reviewer nonproponente) e
+SDK1c876972 (proponentecontratto, nonautorepatch); patch25c3c3a7 invariata.
+Cold47test+2093avversiJSONPASS, SDK47+5gruppiavversiPASS; autore47+21+13+87
+purePASS. SOURCE_PURE non è compilazioneDart o acceptance nativa. Negativo
+governance3metadati preservato e riallineato prima dell'handoff.
+
+CODEX_FIX_BLOCKED_TO_RE_REVIEW; faseREVIEW, globale CODEX_REVIEW_BLOCKED.
+Pubblicare atomicamente questo source e osservare solo la CI automatica effettiva
+sul nuovo SHA: Quality, build e journal finali NOT_RUN al cutoff, nessun PASS6dc
+trasferito. Obiettivo del nuovo terminale è distinguere le origini postTest,
+non cancellare il FAIL6dc né i cleanup storici. Nessun altro run manuale previsto.

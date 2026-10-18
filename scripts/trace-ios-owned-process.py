@@ -9,14 +9,134 @@ import datetime
 import errno
 import hashlib
 import json
+import marshal
+import math
 import os
 import re
 import selectors
 import signal
 from pathlib import Path
 import subprocess
+import sys
 import time
 import threading
+import types
+
+
+_TIMEOUT_METHODS = ('communicate', '_communicate', '_check_timeout', 'wait', '_wait')
+# Exact types: an owner Failure or another custom cancellation must propagate.
+_DIAGNOSTIC_ERRORS = frozenset((OSError, FileNotFoundError, PermissionError,
+    IsADirectoryError, NotADirectoryError, InterruptedError, ValueError, TypeError,
+    AttributeError, OverflowError, RuntimeError, RecursionError, MemoryError,
+    UnicodeError, UnicodeEncodeError, UnicodeDecodeError))
+
+
+def timeout_runtime(original_popen):
+    """Pin osservati, non qualifica offline; nessun comando o output arbitrario."""
+    version = tuple(sys.version_info)
+    if (len(version) != 5 or any(type(version[i]) is not int or not 0 <= version[i] <= 10000
+                               for i in (0, 1, 2, 4)) or
+            version[3] not in ('alpha', 'beta', 'candidate', 'final')):
+        raise ValueError('runtime shape')
+    with open(subprocess.__file__, 'rb') as source:
+        module_bytes = source.read(256 * 1024 + 1)
+    if len(module_bytes) > 256 * 1024:
+        raise ValueError('source cap')
+    used, originals, methods = len(module_bytes), [], []
+    for name in _TIMEOUT_METHODS:
+        method = getattr(original_popen, name, None)
+        code = getattr(method, '__code__', None)
+        if code is None:
+            methods.append({'method_id': name, 'present': False})
+            continue
+        if type(code) is not types.CodeType:
+            raise ValueError('code shape')
+        encoded = marshal.dumps(code)
+        used += len(encoded)
+        if len(encoded) > 256 * 1024 or used > 1024 * 1024:
+            raise ValueError('code cap')
+        digest = hashlib.sha256(encoded).hexdigest()
+        originals.append((code, name, digest))
+        methods.append({'method_id': name, 'present': True, 'code_sha256': digest})
+    executable = sys.executable
+    if type(executable) is not str or len(executable) > 4096:
+        raise ValueError('executable shape')
+    normalized = os.path.normpath(executable)
+    approved = normalized.startswith(('/usr/', '/bin/', '/opt/homebrew/',
+        '/opt/hostedtoolcache/', '/Library/Frameworks/Python.framework/', '/Library/Developer/'))
+    if approved and re.fullmatch(r'/[A-Za-z0-9_./+\-]{1,255}', normalized):
+        executable_pin = {'kind': 'system_path', 'path': normalized}
+    else:
+        executable_pin = {'kind': 'path_digest',
+                          'sha256': hashlib.sha256(executable.encode()).hexdigest()}
+    clock = time.get_clock_info('monotonic')
+    if (type(clock.resolution) not in (int, float) or not math.isfinite(clock.resolution) or
+            not 0 < clock.resolution <= 1 or type(clock.monotonic) is not bool or
+            type(clock.adjustable) is not bool):
+        raise ValueError('clock shape')
+    implementation = {'mach_absolute_time()': 'mach_absolute_time',
+        'clock_gettime(CLOCK_MONOTONIC)': 'clock_gettime_monotonic',
+        'clock_gettime(CLOCK_MONOTONIC_RAW)': 'clock_gettime_monotonic_raw',
+        'QueryPerformanceCounter()': 'query_performance_counter'}.get(clock.implementation, 'other')
+    metadata = {'schema_version': 1, 'collection_status': 'PASS', 'qualification': 'UNKNOWN',
+        'implementation': 'cpython' if sys.implementation.name == 'cpython' else 'other',
+        'version': list(version), 'executable': executable_pin,
+        'module_sha256': hashlib.sha256(module_bytes).hexdigest(), 'methods': methods,
+        'clock': {'implementation': implementation, 'monotonic': clock.monotonic,
+                  'adjustable': clock.adjustable, 'resolution_seconds': clock.resolution}}
+    if len(json.dumps(metadata, allow_nan=False).encode()) > 4096:
+        raise ValueError('runtime payload cap')
+    return metadata, tuple(originals)
+
+
+def timeout_coordinates(error, originals, ignored):
+    """Solo coordinate originali; i due wrapper locali si attraversano senza export."""
+    def blocked(reason):
+        return {'status': 'BLOCKED', 'reason': reason, 'classification': 'UNKNOWN',
+                'coordinates': []}
+
+    if not originals:
+        return blocked('runtimeUnavailable')
+    if type(originals) is not tuple or len(originals) > 5 or type(ignored) is not tuple or len(ignored) > 2:
+        return blocked('invalidPins')
+    for item in originals:
+        if (type(item) is not tuple or len(item) != 3 or type(item[0]) is not types.CodeType or
+                item[1] not in _TIMEOUT_METHODS or type(item[2]) is not str or
+                re.fullmatch(r'[0-9a-f]{64}', item[2]) is None):
+            return blocked('invalidPins')
+    if any(type(code) is not types.CodeType for code in ignored):
+        return blocked('invalidPins')
+    coordinates = []
+    cursor = error.__traceback__
+    try:
+        for _ in range(16):
+            if cursor is None:
+                break
+            if type(cursor) is not types.TracebackType:
+                return blocked('foreignFrame')
+            code = cursor.tb_frame.f_code
+            original = next((item for item in originals if code is item[0]), None)
+            if original is not None:
+                if len(coordinates) == 5:
+                    return blocked('coordinateCap')
+                if (type(cursor.tb_lasti) is not int or not 0 <= cursor.tb_lasti <= 2147483647 or
+                        type(cursor.tb_lineno) is not int or not 0 < cursor.tb_lineno <= 2147483647):
+                    return blocked('invalidCoordinate')
+                coordinates.append({'method_id': original[1], 'code_sha256': original[2],
+                    'instruction_offset': cursor.tb_lasti, 'line': cursor.tb_lineno})
+            elif not any(code is wrapper for wrapper in ignored):
+                return blocked('foreignFrame')
+            cursor = cursor.tb_next
+        if cursor is not None:
+            return blocked('frameCap')
+    finally:
+        del cursor
+    if not coordinates:
+        return blocked('noOriginalFrame')
+    result = {'status': 'PASS', 'classification': 'UNKNOWN', 'coordinates': coordinates}
+    if len(json.dumps(result, allow_nan=False).encode()) > 2048:
+        return blocked('payloadCap')
+    return result
 
 
 def operation(arguments):
@@ -745,11 +865,30 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
                 try:
                     result = super().communicate(*args, **kwargs)
                 except subprocess.TimeoutExpired as error:
+                    try:
+                        catch_enter = time.monotonic_ns()
+                        if type(catch_enter) is not int or not 0 <= catch_enter < 2 ** 63:
+                            raise ValueError('clock sample shape')
+                        catch_clock_status = 'PASS'
+                    except Exception as diagnostic_error:
+                        if type(diagnostic_error) not in _DIAGNOSTIC_ERRORS:
+                            raise
+                        catch_enter, catch_clock_status = None, 'BLOCKED'
                     before = self.returncode
                     pipes_before_poll = self.pipe_state()
                     # Discrimina leader vivo/uscito; poll può fare reap del leader.
                     observed = super().poll()
+                    try:
+                        timeout_origin = timeout_coordinates(error, original_codes,
+                            (MeasuredPopen.measured_communicate.__code__, MeasuredPopen.wait.__code__))
+                    except Exception as diagnostic_error:
+                        if type(diagnostic_error) not in _DIAGNOSTIC_ERRORS:
+                            raise
+                        timeout_origin = {'status': 'BLOCKED', 'reason': 'diagnosticError',
+                                          'classification': 'UNKNOWN', 'coordinates': []}
                     self.trace_emit('communicate-timeout', **self.identity(),
+                         catch_enter_monotonic_ns=catch_enter, catch_clock_status=catch_clock_status,
+                         timeout_origin=timeout_origin,
                          duration_ns=time.monotonic_ns() - start,
                          timeout_seconds=timeout, returncode_before_poll=before,
                          returncode_after_poll=observed, observer_poll_may_reap=True,
@@ -814,9 +953,19 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
                  duration_ns=time.monotonic_ns() - start)
             return result
 
-        emit('trace-start', schema_version=1, observer_poll_may_reap_at_timeout=True)
+        try:
+            runtime, original_codes = timeout_runtime(original_popen)
+        except Exception as diagnostic_error:
+            if type(diagnostic_error) not in _DIAGNOSTIC_ERRORS:
+                raise
+            runtime = {'schema_version': 1, 'collection_status': 'BLOCKED',
+                       'qualification': 'UNKNOWN', 'reason': 'diagnosticError'}
+            original_codes = ()
+        emit('trace-start', schema_version=1, observer_poll_may_reap_at_timeout=True,
+             timeout_runtime=runtime)
         if boot_emit is not emit:
-            boot_emit('trace-start', schema_version=1, observer_poll_may_reap_at_timeout=True)
+            boot_emit('trace-start', schema_version=1, observer_poll_may_reap_at_timeout=True,
+                      timeout_runtime=runtime)
         subprocess.Popen, os.killpg = MeasuredPopen, killpg
         try:
             yield emit

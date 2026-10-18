@@ -10,6 +10,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import types
 import unittest
 from unittest.mock import Mock, patch
 
@@ -1824,6 +1825,232 @@ class ReadinessLiveQueryTest(unittest.TestCase):
             self.assertNotIn('--timeout', arguments)
             self.assertEqual(seconds, 3)
             self.assertEqual(set(self.log_event(observer)), {'probe', 'logs'})
+
+
+class TimeoutOriginDiagnosticTest(unittest.TestCase):
+    @staticmethod
+    def raised_coordinates(function, originals, ignored=()):
+        try:
+            function()
+        except subprocess.TimeoutExpired as error:
+            return TRACE.timeout_coordinates(error, originals,
+                (TimeoutOriginDiagnosticTest.raised_coordinates.__code__, *ignored))
+        raise AssertionError('synthetic timeout expected')
+
+    @staticmethod
+    def pipe_deadline():
+        raise subprocess.TimeoutExpired('SECRET_ARGV', .01, output=b'SECRET_OUTPUT')
+
+    @staticmethod
+    def wait_deadline():
+        raise subprocess.TimeoutExpired('SECRET_OTHER_ARGV', .01)
+
+    def test_runtime_pins_loaded_code_without_process_or_private_path(self):
+        with patch.object(TRACE.sys, 'executable', '/Users/SECRET_USER/python3'), \
+             patch.object(subprocess, 'run') as run, patch.object(os, 'killpg') as killpg:
+            metadata, originals = TRACE.timeout_runtime(subprocess.Popen)
+        self.assertEqual(metadata['collection_status'], 'PASS')
+        self.assertEqual(metadata['qualification'], 'UNKNOWN')
+        self.assertEqual(metadata['executable']['kind'], 'path_digest')
+        self.assertEqual(len(metadata['module_sha256']), 64)
+        self.assertIsInstance(originals, tuple)
+        self.assertEqual({item[1] for item in originals},
+                         {'communicate', '_communicate', '_check_timeout', 'wait', '_wait'})
+        self.assertNotIn('SECRET_', json.dumps(metadata))
+        self.assertLessEqual(len(json.dumps(metadata).encode()), 4096)
+        run.assert_not_called()
+        killpg.assert_not_called()
+
+    def test_runtime_source_read_cap_is_strict(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'SECRET_SOURCE.py'
+            source.write_bytes(b'x' * (256 * 1024 + 1))
+            with patch.object(TRACE.subprocess, '__file__', str(source)):
+                with self.assertRaises(ValueError):
+                    TRACE.timeout_runtime(subprocess.Popen)
+
+    def test_coordinates_distinguish_originals_but_never_classify_offline(self):
+        for function, name in ((self.pipe_deadline, '_communicate'),
+                               (self.wait_deadline, '_wait')):
+            with self.subTest(name=name):
+                result = self.raised_coordinates(function,
+                    ((function.__code__, name, 'a' * 64),))
+                self.assertEqual(result['status'], 'PASS')
+                self.assertEqual(result['classification'], 'UNKNOWN')
+                self.assertEqual(result['coordinates'][0]['method_id'], name)
+                self.assertGreaterEqual(result['coordinates'][0]['instruction_offset'], 0)
+                self.assertGreater(result['coordinates'][0]['line'], 0)
+                self.assertNotIn('SECRET_', json.dumps(result))
+                self.assertLessEqual(len(json.dumps(result).encode()), 2048)
+
+    def test_foreign_frame_or_equal_but_distinct_code_is_not_qualified(self):
+        function = self.pipe_deadline
+        clone = types.FunctionType(function.__code__.replace(), function.__globals__)
+        self.assertIsNot(clone.__code__, function.__code__)
+        for originals in ((), ((function.__code__, '_communicate', 'a' * 64),)):
+            result = self.raised_coordinates(clone, originals)
+            self.assertEqual(result['status'], 'BLOCKED')
+            self.assertEqual(result['coordinates'], [])
+            self.assertEqual(result['classification'], 'UNKNOWN')
+
+    def test_frame_and_coordinate_caps_discard_partial_results(self):
+        def recursive(count=20):
+            if count:
+                recursive(count - 1)
+            else:
+                self.pipe_deadline()
+
+        result = self.raised_coordinates(recursive,
+            ((self.pipe_deadline.__code__, '_communicate', 'a' * 64),),
+            (recursive.__code__,))
+        self.assertEqual(result['reason'], 'frameCap')
+        self.assertEqual(result['coordinates'], [])
+        result = self.raised_coordinates(recursive,
+            ((recursive.__code__, '_communicate', 'a' * 64),
+             (self.pipe_deadline.__code__, '_check_timeout', 'b' * 64)))
+        self.assertEqual(result['reason'], 'coordinateCap')
+        self.assertEqual(result['coordinates'], [])
+
+    def test_invalid_original_pin_is_not_exported(self):
+        for name, digest in (('SECRET_METHOD', 'a' * 64), ('_wait', 'SECRET_HASH'),
+                             ('_wait', None)):
+            result = self.raised_coordinates(self.pipe_deadline,
+                ((self.pipe_deadline.__code__, name, digest),))
+            self.assertEqual(result['status'], 'BLOCKED')
+            self.assertEqual(result['coordinates'], [])
+            self.assertNotIn('SECRET_', json.dumps(result))
+
+    def fake_trace(self, directory, calls, primary, runtime_fault=None, origin_fault=None,
+                   clock_fault=None):
+        class OriginalPopen:
+            def __init__(self, *_args, **_kwargs):
+                calls.append('spawn')
+                self.pid, self.returncode = 321, None
+                self.stdin = self.stdout = self.stderr = None
+
+            def communicate(self, **_kwargs):
+                calls.append('primary')
+                raise primary
+
+            def poll(self):
+                calls.append('poll')
+                return None
+
+        real_clock, real_origin = TRACE.time.monotonic_ns, TRACE.timeout_coordinates
+        caught_clock = False
+
+        def clock():
+            nonlocal caught_clock
+            if 'primary' in calls and not caught_clock:
+                caught_clock = True
+                calls.append('catch-clock')
+                if clock_fault is not None:
+                    raise clock_fault
+            return real_clock()
+
+        def coordinates(*args):
+            calls.append('coordinates')
+            if origin_fault is not None:
+                raise origin_fault
+            return real_origin(*args)
+
+        path = Path(directory) / 'trace.jsonl'
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch.object(subprocess, 'Popen', OriginalPopen))
+            stack.enter_context(patch.object(os, 'getpgid', return_value=321))
+            stack.enter_context(patch.object(TRACE.time, 'monotonic_ns', side_effect=clock))
+            stack.enter_context(patch.object(TRACE, 'timeout_coordinates', side_effect=coordinates))
+            if runtime_fault is not None:
+                stack.enter_context(patch.object(TRACE, 'timeout_runtime', side_effect=runtime_fault))
+            with TRACE.trace_processes(path):
+                child = subprocess.Popen(['SECRET_ARGV'])
+                try:
+                    child.communicate(timeout=.01)
+                except BaseException as error:
+                    raised = error
+                    frames = []
+                    cursor = error.__traceback__
+                    while cursor is not None:
+                        frames.append(cursor.tb_frame.f_code)
+                        cursor = cursor.tb_next
+                    del cursor
+                else:
+                    self.fail('synthetic timeout expected')
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        return raised, frames, rows, OriginalPopen.communicate.__code__
+
+    def test_catch_clock_precedes_poll_and_wrapper_is_traversed_without_export(self):
+        primary, calls = subprocess.TimeoutExpired('SECRET_ARGV', .01), []
+        with tempfile.TemporaryDirectory() as directory:
+            raised, frames, rows, original_code = self.fake_trace(directory, calls, primary)
+        self.assertIs(raised, primary)
+        self.assertIn(original_code, frames)
+        self.assertEqual(calls, ['spawn', 'primary', 'catch-clock', 'poll', 'coordinates'])
+        row = next(row for row in rows if row['event'] == 'communicate-timeout')
+        start = next(row for row in rows if row['event'] == 'communicate-start')
+        self.assertGreaterEqual(row['catch_enter_monotonic_ns'], start['monotonic_ns'])
+        self.assertLessEqual(row['catch_enter_monotonic_ns'], row['monotonic_ns'])
+        self.assertEqual(row['timeout_origin']['status'], 'PASS')
+        self.assertEqual([item['method_id'] for item in row['timeout_origin']['coordinates']],
+                         ['communicate'])
+        self.assertEqual(row['timeout_origin']['classification'], 'UNKNOWN')
+        self.assertNotIn('SECRET_', json.dumps(rows))
+
+    def test_builtin_diagnostic_faults_preserve_primary_and_finite_unqualified_fields(self):
+        for name in ('runtime_fault', 'origin_fault', 'clock_fault'):
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
+                primary, calls = subprocess.TimeoutExpired('SECRET_ARGV', .01), []
+                raised, frames, rows, code = self.fake_trace(directory, calls, primary,
+                    **{name: RuntimeError('SECRET_DIAGNOSTIC')})
+                self.assertIs(raised, primary)
+                self.assertIn(code, frames)
+                row = next(row for row in rows if row['event'] == 'communicate-timeout')
+                if name == 'clock_fault':
+                    self.assertIsNone(row['catch_enter_monotonic_ns'])
+                    self.assertEqual(row['catch_clock_status'], 'BLOCKED')
+                else:
+                    self.assertEqual(row['timeout_origin']['status'], 'BLOCKED')
+                self.assertNotIn('SECRET_', json.dumps(rows))
+
+    def test_custom_cancel_before_primary_is_not_swallowed(self):
+        cancellation = PREFLIGHT.IOS.Failure(143, 'SECRET_CANCEL')
+        calls = []
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaises(PREFLIGHT.IOS.Failure) as caught:
+                self.fake_trace(directory, calls, subprocess.TimeoutExpired('x', .01),
+                                runtime_fault=cancellation)
+        self.assertIs(caught.exception, cancellation)
+        self.assertEqual(calls, [])
+
+    def test_custom_cancel_during_catch_still_propagates(self):
+        for name in ('origin_fault', 'clock_fault'):
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
+                cancellation, calls = PREFLIGHT.IOS.Failure(143, 'SECRET_CANCEL'), []
+                raised, _, _, _ = self.fake_trace(directory, calls,
+                    subprocess.TimeoutExpired('x', .01), **{name: cancellation})
+                self.assertIs(raised, cancellation)
+
+    def test_actual_python_timeout_has_qualified_coordinates_and_no_payload(self):
+        for capture, expected in ((True, '_check_timeout'), (False, '_wait')):
+            with self.subTest(capture=capture), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / 'trace.jsonl'
+                with TRACE.trace_processes(path):
+                    child = subprocess.Popen([sys.executable, '-c', 'import time;time.sleep(2)'],
+                        stdout=subprocess.PIPE if capture else None,
+                        stderr=subprocess.PIPE if capture else None)
+                    try:
+                        with self.assertRaises(subprocess.TimeoutExpired):
+                            child.communicate(timeout=.05)
+                    finally:
+                        child.kill()
+                        child.communicate(timeout=2)
+                rows = [json.loads(line) for line in path.read_text().splitlines()]
+            row = next(row for row in rows if row['event'] == 'communicate-timeout')
+            self.assertEqual(row['timeout_origin']['status'], 'PASS')
+            self.assertEqual(row['timeout_origin']['classification'], 'UNKNOWN')
+            self.assertIn(expected,
+                          [item['method_id'] for item in row['timeout_origin']['coordinates']])
+            self.assertEqual(rows[0]['timeout_runtime']['collection_status'], 'PASS')
 
 
 if __name__ == '__main__':

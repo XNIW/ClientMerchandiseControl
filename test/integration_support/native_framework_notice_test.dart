@@ -20,7 +20,10 @@ void main() {
       'category': null,
       'candidateAssignedAtNotice': null,
     });
-    expect(() => recorder.snapshot['status'] = 'observed', throwsUnsupportedError);
+    expect(
+      () => recorder.snapshot['status'] = 'observed',
+      throwsUnsupportedError,
+    );
   });
 
   final categories = <String, Object>{

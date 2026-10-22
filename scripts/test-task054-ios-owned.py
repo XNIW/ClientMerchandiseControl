@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 
@@ -71,7 +72,8 @@ class Fixture:
             return json.dumps({'devices': {RUNTIME: entries}})
         return '/fake/Developer' if arguments[0] == 'xcode-select' else ''
 
-    def execute(self, action, github_output=None, headless=False, simulator_app=True):
+    def execute(self, action, github_output=None, headless=False, simulator_app=True,
+                trace_processes=False):
         def command(runner, *args, **kwargs):
             return self.command(runner, *args, **kwargs)
         args = [action, '--receipt', str(self.path)]
@@ -81,6 +83,8 @@ class Fixture:
             args += ['--github-output', str(github_output)]
         if headless:
             args += ['--headless']
+        if trace_processes:
+            args += ['--trace-processes']
         with patch.object(MODULE.IosOwnedRunner, 'command', command), \
              patch.object(MODULE.Path, 'is_dir', return_value=simulator_app), \
              patch.object(MODULE.signal, 'signal'), \
@@ -858,6 +862,86 @@ class IosOwnedTest(unittest.TestCase):
                     if ready.exists():
                         try: os.kill(int(ready.read_text()),signal.SIGKILL)
                         except ProcessLookupError: pass
+
+
+class PassivePrepareTraceTest(unittest.TestCase):
+    def execute(self, fixture, fault=None):
+        calls = []
+        @contextlib.contextmanager
+        def trace(path, **kwargs):
+            calls.append((Path(path), kwargs))
+            if fault == 'enter':
+                raise OSError('SECRET_TRACE_ENTER')
+            with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'w') as saved:
+                saved.write('{"sequence": 1, "event": "trace-start"}\n')
+            yield
+            if fault == 'exit':
+                raise OSError('SECRET_TRACE_EXIT')
+        fake = SimpleNamespace(trace_processes=trace)
+        spec = SimpleNamespace(loader=Mock())
+        with patch.object(MODULE.importlib.util, 'spec_from_file_location', return_value=spec), \
+             patch.object(MODULE.importlib.util, 'module_from_spec', return_value=fake), \
+             contextlib.redirect_stdout(io.StringIO()) as output:
+            code = fixture.execute('prepare', headless=True, simulator_app=False, trace_processes=True)
+        self.assertNotIn('SECRET_TRACE', output.getvalue())
+        return code, calls
+
+    def test_passive_flag_keeps_original_headless_recipe_and_budgets(self):
+        with tempfile.TemporaryDirectory() as baseline, tempfile.TemporaryDirectory() as measured:
+            first, second = Fixture(baseline), Fixture(measured)
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(first.execute('prepare', headless=True, simulator_app=False), 0)
+            code, trace = self.execute(second)
+            self.assertEqual(code, 0)
+            def normalized(calls):
+                return [([arg if not arg.startswith('CMC-Task054-Owned-') else '<owned-name>'
+                          for arg in args], timeout) for args, timeout in calls]
+            self.assertEqual(normalized(first.calls), normalized(second.calls))
+            self.assertIn((['xcrun', 'simctl', 'list', 'runtimes', '--json'], 30), second.calls)
+            self.assertIn((['xcrun', 'simctl', 'bootstatus', DEVICE, '-b'], 300), second.calls)
+            self.assertEqual(trace, [(second.path.with_suffix('.processes.jsonl'), {
+                'readiness_record': None, 'readiness_cleanup_failed': None,
+                'bootstatus_record': None, 'bootstatus_destination': None})])
+            self.assertFalse(any(args[0] == 'open' for args, _ in second.calls))
+            self.assertTrue(json.loads(second.path.read_text())['ready'])
+
+    def test_trace_enter_failure_stops_before_any_owned_command(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(directory)
+            code, _ = self.execute(fixture, fault='enter')
+            self.assertEqual(code, 2)
+            self.assertEqual(fixture.calls, [])
+            self.assertFalse(fixture.path.exists())
+
+    def test_trace_exit_failure_cleans_own_resource_after_prepare_pass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(directory)
+            code, _ = self.execute(fixture, fault='exit')
+            self.assertEqual(code, 2)
+            result = json.loads(fixture.path.read_text())
+            self.assertEqual(result['processTraceEvidence'],
+                             {'result': 'FAIL', 'errorType': 'OSError', 'phase': 'exit'})
+            self.assertEqual(result['cleanup'], 'PASS')
+            self.assertFalse(fixture.exists)
+            self.assertTrue(all(args[3] == DEVICE for args, _ in fixture.calls
+                if args[:3] in (['xcrun', 'simctl', 'shutdown'], ['xcrun', 'simctl', 'delete'])))
+
+    def test_prepare_timeout_stays_primary_when_trace_exit_also_fails(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(directory)
+            original = fixture.command
+            def command(runner, args, timeout, capture=False):
+                if args == ['xcrun', 'simctl', 'list', 'runtimes', '--json']:
+                    raise MODULE.Failure(124, 'mock runtime timeout')
+                return original(runner, args, timeout, capture)
+            fixture.command = command
+            code, _ = self.execute(fixture, fault='exit')
+            self.assertEqual(code, 124)
+            result = json.loads(fixture.path.read_text())
+            self.assertIsNone(result['device'])
+            self.assertFalse(result['creationStarted'])
+            self.assertEqual(result['cleanup'], 'PASS')
+            self.assertEqual(result['processTraceEvidence']['phase'], 'exit')
 
 
 class OwnedKillEpermReapTest(unittest.TestCase):

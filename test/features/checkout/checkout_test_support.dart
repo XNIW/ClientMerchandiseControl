@@ -284,32 +284,35 @@ CheckoutRemoteResponse checkoutTestResponse({
   quote: quote,
 );
 
-CheckoutOrder checkoutTestOrderSnapshot({bool idempotent = false}) =>
-    CheckoutOrder(
-      id: checkoutTestOrder,
-      code: checkoutTestOrderCode,
-      status: CheckoutOrderStatus.confirmed,
-      version: 1,
-      shopSlug: 'storefront-test',
-      fulfillmentMode: CheckoutFulfillmentMode.pickup,
-      subtotalClp: 2400,
-      deliveryFeeClp: 0,
-      totalClp: 2400,
-      items: checkoutTestQuoteSnapshot().items,
-      payment: CheckoutPayment(
-        method: CheckoutPaymentMethod.payAtPickup,
-        status: CheckoutPaymentStatus.dueAtFulfillment,
-        amountClp: 2400,
-        currencyCode: 'CLP',
-        version: 1,
-        failureCode: null,
-        createdAt: checkoutTestNow.add(const Duration(seconds: 30)),
-        updatedAt: checkoutTestNow.add(const Duration(seconds: 30)),
-      ),
-      placedAt: checkoutTestNow.add(const Duration(seconds: 30)),
-      serverTime: checkoutTestNow.add(const Duration(seconds: 30)),
-      idempotent: idempotent,
-    );
+CheckoutOrder checkoutTestOrderSnapshot({
+  bool idempotent = false,
+  CheckoutOrderFulfillment? fulfillment,
+}) => CheckoutOrder(
+  id: checkoutTestOrder,
+  code: checkoutTestOrderCode,
+  status: CheckoutOrderStatus.confirmed,
+  version: 1,
+  shopSlug: 'storefront-test',
+  fulfillmentMode: CheckoutFulfillmentMode.pickup,
+  subtotalClp: 2400,
+  deliveryFeeClp: 0,
+  totalClp: 2400,
+  items: checkoutTestQuoteSnapshot().items,
+  payment: CheckoutPayment(
+    method: CheckoutPaymentMethod.payAtPickup,
+    status: CheckoutPaymentStatus.dueAtFulfillment,
+    amountClp: 2400,
+    currencyCode: 'CLP',
+    version: 1,
+    failureCode: null,
+    createdAt: checkoutTestNow.add(const Duration(seconds: 30)),
+    updatedAt: checkoutTestNow.add(const Duration(seconds: 30)),
+  ),
+  placedAt: checkoutTestNow.add(const Duration(seconds: 30)),
+  serverTime: checkoutTestNow.add(const Duration(seconds: 30)),
+  idempotent: idempotent,
+  fulfillment: fulfillment,
+);
 
 CheckoutOrderRemoteResponse checkoutTestOrderResponse({
   CheckoutOrderRemoteStatus status = CheckoutOrderRemoteStatus.ok,
@@ -326,6 +329,8 @@ CheckoutOrderRemoteResponse checkoutTestOrderResponse({
 final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
   CheckoutLocalDraft? draft;
   Object? saveError;
+  Object? readError;
+  Object? clearError;
   Completer<void>? saveBarrier;
   int saveCalls = 0;
   int clearCalls = 0;
@@ -336,6 +341,7 @@ final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
     required String shopSlug,
   }) async {
     clearCalls++;
+    if (clearError case final error?) throw error;
     if (draft?.ownerSubjectId == ownerSubjectId &&
         draft?.shopSlug == shopSlug) {
       draft = null;
@@ -347,6 +353,7 @@ final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
     required String ownerSubjectId,
     required String shopSlug,
   }) async {
+    if (readError case final error?) throw error;
     if (draft?.ownerSubjectId != ownerSubjectId ||
         draft?.shopSlug != shopSlug) {
       return null;
@@ -371,10 +378,12 @@ final class FakeCheckoutRepository implements CheckoutRepository {
        paymentOptions = paymentOptions ?? checkoutTestPaymentOptions();
 
   StorefrontFulfillmentOptions options;
+  Object? optionsError;
   StorefrontPaymentOptions paymentOptions;
   final List<Object> createOutcomes = [];
   final List<Object> confirmOutcomes = [];
   final List<Object> orderOutcomes = [];
+  Future<void> Function()? beforeOrderResponse;
   Object? readOutcome;
   Object? readOrderOutcome;
   final List<CheckoutQuoteCreateRequest> createRequests = [];
@@ -388,10 +397,12 @@ final class FakeCheckoutRepository implements CheckoutRepository {
     })
   >
   orderRequests = [];
+  final List<int> orderCartVersions = [];
   int loadOptionsCalls = 0;
   int loadPaymentOptionsCalls = 0;
   int readCalls = 0;
   int readOrderCalls = 0;
+  final List<String> readOrderIds = [];
 
   @override
   Future<CheckoutOrderRemoteResponse> createOrder({
@@ -402,12 +413,14 @@ final class FakeCheckoutRepository implements CheckoutRepository {
     required CheckoutPaymentMethod paymentMethod,
     required String idempotencyKey,
   }) async {
+    orderCartVersions.add(cartVersion);
     orderRequests.add((
       quoteId: quoteId,
       version: expectedQuoteVersion,
       paymentMethod: paymentMethod,
       key: idempotencyKey,
     ));
+    await beforeOrderResponse?.call();
     return _resolveOrder(orderOutcomes);
   }
 
@@ -440,6 +453,7 @@ final class FakeCheckoutRepository implements CheckoutRepository {
     required String shopSlug,
   }) async {
     loadOptionsCalls++;
+    if (optionsError case final error?) throw error;
     return options;
   }
 
@@ -473,6 +487,7 @@ final class FakeCheckoutRepository implements CheckoutRepository {
     required String orderId,
   }) async {
     readOrderCalls++;
+    readOrderIds.add(orderId);
     final outcome = readOrderOutcome;
     if (outcome == null) {
       return checkoutTestOrderResponse(

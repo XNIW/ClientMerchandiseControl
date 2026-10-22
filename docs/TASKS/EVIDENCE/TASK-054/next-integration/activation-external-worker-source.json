@@ -1,0 +1,32 @@
+{
+  "schema": "task054-external-worker-ci-version-association-v1",
+  "observed_at_utc": "2026-10-10T20:48:24.309107+00:00",
+  "operation": "READ_ONLY_EXISTING_DEPLOY_JOB_LOG",
+  "exit_code": 0,
+  "stdout_sha256": "6f332d439eb8a4959b33c01936d311fe124dabbea06e6554b1952665bef6a486",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "raw_output_saved": false,
+  "run": 38083172469,
+  "job": 114304682567,
+  "source": "acb3e4ac0eb41568ce9980dc82f1b293a6fd2e35",
+  "source_PR": 133,
+  "version_ids_from_Current_Version_ID_marker": [
+    "fdfb3a7e-b9bb-437d-a569-8cb2dc4c4f1d"
+  ],
+  "served_version": "fdfb3a7e-b9bb-437d-a569-8cb2dc4c4f1d",
+  "matches_served_version": true,
+  "deployment_owner": "Asus reported by completed thread01a11e19-fb53-77a1-8d72-91dcc7a44cb1; no human identity inferred from cloudflare author hash",
+  "remote_receipt_reference": "C:/Dev/_codex-evidence/win7pos-post-pr122-20261009/rollout-approved-20261010T1956Z/ROLLOUT_RECEIPT.md",
+  "remote_receipt_directly_read": false,
+  "root_selective_candidate": "96758b899aac2ccde1a70aeda4bbe7983007fb18",
+  "root_candidate_uploaded": false,
+  "limits": [
+    "Il successo della CI POS non qualifica i quattro delta Storefront o C04.",
+    "Valori secret non recuperati o confrontati da root.",
+    "Nessun nuovo GO o pin adottato."
+  ],
+  "negative_lookup": {
+    "compare_1f0679_to_acb3": "HTTP404; non dimostra assenza del precedente sorgente o uguaglianza delle basi"
+  },
+  "status": "PASS_SOURCE_RUN_SERVED_VERSION_ASSOCIATION_ONLY"
+}

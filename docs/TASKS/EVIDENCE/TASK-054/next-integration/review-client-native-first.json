@@ -1,0 +1,211 @@
+{
+  "kind": "independent_readonly_partial_android_pixel_review",
+  "reviewer": "/root/review_client_delta",
+  "revision": "d9fcbfd96add14b7effa00be8fa310d483bdb9b3",
+  "outcome": "CHANGES_REQUIRED",
+  "scope": "partial native Android fixture rendered evidence + new in-scope production UX finding",
+  "counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 1,
+    "P3": 0
+  },
+  "findings": [
+    {
+      "id": "C-NI054-07",
+      "severity": "P2",
+      "kind": "PRODUCTION_UX preesistente dentro mandato§10",
+      "file": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/lib/features/reviews/presentation/customer_reviews.dart",
+      "lines": [
+        517,
+        521
+      ],
+      "trigger": "recensione submit/edit con repository CustomerReviewException, dialog ancora aperto, compact320/text200",
+      "observed": "ScaffoldMessenger sullo Scaffold sottostante mostra Snackbar coperta dal DialogRoute e dalla barriera; feedback non leggibile nel modal e scompare col timer, mentre draft e retry restano",
+      "source_reason": "catch pubblica solo SnackBar; AlertDialog content non ha stato errore locale",
+      "native_pixel_evidence": [
+        "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/91-review-submit-failure-comment-preserved-compact200.png",
+        "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/93-review-edit-failure-comment-preserved-compact200.png"
+      ],
+      "independent_widget_repro": "/Users/minxiang/.codex/worktrees/task054-review-client/ClientMerchandiseControl/build/task054/review_client/review_error_overlay_reproduction_test.dart",
+      "repro_log": "/tmp/task054-review-client-review-error-overlay-d9fc.log",
+      "command": "flutter test --no-pub build/task054/review_client/review_error_overlay_reproduction_test.dart",
+      "result": "FAIL",
+      "exit_code": 1,
+      "assertion": "errore presente nel tree ma0 messaggi errore discendenti dal modal AlertDialog aperto",
+      "geometry_warning": "getRect(AlertDialog) e wrapper intero, non bounds Material: non usato come prova di occlusione",
+      "required_fix": "feedback persistente nel dialogo dopo submit/edit failure, conservando draft/rating e retry; clear a retry/success e busy coerente",
+      "required_regression": "submit/edit/withdraw failure+retry e nuova cattura nativa con errore leggibile nel modal"
+    }
+  ],
+  "os_frames": [
+    {
+      "marker": "62-address-editor-focus-compact200",
+      "os_frame_path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/os-visual/62-address-editor-focus-compact200.png",
+      "os_sha256": "6497038be40808788428c8cef019ae93c48eb3e19b6026571636d7ecc0865d8e",
+      "flutter_frame_path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/62-address-editor-focus-compact200.png",
+      "flutter_sha256": "f91912056f6108e9a16c2a716e10f5cfd4e90133f4d04383575435765cad9bfd",
+      "receipt_flag_mInputShown": true,
+      "receipt_flag_mIsInputViewShown": true,
+      "receipt_ime_acceptance": "NOT_RUN",
+      "observed_os_keyboard": "PASS pixel OS IME presente",
+      "field_text_render_acceptance": "PASS_LIMITED",
+      "observed": "IME visibile, cursore e testo indirizzo visibili; single-line horizontal scroll, non intero testo contemporaneamente"
+    },
+    {
+      "marker": "63-search-field-focus-compact200",
+      "os_frame_path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/os-visual/63-search-field-focus-compact200.png",
+      "os_sha256": "f6a691c56a6f3c1f5855cb95911756b2971b66c2de629d7f512c5c16ed730f0f",
+      "flutter_frame_path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/63-search-field-focus-compact200.png",
+      "flutter_sha256": "57d87ceb848d381a6b7cf66aeb1b2e29a80cf5805625504174db79415e661827",
+      "receipt_flag_mInputShown": true,
+      "receipt_flag_mIsInputViewShown": true,
+      "receipt_ime_acceptance": "NOT_RUN",
+      "observed_os_keyboard": "PASS pixel OS IME presente",
+      "field_text_render_acceptance": "PASS_LIMITED",
+      "observed": "IME visibile, cursore e testo ricerca visibili; test sintetico, non provider/live"
+    },
+    {
+      "marker": "89-review-comment-focus-compact200",
+      "os_frame_path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/os-visual/89-review-comment-focus-compact200.png",
+      "os_sha256": "706b98b4ccf0775ba760953952777f49b245583578afed40efe41fd54dacc867",
+      "flutter_frame_path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/89-review-comment-focus-compact200.png",
+      "flutter_sha256": "aa32531055c3e7151f88e4bc8c5ff1438adae2cfe755fedd29581a426088725c",
+      "receipt_flag_mInputShown": true,
+      "receipt_flag_mIsInputViewShown": true,
+      "receipt_ime_acceptance": "NOT_RUN",
+      "observed_os_keyboard": "PASS pixel OS IME presente",
+      "field_text_render_acceptance": "FAIL",
+      "observed": "IME visibile ma campo commento non appare: solo titolo/rating; Flutter stesso marker ha viewport gia scrollato al fondo del commento/CTA"
+    },
+    {
+      "marker": "96-assistance-note-focus",
+      "os_frame_path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/os-visual/96-assistance-note-focus.png",
+      "os_sha256": "c3e3c6355ac38cd45cec953a7e355c1580f66744fbacf29f5a2d7143d1648e79",
+      "flutter_frame_path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/96-assistance-note-focus.png",
+      "flutter_sha256": "c5f696aa1365817c2292fef38457f28d2a01ad8b74d1f9b188edf0fd711a5d0f",
+      "receipt_flag_mInputShown": true,
+      "receipt_flag_mIsInputViewShown": true,
+      "receipt_ime_acceptance": "NOT_RUN",
+      "observed_os_keyboard": "PASS pixel OS IME presente",
+      "field_text_render_acceptance": "FAIL",
+      "observed": "IME visibile, caret e note field appaiono vuoti; Flutter stesso marker mostra il testo completo: OS frame non attesta nota digitata/render sincronizzato"
+    }
+  ],
+  "meaningful_flutter_samples": [
+    {
+      "marker": "82-product-fulfillment-compact200-zh-Hans",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/82-product-fulfillment-compact200-zh-Hans.png",
+      "sha256": "d60c806c53292f1c756071829671d60c58f88f762cab7b241127081064d427a4",
+      "observed": "Badge pickup/delivery leggibili e non tagliati nella superficie osservata"
+    },
+    {
+      "marker": "84-inbox-unread-partial-compact200",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/84-inbox-unread-partial-compact200.png",
+      "sha256": "68233b0f17ea987ef1ebcdeb6167135149853ce1a9c34eab704dbd88dc1fad35",
+      "observed": "Feedback caricare notifiche precedenti e Carica piu visibili; header iniziale parzialmente sopra viewport per scroll fixture"
+    },
+    {
+      "marker": "86-inbox-page2-read-empty-compact200",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/86-inbox-page2-read-empty-compact200.png",
+      "sha256": "a73a3591e158f7eb25a66eb6e730f3ca9b94b1d9e15713e1360774dda97edb33",
+      "observed": "Empty unread ed esaurimento mostrati; titolo wraps a200%"
+    },
+    {
+      "marker": "87-inbox-offline-cache",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/87-inbox-offline-cache.png",
+      "sha256": "3dbb5feb6e2773be9792a4c148d3027688e5794bb4cfea3408244cacbc37f15c",
+      "observed": "Banner offline/retry e cache mostrati"
+    },
+    {
+      "marker": "88-inbox-auth-expired-purged",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/88-inbox-auth-expired-purged.png",
+      "sha256": "498e4f6840fd5384ec9a0fa337044bb266ac4df1e3c81aa47faaac8d698e7b94",
+      "observed": "Failure account e retry visibili, nessun item cached mostrato"
+    },
+    {
+      "marker": "90-review-submit-busy-compact200",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/90-review-submit-busy-compact200.png",
+      "sha256": "c677a1caa122caa557b9e9295d0145d9097dc7bb99e249bbb824d6ab44817157",
+      "observed": "Commento e CTA disabilitati visibili"
+    },
+    {
+      "marker": "91-review-submit-failure-comment-preserved-compact200",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/91-review-submit-failure-comment-preserved-compact200.png",
+      "sha256": "593931fd3a6880e952dd07f861d9242d3fa4cf5bfbb04de966010a59a57fcdb8",
+      "observed": "Commento conservato e retry CTA; errore Snackbar sotto dialog/barriera, non leggibile interamente"
+    },
+    {
+      "marker": "93-review-edit-failure-comment-preserved-compact200",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/93-review-edit-failure-comment-preserved-compact200.png",
+      "sha256": "9277b18364eba7e2b682c4e77cbdba81d790e16c8a5912b7ef2248b7fc6861ce",
+      "observed": "Draft/CTA nel modal, errore sotto dialog/barriera oscurato"
+    },
+    {
+      "marker": "97-assistance-selected3-fixture-attachments",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/97-assistance-selected3-fixture-attachments.png",
+      "sha256": "5106d0e90aeb7286f2de26fbfa3dbd587990c7bdb1d83d672a52116acddfffd7",
+      "observed": "Tre allegati selezionati indicati"
+    },
+    {
+      "marker": "99-assistance-submit-timeout-draft-preserved",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/99-assistance-submit-timeout-draft-preserved.png",
+      "sha256": "59f0c36603d7c63b0e306d3d58994a1f8536c3623bda34866627df60eedebfc3",
+      "observed": "Nota digitata, allegati3 e failure/retry leggibili"
+    },
+    {
+      "marker": "100-assistance-submitted-detail",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/100-assistance-submitted-detail.png",
+      "sha256": "17db241a0d25aab3984977cd5f2419e38cb2c2a1db68e0b8b8a0b955753952b2",
+      "observed": "Caso/note/riga/attachment synthetic detail; prova fixture non backend"
+    },
+    {
+      "marker": "101-assistance-submitted3-evidence-detail",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/101-assistance-submitted3-evidence-detail.png",
+      "sha256": "93142cbfe47d207295be683b78014be6c6a9e9f7c66d94f5ced2437d39ccf16d",
+      "observed": "Tre pending_scan visibili e nota dettaglio"
+    },
+    {
+      "marker": "102-tracking-provider-off-fresh-text",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/102-tracking-provider-off-fresh-text.png",
+      "sha256": "b6817041845dd75f79e049268dbd162df2d124f9ed0c6c31bd9e7fa8b208c662",
+      "observed": "Tracking testuale mostra informazioni fresh; provider map OFF sintetico"
+    },
+    {
+      "marker": "103-tracking-provider-off-stale-text",
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/next/ci-second-android/visual/103-tracking-provider-off-stale-text.png",
+      "sha256": "ddb181a5fb8cc5f43b3e597573091ddb2cb842d1d49f0f15611327fd1457e75f",
+      "observed": "Icona connessione indisponibile visibile; spiegazione stale sotto viewport non giudicata"
+    }
+  ],
+  "artifact_counts_actual": {
+    "flutter_png": 103,
+    "os_png": 4
+  },
+  "runner_terminal_receipt": {
+    "evidence_level": "native_android_fixture",
+    "revision": "d9fcbfd96add14b7effa00be8fa310d483bdb9b3",
+    "capture_count": 0,
+    "api": 35,
+    "abi": "x86_64",
+    "exit_code": 1,
+    "failed_phase": "native-fixture-capture",
+    "cleanup": "PASS"
+  },
+  "harness_gaps": [
+    "OS89 focus field offscreen; enterText/hasFocus before capture, no ensureVisible field after keyboard metrics (source522–530)",
+    "OS96 blank note while Flutter96 note rendered; OS request before binding.takeScreenshot, no rendered-state/compositor/viewport assertion (visual_capture35–37)",
+    "partial assist picker.calls0 at native assertion714: root writer diagnosing separately; no production picker bug inferred"
+  ],
+  "approval_relationship": "C04/C05/C06 closure and unchanged account/delivery code remain confirmed. Previous SOURCE_CODE_ONLY excludes native acceptance; new pixel+repro finding C07 now requires FIX on candidate UX. No total Client UX/live approval",
+  "limits": [
+    "All four OS keyboard frames have visible IME and true flags; field rendered acceptance not4/4PASS",
+    "Frame names/controller focus/transport PASS do not establish meaningful note/comment rendered-state",
+    "No new local build/device/emulator used; only downloaded CI PNGs and one targeted widget PoC",
+    "Partial103/105 FlutterPNG and terminalFAIL remainFAIL; no native suitePASS",
+    "No production text-loss/focus/caret bug asserted from OS89/96 alone",
+    "Full TASK-054 live remainsBLOCKED"
+  ],
+  "tracked_source_mutations": 0,
+  "owned_verification_processes_pending": 0
+}

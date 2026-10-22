@@ -36,6 +36,7 @@ final class SharedPreferencesCheckoutDraftStore implements CheckoutDraftStore {
     : _preferences = preferences ?? PlatformCheckoutDraftPreferences();
 
   static const storageKey = 'cmc.checkout-draft.v1';
+  static const maximumDrafts = 16;
 
   final CheckoutDraftPreferences _preferences;
   Future<void> _tail = Future<void>.value();
@@ -49,17 +50,25 @@ final class SharedPreferencesCheckoutDraftStore implements CheckoutDraftStore {
       _validateContext(ownerSubjectId, shopSlug);
       final encoded = await _preferences.getString(storageKey);
       if (encoded == null) return null;
+      final List<CheckoutLocalDraft> drafts;
       try {
-        final draft = _decode(encoded);
-        if (draft.ownerSubjectId != ownerSubjectId ||
-            draft.shopSlug != shopSlug) {
-          return null;
-        }
-        return draft;
-      } on Object {
-        await _preferences.remove(storageKey);
+        drafts = _decodeDrafts(encoded);
+      } on FormatException {
+        // Non cancellare un journal ambiguo o un altro scope se è corrotto.
         return null;
       }
+      if (_isLegacy(encoded)) {
+        // Una sola scrittura sostituisce il legacy dopo la decodifica completa.
+        // Se fallisce, il record precedente rimane disponibile al prossimo avvio.
+        await _preferences.setString(storageKey, _encodeDrafts(drafts));
+      }
+      return drafts
+          .where(
+            (draft) =>
+                draft.ownerSubjectId == ownerSubjectId &&
+                draft.shopSlug == shopSlug,
+          )
+          .firstOrNull;
     });
   }
 
@@ -67,7 +76,25 @@ final class SharedPreferencesCheckoutDraftStore implements CheckoutDraftStore {
   Future<void> save(CheckoutLocalDraft draft) {
     return _serialized(() async {
       _validateDraft(draft);
-      await _preferences.setString(storageKey, _encode(draft));
+      final encoded = await _preferences.getString(storageKey);
+      final drafts = encoded == null
+          ? <CheckoutLocalDraft>[]
+          : _decodeDrafts(encoded);
+      final index = drafts.indexWhere(
+        (stored) =>
+            stored.ownerSubjectId == draft.ownerSubjectId &&
+            stored.shopSlug == draft.shopSlug,
+      );
+      if (index == -1) {
+        if (drafts.length >= maximumDrafts) {
+          // Non espellere intenti, receipt o draft di altri account/shop.
+          throw StateError('checkout_draft_capacity');
+        }
+        drafts.add(draft);
+      } else {
+        drafts[index] = draft;
+      }
+      await _preferences.setString(storageKey, _encodeDrafts(drafts));
     });
   }
 
@@ -80,16 +107,20 @@ final class SharedPreferencesCheckoutDraftStore implements CheckoutDraftStore {
       _validateContext(ownerSubjectId, shopSlug);
       final encoded = await _preferences.getString(storageKey);
       if (encoded == null) return;
-      try {
-        final draft = _decode(encoded);
-        if (draft.ownerSubjectId != ownerSubjectId ||
-            draft.shopSlug != shopSlug) {
-          return;
-        }
-      } on Object {
-        // Un record corrotto non deve sopravvivere al cleanup esplicito.
+      final drafts = _decodeDrafts(encoded);
+      final remaining = drafts
+          .where(
+            (draft) =>
+                draft.ownerSubjectId != ownerSubjectId ||
+                draft.shopSlug != shopSlug,
+          )
+          .toList();
+      if (remaining.length == drafts.length) return;
+      if (remaining.isEmpty) {
+        await _preferences.remove(storageKey);
+      } else {
+        await _preferences.setString(storageKey, _encodeDrafts(remaining));
       }
-      await _preferences.remove(storageKey);
     });
   }
 
@@ -98,6 +129,47 @@ final class SharedPreferencesCheckoutDraftStore implements CheckoutDraftStore {
     _tail = operation.then<void>((_) {}, onError: (_, _) {});
     return operation;
   }
+}
+
+bool _isLegacy(String encoded) {
+  final decoded = jsonDecode(encoded);
+  return decoded is Map && decoded['version'] != 5;
+}
+
+String _encodeDrafts(List<CheckoutLocalDraft> drafts) => jsonEncode({
+  'version': 5,
+  'drafts': [for (final draft in drafts) jsonDecode(_encode(draft))],
+});
+
+List<CheckoutLocalDraft> _decodeDrafts(String encoded) {
+  if (encoded.length >
+      SharedPreferencesCheckoutDraftStore.maximumDrafts * 8192 + 512) {
+    throw const FormatException('checkout_drafts_size');
+  }
+  final decoded = jsonDecode(encoded);
+  if (decoded is! Map || decoded['version'] != 5) {
+    return [_decode(encoded)];
+  }
+  final root = _strictMap(decoded, const {'version', 'drafts'});
+  final raw = root['drafts'];
+  if (raw is! List ||
+      raw.isEmpty ||
+      raw.length > SharedPreferencesCheckoutDraftStore.maximumDrafts) {
+    throw const FormatException('checkout_drafts_capacity');
+  }
+  final drafts = <CheckoutLocalDraft>[];
+  for (final entry in raw) {
+    final draft = _decode(jsonEncode(entry));
+    if (drafts.any(
+      (stored) =>
+          stored.ownerSubjectId == draft.ownerSubjectId &&
+          stored.shopSlug == draft.shopSlug,
+    )) {
+      throw const FormatException('checkout_drafts_duplicate_scope');
+    }
+    drafts.add(draft);
+  }
+  return drafts;
 }
 
 String _encode(CheckoutLocalDraft draft) {

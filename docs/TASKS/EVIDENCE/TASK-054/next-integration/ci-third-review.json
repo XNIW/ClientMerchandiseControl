@@ -1,0 +1,270 @@
+{
+  "schema": "task054-ci-third-independent-concise-v1",
+  "reviewer": "/root/review_evidence_ci",
+  "observed_utc": "2026-10-05T18:32:53.528038+00:00",
+  "run": 37352605356,
+  "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37352605356",
+  "head_sha": "a97778697051f93380ace9d6181a226c7f79ca77",
+  "status": "completed",
+  "conclusion": "failure",
+  "technical_gate_result": "FAIL",
+  "development_delta_review": "CHANGES_REQUIRED:C08 aperto sul candidatoa977 e gate debugFAIL; nessuna approvazione aggregata",
+  "task_live_review": "BLOCKED",
+  "commands": {
+    "terminal_reader": "PYTHONDONTWRITEBYTECODE=1 python3 build/task054/review-evidence-ci/review_ci_terminal.py --run 37352605356 --sha a97778697051f93380ace9d6181a226c7f79ca77 --output build/task054/review-evidence-ci/ci_a9777869_terminal_review.json",
+    "exit_code": 0,
+    "all_nested_gh_api_exit_codes": [
+      0
+    ],
+    "preterminal_reader_exit": 3,
+    "preterminal_meaning": "Pending ultimojob; nessuna false terminalreceipt"
+  },
+  "all_five_actual_checkouts_match": true,
+  "jobs": [
+    {
+      "job": "Quality",
+      "id": 111906920136,
+      "conclusion": "success",
+      "completed_at": "2026-10-05T18:12:52Z",
+      "actual_checkout_sha": "a97778697051f93380ace9d6181a226c7f79ca77",
+      "all_step_metadata_inspected": true,
+      "step_count": 23,
+      "non_success_steps": [],
+      "annotation_counts": {
+        "failure": 0,
+        "warning": 0,
+        "notice": 1
+      },
+      "command_exit_codes": [],
+      "log_sha256": "fa7ba5953a7a216dfec51d2f978b532a6f229c4d8d4a423024cd62fa1a4684f2"
+    },
+    {
+      "job": "Android debug build",
+      "id": 111906920340,
+      "conclusion": "failure",
+      "completed_at": "2026-10-05T18:12:18Z",
+      "actual_checkout_sha": "a97778697051f93380ace9d6181a226c7f79ca77",
+      "all_step_metadata_inspected": true,
+      "step_count": 13,
+      "non_success_steps": [
+        {
+          "name": "Capture commerce UI with synthetic fixtures on Android",
+          "conclusion": "failure"
+        }
+      ],
+      "annotation_counts": {
+        "failure": 1,
+        "warning": 1,
+        "notice": 1
+      },
+      "command_exit_codes": [
+        1
+      ],
+      "log_sha256": "41ee59fdcf4c3c7e1fcdfbbcd504a432763a1ca43089843fa5cfd4b542a49f22"
+    },
+    {
+      "job": "iOS Simulator debug build",
+      "id": 111906920464,
+      "conclusion": "failure",
+      "completed_at": "2026-10-05T18:08:45Z",
+      "actual_checkout_sha": "a97778697051f93380ace9d6181a226c7f79ca77",
+      "all_step_metadata_inspected": true,
+      "step_count": 16,
+      "non_success_steps": [
+        {
+          "name": "Prepare one owned iOS Simulator for smoke and visual",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Smoke iOS on the declared deployment target",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Capture commerce UI with synthetic fixtures on iOS",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Clean up the owned iOS Simulator",
+          "conclusion": "failure"
+        }
+      ],
+      "annotation_counts": {
+        "failure": 2,
+        "warning": 1,
+        "notice": 1
+      },
+      "command_exit_codes": [
+        1,
+        1
+      ],
+      "log_sha256": "3321dec6e322bec648e779163d67622bd3cd03543282528155d8ebd625ac7f19"
+    },
+    {
+      "job": "Android release candidate",
+      "id": 111906920475,
+      "conclusion": "success",
+      "completed_at": "2026-10-05T18:13:00Z",
+      "actual_checkout_sha": "a97778697051f93380ace9d6181a226c7f79ca77",
+      "all_step_metadata_inspected": true,
+      "step_count": 12,
+      "non_success_steps": [],
+      "annotation_counts": {
+        "failure": 0,
+        "warning": 0,
+        "notice": 1
+      },
+      "command_exit_codes": [],
+      "log_sha256": "5dc0b9b4ce973d5ce4f7f5eefd78eff44b5364b32514b8db923e2863218195d8"
+    },
+    {
+      "job": "iOS release candidate",
+      "id": 111906920604,
+      "conclusion": "success",
+      "completed_at": "2026-10-05T18:27:37Z",
+      "actual_checkout_sha": "a97778697051f93380ace9d6181a226c7f79ca77",
+      "all_step_metadata_inspected": true,
+      "step_count": 15,
+      "non_success_steps": [],
+      "annotation_counts": {
+        "failure": 0,
+        "warning": 0,
+        "notice": 1
+      },
+      "command_exit_codes": [],
+      "log_sha256": "7864d9eb0372ddd072ea7d14f101e9dd9e79307186eac46dc26812edc4b6144c"
+    }
+  ],
+  "artifact_metadata": [
+    {
+      "id": 11363219490,
+      "name": "task054-android-visual-fixtures",
+      "size_in_bytes": 91072,
+      "expired": false,
+      "created_at": "2026-10-05T18:12:16Z",
+      "digest": "sha256:d33bd76645a00d1cb6906c881ce34756b53b168239f3220a225604a35a509b76"
+    },
+    {
+      "id": 11362934765,
+      "name": "task054-ios-visual-fixtures",
+      "size_in_bytes": 825,
+      "expired": false,
+      "created_at": "2026-10-05T18:08:39Z",
+      "digest": "sha256:6103730ba713172dc9a089d18060fb0a59142f4dac4a9d2708dcc8a566c8c854"
+    }
+  ],
+  "runtime": {
+    "android": {
+      "build_security_KVM": "PASS",
+      "capture": "FAIL/exit1 native-fixture-capture",
+      "transport": "RequestData service disappeared112;ACKRPCError;causanonprovata",
+      "flutter_png": 0,
+      "OS_png": 2,
+      "OS62": "framePASS/probePASS/cleanupPASS/exit0;flagsIMEtrue",
+      "OS63": "framePASS/probeFAIL255/cleanupPASS;flagsIMENULL",
+      "structural_PNG_SHA_HEAD": "PASS2/2 independent validator",
+      "runner_cleanup": "PASS ownreceipt",
+      "C07_after_native_pixels": "NOT_RUN; recensionenonraggiunta",
+      "full67cases105PNG": "NONATTESTATA",
+      "ime_acceptance": "NOT_RUN"
+    },
+    "ios": {
+      "build_golden_security": "PASS",
+      "runtime": "iOS26.5/iPhone17",
+      "prepare": "FAILexit1 probe/processCleanup dopo openSimulator.app; simctlbootprecedentecompletato",
+      "bootstatus300": "NONINVOCATO; nessuntimeout300claim",
+      "smoke": "SKIPPED",
+      "visual": "SKIPPED/zeroPNG",
+      "always_cleanup_step": "FAILexit1",
+      "current_owned_device_resource": "PASSshutdown/delete/readback own8567E197",
+      "process_quiescence": "FAILnonverificata;causanonprovata",
+      "history": "attempt1FAIL/resourceFAIL\u2192attempt2FAIL/resourcePASS;processCleanupFailedtrue/combinedFAIL",
+      "BECI06actual_history_preservation": "PASSscoped;risorsacorrentePASSnoncancellaFAIL",
+      "GITHUB_SHA_context": "029af296e525e0f4d80289d23ddca099a0fc72a4 verificatoPR29mergecommit;actualsourcecheckouta977 distinto",
+      "phase_evidence": "Log583open18:07:17.895;FAIL584/58518:07:51;bootstatusnoninvocato. Correzione della precedente selezione parziale, non causa inferita."
+    }
+  },
+  "local_receipt_provenance": {
+    "full_metadata_receipt": "build/task054/review-evidence-ci/ci_a9777869_terminal_review.json",
+    "full_metadata_sha256": "50fec57cfc034d778b0721ff947d4a9e05b73be0f8d10a8f3d13efd4db6d30d9",
+    "android_technical_receipt": "build/task054/review-evidence-ci/ci_a9777869_job_111906920340_technical.json",
+    "ios_technical_receipt": "build/task054/review-evidence-ci/ci_a9777869_job_111906920464_technical.json"
+  },
+  "artifact_fingerprints": {
+    "android": {
+      "downloaded_by_root": true,
+      "independent_assertion_exit": 0,
+      "flutter_png": 0,
+      "os_png": 2,
+      "frames": [
+        {
+          "file": "os-visual/62-address-editor-focus-compact200.png",
+          "sha256": "67f39347c47b6954f2768b19ad7e6bdb82e3e2a9cafbfba33c5cc4e97e4a7303",
+          "structural_png": "PASS",
+          "frame_status": "PASS",
+          "probe_status": "PASS",
+          "exit_code": 0,
+          "ime_acceptance": "NOT_RUN"
+        },
+        {
+          "file": "os-visual/63-search-field-focus-compact200.png",
+          "sha256": "434acf9e1c9c229068ee477aa7c494b4ad2b508ceb4f96a079b7d46a68f4de3f",
+          "structural_png": "PASS",
+          "frame_status": "PASS",
+          "probe_status": "FAIL",
+          "exit_code": 255,
+          "ime_acceptance": "NOT_RUN"
+        }
+      ],
+      "runner": {
+        "evidence_level": "native_android_fixture",
+        "revision": "a97778697051f93380ace9d6181a226c7f79ca77",
+        "capture_count": 0,
+        "api": 35,
+        "abi": "x86_64",
+        "exit_code": 1,
+        "failed_phase": "native-fixture-capture",
+        "cleanup": "PASS"
+      },
+      "emulator_log_sha256": "94d19783860c1ebd0e40ddad4a8531fc4fc441fe810e09f84237cf64ac5e1d0d",
+      "emulator_technical_selected": [
+        {
+          "line": 28,
+          "text": "INFO         | Storing crashdata in: /tmp/android-runner/emu-crash-37.2.12.db, detection is enabled for process: 11573"
+        },
+        {
+          "line": 114,
+          "text": "INFO         | ipv6:%5B::1%5D:34203: Got goaway [2] err=UNAVAILABLE:GOAWAY received; Error code: 2; Debug Text: Cancelling all calls {http2_error:2}"
+        },
+        {
+          "line": 115,
+          "text": "ERROR        | stop: Not implemented"
+        }
+      ],
+      "no_full_native_suite": "67cases/105PNG completeness notattested",
+      "C07_after_native_pixels": "NOT_RUN review/case not reached"
+    },
+    "ios": {
+      "ios-owned-receipt.json": "0fc11ed39f9bb67b4926bf2377d4893046304ed1ad6b648fb678741865ef46d3",
+      "ios-visual-step-result.json": "7ee9a1baa7db586d7f1c1e6e76cf35524a8af5da8f53931cdaab4ba26a0317b0"
+    }
+  },
+  "privacy": "No fullrawlogs retained by reviewer; onlymetadata/hash/technical selectedlines; no credentials/businessdata",
+  "active_own_verification_processes": 0,
+  "native_local": "NOT_RUN:no simulator/device/buildlocale",
+  "meaning": "VecchiaCI specificaa977; nonusarepernuovoC08/diagnosticsfreeze",
+  "actual_test_summaries": {
+    "Quality": [
+      "2026-10-05T18:11:16.5679054Z \ud83c\udf89 956 tests passed, 1 skipped.",
+      "2026-10-05T18:12:48.9166833Z \ud83c\udf89 10 tests passed."
+    ],
+    "iOS Simulator debug build": [
+      "2026-10-05T18:02:00.5691020Z \ud83c\udf89 2 tests passed."
+    ]
+  },
+  "quality_counts": {
+    "tests_passed": 956,
+    "skipped": 1,
+    "benchmark_passed": 10,
+    "note": "Singolo skipLinuxpreesistente; mandatorymacOSgolden2PASS in iOSdebug. Conteggi dal logactual, non screenshot/E2E."
+  }
+}

@@ -1,0 +1,227 @@
+{
+  "task": "TASK-054",
+  "finding": "C-NI054-08/P3",
+  "scope": "Cleanup del monitor e dell’intento dopo dispose della route prima del mount",
+  "handoff": "CODEX_FIX_COMPLETE_TO_RE_REVIEW",
+  "base_commit": "feda593fcc301686226c0bf6246affa7a891ebe8",
+  "commit": "7d85c56944a227cf908e2114f02249e7b2a4262b",
+  "branch": "codex/task054-review-opening-cleanup",
+  "worktree": "/Users/minxiang/.codex/worktrees/task054-review-feedback/ClientMerchandiseControl",
+  "files": {
+    "lib/features/reviews/presentation/customer_reviews.dart": "fd39fd7ea8cdcbac473ad3e4cf6f34c9150a63597114b4ebe9054a966ea30dd3",
+    "test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart": "d16dbaf62f8cc49421af6b03fa10913fcefdff0dcb17d21769082a510237fc02"
+  },
+  "implementation": "DialogRoute pubblica sul root Navigator, stessi parametri Material; Future.any tra risultato push e route.completed consente al finally di terminare e chiudere il monitor anche quando lo State non è montato. Dispose/finally idempotenti già esistenti conservati.",
+  "sdk": {
+    "flutter": "3.44.8",
+    "framework": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+    "dart": "3.12.2",
+    "riverpod": "2.6.1"
+  },
+  "public_api_evidence": [
+    "Flutter material/dialog.dart:1622–1669 showDialog, default e capture; widgets/dialog.dart:107–125 percorso modale con Navigator.push; material/dialog.dart:1817–1855 DialogRoute mantiene SafeArea e label Material; widgets/routes.dart:121 e628–638 completed risolve anche dispose forzato.",
+    "Riverpod foundation.dart:258 ProviderSubscription.close idempotente."
+  ],
+  "sdk_equivalence": "Percorso modale Android/iOS corrente senza WindowRegistry: rootNavigator=true, CapturedThemes stesso target, barrier fallback DialogTheme→Theme.dialogTheme→black54, dismissible=true, closedLoop; SafeArea=true, Material barrierLabel, requestFocus/settings/anchorPoint/animationStyle=null e fullscreen=false restano i default.",
+  "poc_relocation_manifest": "../../../review-artifacts/task054/review-feedback-cleanup-20261005/relocation.json",
+  "poc_hashes": {
+    "../../../review-artifacts/task054/review-feedback-cleanup-20261005/build/task054/review-opening-cleanup-fix/reviews_owner_opening_unmount_reproduction_test.dart": "5537ef1327f8cb70e0152ec05c2428b54b3752879331e25d88522c01e8171796",
+    "../../../review-artifacts/task054/review-feedback-cleanup-20261005/build/task054/review-opening-owner-fix/reviews_owner_opening_aba_reproduction_test.dart": "94929202bfab2c07b6c6ab00e9428745232eb5c129d4a44f24a426aeb4cf9c49",
+    "../../../review-artifacts/task054/review-feedback-cleanup-20261005/build/task054/feedback-fix/review_error_overlay_reproduction_test.dart": "4ac0c4ca7cc16c7a04da2ff7101579d8324405b06f945eb21bfb7d70c15c1a17",
+    "../../../review-artifacts/task054/review-feedback-cleanup-20261005/build/task054/review-owner-fix/reviews_public_router_auth_test.dart": "9646308f111cdce24f8ce2b9d88249d897cb593d391129c6d457b8518fbea719"
+  },
+  "command_environment": "Tutti i command sono eseguibili dalla root del WT con Flutter/Dart 3.44.8/3.12.2 nel PATH; le PoC esterne sono raggiunte con percorsi relativi e symlink test/integration_test nel mirror, documentati nel manifest. Nessuna stringa locale: sostituisce comandi.",
+  "gates": [
+    {
+      "id": "poc_original_before",
+      "status": "FAIL",
+      "exit_code": 1,
+      "revision": "feda593fcc301686226c0bf6246affa7a891ebe8",
+      "tests_failed": 1,
+      "command": "flutter test --no-pub ../../../review-artifacts/task054/review-feedback-cleanup-20261005/build/task054/review-opening-cleanup-fix/reviews_owner_opening_unmount_reproduction_test.dart --plain-name 'route /reviews unmount prima del primo frame chiude monitor' --reporter expanded",
+      "original_command_path": "build/task054/review-opening-cleanup-fix/reviews_owner_opening_unmount_reproduction_test.dart",
+      "log": "reproduction-before.log",
+      "meaning": "Tap pubblico /reviews→leave e unmount prima del mount con container vivo lascia la subscription closed=false.",
+      "log_sha256": "cbd51223b862de905e072b63a456836c044a2d4043a2aa6a792cb77280618d8c"
+    },
+    {
+      "id": "canonical_before",
+      "status": "FAIL",
+      "exit_code": 1,
+      "revision": "feda593fcc301686226c0bf6246affa7a891ebe8",
+      "tests_failed": 1,
+      "command": "flutter test --no-pub test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart --plain-name 'route /reviews unmount prima del primo frame conclude intento' --reporter expanded",
+      "log": "canonical-future-before.log",
+      "meaning": "Lo stesso test permanente eseguito sul source precedente: Future<void> dell’intento resta pending dopo unmount. Il source finale è stato ripristinato byte identico nel finally del driver.",
+      "log_sha256": "ca45419850a3e6dcdee18d388cc3fcb0ee40b14974f43f7c8ece1633ae62af3a"
+    },
+    {
+      "id": "reviews_final",
+      "status": "PASS",
+      "exit_code": 0,
+      "tests_passed": 46,
+      "command": "flutter test --no-pub test/features/reviews ../../../review-artifacts/task054/review-feedback-cleanup-20261005/build/task054/feedback-fix/review_error_overlay_reproduction_test.dart ../../../review-artifacts/task054/review-feedback-cleanup-20261005/build/task054/review-owner-fix/reviews_public_router_auth_test.dart --reporter expanded",
+      "log": "reviews-freeze.log",
+      "meaning": "45 prove precedenti più la nuova regressione canonica. ClientApp/appRouter/AuthController/identity reali; soltanto porte/config sintetiche.",
+      "log_sha256": "41dc5785f5583829c792862d0d9b71323b5f2b0224bf2e7114adac9dbc248155"
+    },
+    {
+      "id": "poc_opening_final",
+      "status": "PASS",
+      "exit_code": 0,
+      "tests_passed": 1,
+      "command": "flutter test --no-pub ../../../review-artifacts/task054/review-feedback-cleanup-20261005/build/task054/review-opening-owner-fix/reviews_owner_opening_aba_reproduction_test.dart --plain-name 'route /reviews A-B-A prima del primo frame del dialog' --reporter expanded",
+      "log": "opening-freeze.log",
+      "log_sha256": "4ef9a52549dcbeb16bb875c1c3f1455c1372668c8275e4142473e9719a21187d"
+    },
+    {
+      "id": "poc_original_final",
+      "status": "PASS",
+      "exit_code": 0,
+      "tests_passed": 1,
+      "command": "flutter test --no-pub ../../../review-artifacts/task054/review-feedback-cleanup-20261005/build/task054/review-opening-cleanup-fix/reviews_owner_opening_unmount_reproduction_test.dart --plain-name 'route /reviews unmount prima del primo frame chiude monitor' --reporter expanded",
+      "log": "unmount-freeze.log",
+      "meaning": "La PoC tap/closed originale resta byteimmutata e osserva closed=true sul source finale.",
+      "log_sha256": "4cc33244ec513c94788b6a5ef31dc9ec99860d12548718f3c6fb6783b1ed74aa"
+    },
+    {
+      "id": "analyze_full",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "flutter analyze --no-pub",
+      "log": "analyze-freeze.log",
+      "meaning": "Analyzer completo canonico, senza exclusions aggiunte né lint ignore.",
+      "log_sha256": "d2512e18aaa1a15762abc3923715c05ce6e8e1ff98c1b9a5139626681a4552ed"
+    },
+    {
+      "id": "format",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "dart format --output=none --set-exit-if-changed lib/features/reviews/presentation/customer_reviews.dart test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart",
+      "log": "format.log",
+      "log_sha256": "48119b7f93f88ac166398c1576d4686ff2163286c1e198494980483fef718e84"
+    },
+    {
+      "id": "architecture",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "log": "architecture.log",
+      "log_sha256": "da205cb7b3c8e3a5d67d97dd855433c0e182e607166674fbc2a6a022c68f88f4"
+    },
+    {
+      "id": "localization",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "bash scripts/check-user-facing-localization.sh",
+      "log": "localization.log",
+      "log_sha256": "3327d2169a76cf880d2cf28a6be01c3a7570273b2468a83e9627240da6e1717f"
+    },
+    {
+      "id": "security",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "bash scripts/check-client-security.sh",
+      "log": "security.log",
+      "tracked_files": 856,
+      "log_sha256": "e4e23e5a9a738e4977c972b64b43b7a17a0a450828001d2e9d28719feb017fff"
+    },
+    {
+      "id": "diff",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "git diff --check"
+    },
+    {
+      "id": "staged_diff",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "git diff --cached --check"
+    }
+  ],
+  "failed_validation_experiments": [
+    {
+      "id": "parallel_native_asset_race",
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": "opening-final.log",
+      "classification": "Infrastruttura test: due flutter test paralleli nello stesso WT hanno fatto race sul libsqlite3.dylib; nessun test eseguito. Rerun serializzato PASS prima e dopo il freeze.",
+      "log_sha256": {
+        "opening-final.log": "5c6935f2939d9d07b7fdca01d709ca8ddbcade18d60ac531f1bd6f957ada7a7d"
+      }
+    },
+    {
+      "id": "prototype_analyzer",
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": "analyze-full.log",
+      "classification": "Prototipo test estendeva ProviderContainer sealed; PoC ignored nel build producevano diagnostic di contesto testing. Prototipo rimosso, PoC relocate byteimmutate fuori repo; analyzer completo finale PASS.",
+      "log_sha256": {
+        "analyze-full.log": "11a8996dc08db71e6c4816e573ac2fb45c94fbf92ef3a98151041b89a27abd7b"
+      }
+    },
+    {
+      "id": "exists_observation",
+      "status": "FAIL",
+      "exit_code": 1,
+      "logs": [
+        "canonical-cleanup-attempt1.log",
+        "canonical-cleanup-attempt2.log",
+        "canonical-cleanup-attempt3.log",
+        "canonical-cleanup-attempt4.log"
+      ],
+      "classification": "Esperimenti del test non validi: exists misura l’elemento AlwaysAlive, non il listener; assertion falsa anche sul fix. Scartati senza attribuire finding al prodotto.",
+      "log_sha256": {
+        "canonical-cleanup-attempt1.log": "d32fe45434da59b6643085bc8e890f0f9bea51b0f7a7cb638227324a30e115bf",
+        "canonical-cleanup-attempt2.log": "0146cba05e5102623c8218d98bbedf011c3a4c0c3ff5dbcc5227a6949e7ae90a",
+        "canonical-cleanup-attempt3.log": "2250b6d2f4ea3090a0435c961b7810d0ce17d7e360358a163e874dd3a6726290",
+        "canonical-cleanup-attempt4.log": "96b179dc2432b36896894f2687ef1cae95268b093e7b73bbdeaabef0e1e4037c"
+      }
+    },
+    {
+      "id": "provider_observer_observation",
+      "status": "FAIL",
+      "exit_code": 1,
+      "logs": [
+        "canonical-cleanup-after.log",
+        "canonical-cleanup-after2.log"
+      ],
+      "classification": "Esperimenti del test non validi: i watch AlwaysAlive trattenuti dai provider rendono confondente il rebuild osservato dopo invalidazione. Observer e invalidazioni rimossi integralmente dal diff finale.",
+      "log_sha256": {
+        "canonical-cleanup-after.log": "523f2b17de7c840b1939331cbe9e93e0c80204b6796b48f655afec004c23a901",
+        "canonical-cleanup-after2.log": "2abe7abb7de2c97cc93c2fca14048f02fb9ec1007813d5ce261afbdd39d268d9"
+      }
+    }
+  ],
+  "processes": {
+    "owned_pending_verification_sessions": 0,
+    "meaning": "Tutte le sessioni PoC, test, analyzer e scan avviate da questo writer hanno restituito exit code terminale; le lane degli altri agenti non sono attestate qui."
+  },
+  "git_status": "",
+  "not_run": [
+    {
+      "gate": "next24",
+      "status": "NOT_RUN",
+      "reason": "Rerun autonomo assegnato al reviewer sul nuovo source congelato."
+    },
+    {
+      "gate": "native_android_ios",
+      "status": "NOT_RUN",
+      "reason": "Lane CI/native del root/owner dedicato; nessun build nativo Android/iOS o emulatore avviato da questo writer."
+    },
+    {
+      "gate": "authenticated_staging",
+      "status": "NOT_RUN",
+      "reason": "Prove widget e porte sintetiche non costituiscono staging autenticato."
+    }
+  ],
+  "limits": [
+    "P3 circoscritto: nessun trigger pubblico corrente che conservi il container oltre Navigator dimostrato; bootstrap attuale condividono lifetime.",
+    "Non annulla RPC già inviate; resta ambigua una scrittura con risposta totalmente persa senza ACK.",
+    "Nessun APPROVED autonomo, push, merge, docs globali, router, controller, fixture, harness o dipendenze modificati."
+  ],
+  "evidence_storage": "Receipt, raw log e snapshot locali ignorati; PoC esterne byteimmutate; nessuno artifact versionato.",
+  "originalReceiptSha256": "493a856ff78977d863f781ca57298f48be74bf760c5ece68cdf88bfe1072c4cb",
+  "rootCherrySha": "1bf2e98a59d7c27e566e0640ca9591c573798b9b",
+  "qualification": "Ricevuta originale writer con prefisso checkout locale rimosso soltanto; comandi reali conservati. PoC esterne con percorso necessario alla provenienza, regressione canonica disponibile nel repository."
+}

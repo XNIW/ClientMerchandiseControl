@@ -10,28 +10,44 @@
 - **Stato task**: BLOCKED
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: eseguire il mandato funzionale e UX del 2026-10-01
-  sulla main aggiornata: preflight staging, flussi e schermate nativi con fixture,
-  correzioni riproducibili e due review read-only; integrazione dopo gate applicabili.
-  TASK-054 resta aperta finché i requisiti live obbligatori non sono verificati.
+- **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
+- **Prossima azione autorizzata**: diagnosi minima del journal iOS dopo CI automatica
+  39078074948 su6dc9258:6PASS/1FAIL. Seed FAIL1 terminal_gate/assertion/mask21,
+  candidate assegnata e postTestFailedtrue; recover/clearNOT_RUN, cleanupPASS.
+  Registrare origini finite postTest con FAILv6 strict, stessa lettura nullable,
+  nessun raw SDK/guardchange; SUCCESSv2 e FAILv2–v5 invariati. RED puro su source6dc,
+  GREEN47Python; cold538fd3f1 e SDK1c876972 APPROVED soloSOURCE_PURE.
+  CODEX_FIX_BLOCKED_TO_RE_REVIEW, nuovoDart/nativeNOT_RUN al cutoff. Unica CI automatica
+  del futuro SHA, nessuna lane manuale duplicata o replay invariato.
+  Canonica6dc e negativi intermedi preservati:93prepare124/cleanupPASS,
+  4f/cc0cleanupFAIL e risorsa storicaUNKNOWN. Review visuali12+12 frame scoped;
+  nessuna acceptance AT/IME/TEST/Maps. Slot Mac restituito aMobile dopo release
+  effettivaWeChat00:01:08UTC; Client solo FILE/CPU e GitHub già autorizzato.
+  TEST/R13/R14/R17/R24, Maps reale, AT/IME/fisico e firma restano distinti.
+  Root unico writer, stesso branch/PR29 draft/HOLD, nessun SQL/deploy/spesa/merge/DONE.
 
 ## Repository coinvolti
 
 - `XNIW/ClientMerchandiseControl` — repository corrente e unico writer del client.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
-  authority canonica verificata; TASK-159 concorrente preservato, PR commerce117 merged con6d5f3768 dopo review APPROVED e CI verde;
-  main4532831b include anche PR119; f21339bb è la baseline PR118, ancestry verificata.
-- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
-- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura.
+  authority canonica; snapshot storico main02ea44b9,159sorgenti e155receipt TEST;
+  rollout POS corrente daacb3e4ac/PR133 (OPEN), distinto dal candidato Client96758b89;
+  TASK159/Worker selettivo appartiene a W, modifiche concorrenti preservate.
+  Le riconciliazioni4532831b/f21339bb precedenti rimangono nelle evidence storiche.
+- `XNIW/MerchandiseControlSplitView` — owner N riferisce PR26 merged, mainbbbda83 e APK74e75 installato con preservazione; N riferisce SaveA locale e1riga/2prezzi remoti nel readback00:28:52UTC del10ottobre, HTTPACK non provato/peerA0; R24 NOT_RUN.
+- `XNIW/iOSMerchandiseControl` — owner N riferisce PR21 merged, mainb869c9b e Proper2cb5de installato; N riferisce primoSaveB localePASS/3pending, remotoB assente al solo readback00:28:52UTC del10ottobre; diagnostica errori8ott storica, ACK/convergenza da provare; R24 NOT_RUN.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
-- Supabase staging esistente — audit metadata readonly: 32/55 RPC presenti,
-  23 assenti e tre migration richieste non applicate (due commerce e correttiva
-  dedup); production non modificata.
+- Supabase TEST — ledger readonly API del17ottobre:163ricevute, incluse due
+  versioni staff/Admin successive alla fotografia161 del12ottobre. Le quattro
+  versioni canoniche Client non compaiono nel ledger; il conteggio non certifica
+  schema/equivalenza. RPC32/57,25mancanti e1/2indici restano fotografia10ottobre
+  20:49UTC/history158, non catalogo corrente. Recovery, profilo operator/TLS,
+  catalogo e RLS correnti da qualificare dall'owner prima di eventuale apply.
+  Nessun apply/cron/Worker da Client; CA e Cloudflare già disponibili.
 - Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 
 ## Principi architetturali

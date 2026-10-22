@@ -6,6 +6,7 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_reposi
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
+import 'package:client_merchandise_control/features/cart/application/cart_controller.dart';
 import 'package:client_merchandise_control/features/cart/application/cart_providers.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_repository.dart';
@@ -58,26 +59,51 @@ void main() {
     },
   );
 
-  testWidgets('tap Add to cart invoca lo storage guest con snapshot pubblico', (
-    tester,
-  ) async {
-    final guest = _DetailGuestCartStore();
-    await tester.pumpWidget(
-      _detailApp(
-        repository: _DetailRepository(product: _detailProduct()),
-        guestCartStore: guest,
-      ),
-    );
-    await tester.pumpAndSettle();
+  testWidgets(
+    'tap Add to cart salva nello scope guest e comunica il successo locale',
+    (tester) async {
+      final guest = _DetailGuestCartStore();
+      await tester.pumpWidget(
+        _detailApp(
+          repository: _DetailRepository(product: _detailProduct()),
+          guestCartStore: guest,
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(ValueKey('add-to-cart-$_publicationId')));
-    await tester.pumpAndSettle();
+      final addToCart = find.byKey(ValueKey('add-to-cart-$_publicationId'));
+      final context = tester.element(addToCart);
+      final l10n = AppLocalizations.of(context);
+      final container = ProviderScope.containerOf(context, listen: false);
+      expect(container.read(customerAccountIdentityProvider), isNull);
+      await tester.tap(addToCart);
+      await tester.pumpAndSettle();
 
-    expect(guest.setCalls, 1);
-    expect(guest.lastProduct?.id, _publicationId);
-    expect(guest.lastProduct?.name, 'Café público');
-    expect(find.text('Producto agregado al carrito.'), findsOneWidget);
-  });
+      expect(guest.setCalls, 1);
+      expect(guest.lastProduct?.id, _publicationId);
+      expect(guest.lastProduct?.name, 'Café público');
+      final cart = container.read(cartControllerProvider);
+      expect(cart.isAuthenticated, isFalse);
+      expect(cart.hasPendingRetry, isFalse);
+      expect(cart.busyPublicationIds, isEmpty);
+      expect(cart.snapshot, isNotNull);
+      final snapshot = cart.snapshot!;
+      expect(snapshot.source, CartSource.guest);
+      expect(snapshot.shopSlug, 'storefront-test');
+      expect(snapshot.totalQuantity, 1);
+      expect(snapshot.items, hasLength(1));
+      expect(snapshot.items.single.publicationId, _publicationId);
+      expect(snapshot.items.single.quantity, 1);
+      expect(snapshot.items.single.isGuest, isTrue);
+      expect(guest.snapshot.source, CartSource.guest);
+      expect(guest.snapshot.shopSlug, snapshot.shopSlug);
+      expect(guest.snapshot.totalQuantity, snapshot.totalQuantity);
+      expect(find.text(l10n.cartLocalSavedNotice), findsOneWidget);
+      expect(find.text(l10n.cartAddedNotice), findsNothing);
+      expect(find.text(l10n.cartPendingConfirmationNotice), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('usa la variante detail pubblica con decode bounded', (
     tester,

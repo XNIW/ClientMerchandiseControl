@@ -1,0 +1,180 @@
+{
+  "sourceRevision": "a97778697051f93380ace9d6181a226c7f79ca77",
+  "method": "WCAG sRGB luminanza relativa, colori RenderParagraph e superfici render applicati; nessun sampling PNG.",
+  "scope": "Dialogo recensione di produzione dopo submit unavailable da fixture sintetica; AppTheme light/dark, locale en, scala host1. Widget non equivale a pixel/AT/native/staging.",
+  "rows": [
+    {
+      "id": "review.dialog.submit-failure",
+      "theme": "light",
+      "text": "We couldn't complete this action.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFBA1A1A",
+      "foregroundSrgba": {
+        "r": 0.7294117647058823,
+        "g": 0.10196078431372549,
+        "b": 0.10196078431372549,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFBA1A1A",
+      "foregroundEffectiveSrgba": {
+        "r": 0.7294117647058823,
+        "g": 0.10196078431372549,
+        "b": 0.10196078431372549,
+        "a": 1.0
+      },
+      "background": "#FFE3EAE7",
+      "backgroundSrgba": {
+        "r": 0.8901960784313725,
+        "g": 0.9176470588235294,
+        "b": 0.9058823529411765,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FFE3EAE7"
+      ],
+      "foregroundLuminance": 0.11252473533117811,
+      "backgroundLuminance": 0.8094605231336822,
+      "ratio": 5.288182881100233,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true,
+      "materialColor": "#FFE3EAE7",
+      "materialSurfaceTintColor": "#00000000",
+      "materialElevation": 6.0,
+      "materialType": "card",
+      "materialRect": "Rect.fromLTRB(52.8, 90.0, 747.3, 510.0)",
+      "textRect": "Rect.fromLTRB(164.9, 394.0, 635.1, 414.0)"
+    },
+    {
+      "id": "review.dialog.submit-failure",
+      "theme": "dark",
+      "text": "We couldn't complete this action.",
+      "declaredFontFamily": "Roboto",
+      "fontLogicalSize": 14.0,
+      "effectiveLogicalSize": 14.0,
+      "weight": 400,
+      "largeText": false,
+      "foreground": "#FFFFB4AB",
+      "foregroundSrgba": {
+        "r": 1.0,
+        "g": 0.7058823529411765,
+        "b": 0.6705882352941176,
+        "a": 1.0
+      },
+      "foregroundEffective": "#FFFFB4AB",
+      "foregroundEffectiveSrgba": {
+        "r": 1.0,
+        "g": 0.7058823529411765,
+        "b": 0.6705882352941176,
+        "a": 1.0
+      },
+      "background": "#FF252B2A",
+      "backgroundSrgba": {
+        "r": 0.1450980392156863,
+        "g": 0.16862745098039217,
+        "b": 0.16470588235294117,
+        "a": 1.0
+      },
+      "backgroundRenderOrigins": [
+        "PhysicalShape:#FF252B2A"
+      ],
+      "foregroundLuminance": 0.5684279070779308,
+      "backgroundLuminance": 0.022882358564523694,
+      "ratio": 8.48528943434821,
+      "threshold": 4.5,
+      "result": "PASS",
+      "required": true,
+      "materialColor": "#FF252B2A",
+      "materialSurfaceTintColor": "#00000000",
+      "materialElevation": 6.0,
+      "materialType": "card",
+      "materialRect": "Rect.fromLTRB(52.8, 90.0, 747.3, 510.0)",
+      "textRect": "Rect.fromLTRB(164.9, 394.0, 635.1, 414.0)"
+    }
+  ],
+  "commands": [
+    {
+      "command": "flutter test --no-pub build/task054/c07_contrast_probe_test.dart --reporter expanded",
+      "exitCode": 0,
+      "result": "PASS",
+      "count": 2,
+      "log": "host.log"
+    },
+    {
+      "command": "python3 build/task054/c07_contrast_recalculate.py",
+      "exitCode": 0,
+      "result": "PASS",
+      "count": 2,
+      "maximumDelta": 0.0,
+      "log": "recalculate.log"
+    },
+    {
+      "command": "git diff --check; git status --short --branch",
+      "exitCode": 0,
+      "result": "PASS",
+      "scope": "nessuna modifica tracked; HEAD detached exact SHA, branch autore preservato"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "lib/features/reviews/presentation/customer_reviews.dart",
+      "blob": "f076bc4167aa44190f5aa8627a240dcff191eaff",
+      "sha256": "3b8a3a7ce5fee5f7af4e6af3c8ab78556bfb108ea8f00edf1924ee0950eed0eb"
+    },
+    {
+      "path": "lib/app/theme/app_theme.dart",
+      "blob": "37460bee3655acb89977919ee727228d38a5e2b8",
+      "sha256": "a9e7ffc7d7a0f512ba2ea36c6795d5b0c9e20fbea874d036a0079982cb2d48fd"
+    },
+    {
+      "path": "integration_test/support/next_integration_fixtures.dart",
+      "blob": "ba1aa848345ac12286bd68340cc57710e4071232",
+      "sha256": "54fc4f38cb9650ca64009923c500a0e8bad42b0b0f8d2815f0ee4a56bc01e43f"
+    },
+    {
+      "path": "test/support/commerce_surface_fixtures.dart",
+      "blob": "9cb5cb5809b598a29bb2f11dc92fe81340bce597",
+      "sha256": "10f196d89bf128b92115222acd2b2a87f5ef4a816fadb328f179e1d6d2faa5b0"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "locale:c07_contrast_probe_test.dart",
+      "sha256": "3c135844b48bcfeacde9c9e76a4ca351aa6ea9152d0204df3d6a0998b64897e4"
+    },
+    {
+      "path": "locale:c07_contrast_recalculate.py",
+      "sha256": "6fb9bf310c6190e78bc6e8385644e115513a0c78dbb0bb9b10d119b5a670e5d1"
+    },
+    {
+      "path": "locale:contrast_probe_test.dart",
+      "sha256": "2b688429a346a2832f6907619940e47dca35fa9f251fad95954a66eab4469ac4"
+    },
+    {
+      "path": "locale:measurements.json",
+      "sha256": "3d62bb6a0df23f6cd4fcfcaaad700c7cbe164bbb086cddd4665026638f747327"
+    },
+    {
+      "path": "locale:host.log",
+      "sha256": "3fec905628a4e6261e170d7af95e553690454cbbbb0f1cb878873dc321706cf8"
+    },
+    {
+      "path": "locale:recalculate.log",
+      "sha256": "87bef89927ca827135d48c081efb87db54f010e13c43420468a8954fa08c7afd"
+    }
+  ],
+  "sdkRevision": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+  "formula": "c<=0.04045 ? c/12.92 : ((c+0.055)/1.055)^2.4; L=0.2126R+0.7152G+0.0722B; (Lmax+0.05)/(Lmin+0.05), alpha composto prima della luminanza, confronto non arrotondato.",
+  "limits": [
+    "Nessun sampling PNG/antialias né capture native; colore applicato ai render object host.",
+    "Roboto è famiglia dichiarata nel RenderParagraph, non prova della risoluzione/rasterizzazione font OS.",
+    "Due Theme canoniche, locale en e scala1; nessuna conformità globale WCAG/VoiceOver/TalkBack/IME/device.",
+    "Fixture submit unavailable locale, nessuna mutazione API/staging reale. Nessun test31+24 replicato.",
+    "Nessun source/test permanente cambiato; probe e artifact ignorati."
+  ],
+  "standard": "https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
+}

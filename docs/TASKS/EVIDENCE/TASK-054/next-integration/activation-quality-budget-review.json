@@ -1,0 +1,291 @@
+{
+  "schema": "task054-quality-budget-concrete-workflow-review-v1",
+  "reviewer": "/root/final_audit",
+  "created_at_utc": "2026-10-09T22:50:27.859774+00:00",
+  "scope": "SOURCE_WORKFLOW_DELTA_ONLY",
+  "verdict": "APPROVED",
+  "qualification": "APPROVED_SOURCE_WORKFLOW_DELTA_ONLY",
+  "base": "f513330fbeef6139a5b9d278cc6824ce5c6bcc63",
+  "HEAD_before_commit": "f513330fbeef6139a5b9d278cc6824ce5c6bcc63",
+  "patch_sha256": "d94c8a43f41b0f6a6f8e130d0474fcf0373bbaff5e9850e3b968b1830dfa6d4c",
+  "files": {
+    ".github/workflows/ci.yml": {
+      "base_sha256": "9dd6c93303a4a36e3d938f185a55d29217a9c31871bacb9bd9db65daae4eed77",
+      "reviewed_working_sha256": "e68c3cb61dcc52342ea52acc7f22d5094164a09cde970de05c3a6b38e7185dd2"
+    },
+    ".github/workflows/task054-source-release.yml": {
+      "base_sha256": "879065eab86e444ef5066948b17d5c7e3181e44a91167524d77e0d82caa00751",
+      "reviewed_working_sha256": "c12bae4b1f82a69f7e27d5ef458fdd1370c91d4e1a04b2e3be5c77fe3f06e196"
+    }
+  },
+  "checks": {
+    "PASS": 24,
+    "FAIL": 0,
+    "items": [
+      {
+        "name": "base_HEAD_exact",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "only_two_YAML",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "only_owned_two_worktree_changes",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "canonical_exact_one_budget_change",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "diagnostic_exact_expected_patch",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "canonical_no_quality_only_skip",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "diagnostic_quality_no_if",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "performance_commands_unchanged",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "action_pins_permissions_runners_recipe_unchanged",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "diffcheck",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "event:push:None",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "event:workflow_dispatch:False",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "event:workflow_dispatch:True",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "pathfilter:.github/workflows/ci.yml",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "pathfilter:.github/workflows/ci.yml,.github/workflows/task054-source-release.yml",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "pathfilter:.github/workflows/ci.yml,lib/core/config/app_config.dart",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "pathfilter:scripts/check-backend-compatibility.py",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "pathfilter:docs/MASTER-PLAN.md",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "unchanged:scripts/check.sh",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "unchanged:pubspec.lock",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "unchanged:pubspec.yaml",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "unchanged:config/app_config.production.release.json",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "unchanged:lib/core/config/app_config.dart",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "unchanged:lib/core/config/release_config_attestation.dart",
+        "result": "PASS",
+        "detail": ""
+      }
+    ]
+  },
+  "event_matrix": [
+    {
+      "event": "push",
+      "quality_only": null,
+      "release_jobs_run": true,
+      "Quality_run": true
+    },
+    {
+      "event": "workflow_dispatch",
+      "quality_only": false,
+      "release_jobs_run": true,
+      "Quality_run": true
+    },
+    {
+      "event": "workflow_dispatch",
+      "quality_only": true,
+      "release_jobs_run": false,
+      "Quality_run": true
+    }
+  ],
+  "terminal_commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63:.github/workflows/ci.yml"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63:.github/workflows/task054-source-release.yml"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63:scripts/check.sh"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63:pubspec.lock"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63:pubspec.yaml"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63:config/app_config.production.release.json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63:lib/core/config/app_config.dart"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63:lib/core/config/release_config_attestation.dart"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--binary",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "motivation_receipt": "preliminary-motivation.json",
+  "risk": "Basso; durata Quality aumentata5min. Modalità diagnostica esplicita evita rebuild delle release invarianti senza cambiare CI canonica; defaultfalse/sourcepush eseguono tutti3job.",
+  "required_fidelity": "La futura dispatchtrue deve riportare2release SKIPPED/NOT_RUN, tenendo distinti i PASS f513 hash-bound. Quality-only verde non qualifica l’intero prodotto o runtime iOS. Non utilizzare reuse dopo mutazioni di sorgenti/input/ricette release.",
+  "limits": {
+    "new_CI": "NOT_RUN",
+    "runtime_iOS": "BLOCKED",
+    "PG_history_apply": "NOT_RUN",
+    "Client_Auth": "NOT_RUN",
+    "integrated_review": "BLOCKED",
+    "source_tests_rerun": false,
+    "source_Git_edits": false,
+    "remote_SQL": false,
+    "secret_read": false
+  },
+  "all_own_commands_terminal": true
+}

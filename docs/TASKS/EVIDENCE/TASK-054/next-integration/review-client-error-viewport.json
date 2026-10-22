@@ -1,0 +1,239 @@
+{
+  "reviewer": "/root/review_client_visual_resume",
+  "role": "CODEX_RE_REVIEWER",
+  "outcome": "APPROVED",
+  "scope": "CLIENT_SOURCE_C09_AND_ASSOCIATED_HARNESS_ONLY",
+  "sourceCommit": "50a3123e9b81e2a2c5490808aaf6056a1fa1e7ef",
+  "atUtc": "2026-10-05T20:20:17.684640+00:00",
+  "gates": [
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test test/features/reviews --no-pub --reporter expanded",
+      "result": "PASS",
+      "exitCode": 0,
+      "count": 59,
+      "log": "reviews-50a3123.log",
+      "meaning": "Canonicalreviews incluso30feedback(24 immediate modals4locale2theme3azioni) eC08owner/opening/cleanup.",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "logSha256": "128a74aa1535e9d456059abe17bdd36c4f6c9395a6764feda4ac3f25ae15f27f"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test /Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/c07_follow_hide_test.dart --no-pub --name 'recensione submit busy failure retry edit conserva commento' --dart-define=REVIEW_INSET=260 --dart-define=REVIEW_FOLLOW_HIDE=true --reporter expanded",
+      "result": "FAIL",
+      "exitCode": 1,
+      "count": "technicalProbeFAIL1",
+      "log": "c09-after-follow-hide.log",
+      "meaning": "TestTextInput.isVisible accessor requiresregistered; Integrationbinding nonregistered. Probe only repaired, no productsource/excludes.",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "logSha256": "9f54b78a6b410eba7cc50a391d917e1f0ecbeeb4f54aa1c0af876050ea51a607"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test /Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/c07_follow_hide_test.dart --no-pub --name 'recensione submit busy failure retry edit conserva commento' --dart-define=REVIEW_INSET=260 --dart-define=REVIEW_FOLLOW_HIDE=true --reporter expanded",
+      "result": "PASS",
+      "exitCode": 0,
+      "count": 1,
+      "log": "c09-after-follow-hide-repaired.log",
+      "meaning": "RealRoboto scenarioUI; validatesfocusfalse then HOSTmetricseventinset0; completeerrorcontainment/draft/editretry. TestInputhidden separatelycanonical59.",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "logSha256": "d1490f0fd59af65653b331354d9d1cc9e48a2e54d8d9c8356cc640ef2ecb3aa4"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test /Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/ownerB_focus_late_failure_test.dart --no-pub --name 'route /reviews cambio owner reale isola failure tardiva' --reporter expanded",
+      "result": "PASS",
+      "exitCode": 0,
+      "count": 1,
+      "log": "ownerB-focus-late-failure.log",
+      "meaning": "Publicroute/Auth/identity actualownerA→B; oldfailure preservesnewBdraft,focus,TestInputvisible.",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "logSha256": "7a28e756f268e7eeda17302d553c0903b261ce8e193a4778e58297dc20863749"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test /Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/reviews_owner_opening_aba_reproduction_test.dart --no-pub --name 'A-B-A prima del primo frame del dialog' --reporter expanded",
+      "result": "PASS",
+      "exitCode": 0,
+      "count": 1,
+      "log": "opening-aba-50a3123.log",
+      "meaning": "OriginalexternalPoC adaptedonly relativeimportpaths tocurrentroot; actualpublicroute A-B-Apreframe.",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "logSha256": "30178681e086fd11c9ed2fded58733164f5ae7020305e00c5ccb7b2252e81404"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter analyze --no-pub",
+      "result": "PASS",
+      "exitCode": 0,
+      "count": "zeroissues",
+      "log": "analyze-global-50a3123.log",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "logSha256": "021829d40037d8f0a1bc28373caa1efabd699be0e3b2b4e4e89fcfba7a1cab16"
+    },
+    {
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "architecture-50a3123.log",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "logSha256": "da205cb7b3c8e3a5d67d97dd855433c0e182e607166674fbc2a6a022c68f88f4"
+    },
+    {
+      "command": "bash scripts/check-user-facing-localization.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "localization-50a3123.log",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "logSha256": "3327d2169a76cf880d2cf28a6be01c3a7570273b2468a83e9627240da6e1717f"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/dart format --output=none --set-exit-if-changed lib/features/reviews/presentation/customer_reviews.dart test/features/reviews/customer_review_dialog_feedback_test.dart",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "format-50a3123.log",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "logSha256": "86cbe6234237454cd872d2340a34541d75abeb076ec9f849ac6f88fbd2f5cdeb"
+    }
+  ],
+  "finding": {
+    "id": "C-NI054-09",
+    "severity": "P2",
+    "status": "CLOSED_SOURCE_NATIVE_AFTER_PENDING",
+    "rationale": "Unfocus dello specifico focusedChild nel ramo mounted/currentowner non tocca route/focus di ownernuovo. Evita restoreIME dopoimmediateFAIL; draft/rating/retry preservati. Scopegate non equivale pixelnativeafterPASS."
+  },
+  "geometryContrast": {
+    "beforeEffb": {
+      "phase": "settled",
+      "errorRect": "Rect.fromLTRB(48.0, 0.0, 272.0, 120.0)",
+      "errorHitCount": 1,
+      "scrolls": [
+        {
+          "viewport": "Rect.fromLTRB(48.0, -400.0, 272.0, 120.0)",
+          "pixels": 0.0,
+          "maxScrollExtent": 0.0,
+          "errorIntersection": "Rect.fromLTRB(48.0, 0.0, 272.0, 120.0)",
+          "fullyContained": true
+        },
+        {
+          "viewport": "Rect.fromLTRB(40.0, 60.0, 280.0, 120.0)",
+          "pixels": 612.0,
+          "maxScrollExtent": 636.0,
+          "errorIntersection": "Rect.fromLTRB(48.0, 60.0, 272.0, 120.0)",
+          "fullyContained": false
+        }
+      ],
+      "draft": "Comentario sintético editado sin perder el texto en el retry.",
+      "focus": true,
+      "mediaSize": "Size(320.0, 568.0)",
+      "mediaViewInsets": "EdgeInsets(0.0, 0.0, 0.0, 260.0)"
+    },
+    "after50aHostImeMetricEvent": {
+      "phase": "settled",
+      "errorRect": "Rect.fromLTRB(48.0, 260.0, 272.0, 380.0)",
+      "errorHitCount": 1,
+      "scrolls": [
+        {
+          "viewport": "Rect.fromLTRB(48.0, -140.0, 272.0, 380.0)",
+          "pixels": 0.0,
+          "maxScrollExtent": 0.0,
+          "errorIntersection": "Rect.fromLTRB(48.0, 260.0, 272.0, 380.0)",
+          "fullyContained": true
+        },
+        {
+          "viewport": "Rect.fromLTRB(40.0, 60.0, 280.0, 380.0)",
+          "pixels": 352.0,
+          "maxScrollExtent": 376.0,
+          "errorIntersection": "Rect.fromLTRB(48.0, 260.0, 272.0, 380.0)",
+          "fullyContained": true
+        }
+      ],
+      "draft": "Comentario sintético editado sin perder el texto en el retry.",
+      "focus": false,
+      "mediaSize": "Size(320.0, 568.0)",
+      "mediaViewInsets": "EdgeInsets.zero"
+    }
+  },
+  "sourceAssociation": {
+    "lib/features/reviews/presentation/customer_reviews.dart": {
+      "currentSha256": "84adcbf5950bb9bcd4fca9e9498d3627bc8c89d7d248c4fc4d764911047e3e5d",
+      "sourceCommitSha256": "84adcbf5950bb9bcd4fca9e9498d3627bc8c89d7d248c4fc4d764911047e3e5d",
+      "identical": true
+    },
+    "test/features/reviews/customer_review_dialog_feedback_test.dart": {
+      "currentSha256": "33caf0c2d75d23232857eb457ef1134725d6ea5cd5c46795304d473c07e00dfc",
+      "sourceCommitSha256": "33caf0c2d75d23232857eb457ef1134725d6ea5cd5c46795304d473c07e00dfc",
+      "identical": true
+    },
+    "integration_test/task054_next_integration_surfaces_test.dart": {
+      "currentSha256": "01903afb303bccc4854a8c4e36c32bb06ab1d49b8b67320d3fb4d887b46b6de5",
+      "sourceCommitSha256": "01903afb303bccc4854a8c4e36c32bb06ab1d49b8b67320d3fb4d887b46b6de5",
+      "identical": true
+    }
+  },
+  "proofs": [
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/C-NI054-09-finding.json",
+      "sha256": "b951aa33383a3a71ed557fdbb392eb25139d459fe2ff77edcd9ee50a8165edaf"
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/source-association.json",
+      "sha256": "026ec37b0d63d1f81848ee6473f647926ea9e18b6a8f39a24d725d62de44f024"
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/public-probe-import-mapping.json",
+      "sha256": "7dcdca783278c3a69508ad188fafcbbc7fce9bc852ccf184aa33f5b5f7b692af"
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/c07-260-review-edit-failure-comment-preserved-compact200.json",
+      "sha256": "fb8235d3b77755b92dfef3ce1449d2295b7d4c5fb7bb21e160d0b8b2c7b8432b"
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/after50a3123/c07-260-review-edit-failure-comment-preserved-compact200.json",
+      "sha256": "a34bbadc130b365b548e311105b7ded78ce50f6ff556ba55380fbba45461383f"
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/ownerB_focus_late_failure_test.dart",
+      "sha256": "3ae2870216c43427e0a09a96ba6236ceea1bdc3a7f2dae3d361f77b9d61ec16d"
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/c07_scenarios_follow_hide.dart",
+      "sha256": "8b1c8f3907bdb6e5e3b6c19fcfb7ecb48a98b3f03cd3a511e80bbc15094caed0"
+    }
+  ],
+  "primaryAPI": {
+    "focusManagerPath": "/Users/minxiang/develop/flutter/packages/flutter/lib/src/widgets/focus_manager.dart",
+    "lines": "875-948",
+    "sha256": "16286e50e6d9877a7a5bbfc36b8a2643fed71ddcffd6fc55047ce535703ffd1b",
+    "meaning": "unfocus su focusedChild cancella requests e focusedhistory del proprio enclosing scope; defaultscope permettehideInput, no rootScopeunfocus."
+  },
+  "artifactCorrections": [
+    {
+      "issue": "Prima coppia afterhost riusava nomegeometrybefore e label sourceeffb del probe.",
+      "resolution": "After originalmislabel preserved inafter50a3123/original-probe-label files; source qualification correctedonlymetadata withoriginalhash. BaselineHOSTeffb rerunFAIL1 restoresoriginalnegativegeometrypath; originalFAILlog untouched.",
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test /Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/c07_test.dart --no-pub --name 'recensione submit busy failure retry edit conserva commento' --dart-define=REVIEW_INSET=260 --reporter expanded",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-visual/ClientMerchandiseControl",
+      "result": "FAIL",
+      "exitCode": 1,
+      "logSha256": "d0bcde739fefe95843c77c9cbdf0f188741c9f2f6d26ecf4eadbb0be70615e99",
+      "qualification": "Hostgeometry repeated on immutable before source; no native image/baseline regeneration."
+    }
+  ],
+  "counts": {
+    "canonicalReviews": 59,
+    "additionalHostGeometry": 1,
+    "additionalOwnerBFocus": 1,
+    "additionalOpeningAba": 1,
+    "totalPassExecutedThisSourceReview": 62
+  },
+  "limits": [
+    "Nuovi nativeAndroid/iOSafterC09 NOT_RUN nel reviewer: richiedonoCI5artifacts/UIQA reali.",
+    "Syntheticinsets e metricsevent sono WIDGETdiagnostic, non IMEphysical/nativeacceptance.",
+    "Non approvaCI/merge/staging/wholeTASK; iOSkernelrunnerreview separata.",
+    "Rootdocsdirty delwriter preservati; tre codeblobs associati a50a sonoidentici, reviewer nonha modificato implementazione."
+  ],
+  "warnings": [
+    "Integration plugin warning perhostexternal wrapper; hostqualificationesplicita."
+  ],
+  "ownedProcesses": "ALL_TERMINAL",
+  "gitHeadAtEnd": "50a3123e9b81e2a2c5490808aaf6056a1fa1e7ef",
+  "originalReceipt": {
+    "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/RE_REVIEW_CLIENT_50A_SOURCE_APPROVED.json",
+    "sha256": "90332e100d3447beba1175abdc3ab5277752255a2037a70889606eb2b348b4f9"
+  },
+  "durableQualification": "Ricevuta scoped del reviewer distinto copiata senza alterare gli esiti; fonti canoniche lib/test/integration sono in Git. Log e PoC supplementari restano locali e sanitizzati, con comandi e hash; non costituiscono la sola prova del comportamento. Nuove catture native after C09 richiedono CI5. Nessuna approvazione TASK complessiva o merge."
+}

@@ -1,0 +1,187 @@
+name: TASK054 iOS measured
+
+on:
+  push:
+    branches:
+      - codex/task054-ios-preflight-measured
+    paths:
+      - .github/workflows/task054-ios-measured.yml
+      - scripts/run-ios-preflight-measured.py
+      - scripts/trace-ios-owned-process.py
+      - scripts/test-ios-process-trace.py
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Preflight, catena completa o singola query HOST runtime
+        required: true
+        default: preflight
+        type: choice
+        options:
+          - preflight
+          - native
+          - review
+          - matrix
+          - journal
+          - runtime-query
+      surface:
+        description: Superficie storica, alternativa o canonical per preflight/query HOST
+        required: true
+        default: historical
+        type: choice
+        options:
+          - historical
+          - compatible
+          - canonical
+
+permissions:
+  contents: read
+
+jobs:
+  measured-ios:
+    name: Owned iOS measured preflight and native
+    if: (inputs.mode == 'runtime-query' && inputs.surface == 'canonical') || (inputs.mode != 'runtime-query' && (inputs.surface != 'canonical' || inputs.mode == 'preflight'))
+    runs-on: ${{ inputs.surface == 'compatible' && 'macos-15' || 'macos-26' }}
+    timeout-minutes: 35
+    env:
+      DEVELOPER_DIR: ${{ inputs.surface == 'canonical' && '/Applications/Xcode_26.6.app/Contents/Developer' || inputs.surface == 'compatible' && '/Applications/Xcode_26.3.app/Contents/Developer' || '/Applications/Xcode_26.5.app/Contents/Developer' }}
+      FLUTTER_VERSION: 3.44.8
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+      - name: Validate measured transport
+        if: inputs.mode != 'runtime-query'
+        run: |
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-canonical-cold.py
+          bash scripts/check-action-pins.sh
+      - name: Minimal owned preflight
+        if: inputs.surface != 'compatible' && inputs.surface != 'canonical'
+        run: |
+          cmc_keep_ready=()
+          case '${{ inputs.mode }}' in
+            native|review|matrix|journal) cmc_keep_ready=(--keep-ready) ;;
+          esac
+          python3 scripts/run-ios-preflight-measured.py \
+            --output build/task054/ios-measured "${cmc_keep_ready[@]}"
+      - name: Cold canonical owned preflight without Flutter or app
+        if: inputs.surface == 'canonical' && inputs.mode != 'runtime-query'
+        run: |
+          python3 scripts/run-ios-preflight-measured.py \
+            --profile canonical --output build/task054/ios-measured
+      - name: Observe one canonical HOST runtime query
+        if: inputs.mode == 'runtime-query' && inputs.surface == 'canonical'
+        run: |
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/run-ios-preflight-measured.py \
+            --profile runtime-query --output build/task054/ios-runtime-query
+      - name: Prepare alternative installed iOS surface headless
+        if: inputs.surface == 'compatible'
+        run: |
+          mkdir -p build/task054/ios-measured
+          xcodebuild -version
+          xcrun --sdk iphonesimulator --show-sdk-version
+          python3 scripts/run-task054-ios-owned.py prepare \
+            --receipt build/task054/ios-measured/owner.json --headless
+      - name: Set up Flutter
+        if: inputs.mode == 'native' || inputs.mode == 'review' || inputs.mode == 'matrix' || inputs.mode == 'journal'
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain and dependencies
+        if: inputs.mode == 'native' || inputs.mode == 'review' || inputs.mode == 'matrix' || inputs.mode == 'journal'
+        run: |
+          bash scripts/resolve-flutter.sh
+          flutter pub get --enforce-lockfile
+      - name: Build compatible iOS Simulator app before critical review
+        if: (inputs.mode == 'native' || inputs.mode == 'review') && inputs.surface == 'compatible'
+        run: flutter build ios --simulator --debug
+      - name: Validate compatible iOS bundle security
+        if: (inputs.mode == 'native' || inputs.mode == 'review') && inputs.surface == 'compatible'
+        run: bash scripts/check-client-security.sh --artifact build/ios/iphonesimulator/Runner.app
+      - name: Smoke compatible app before critical review
+        if: (inputs.mode == 'native' || inputs.mode == 'review') && inputs.surface == 'compatible'
+        run: |
+          cmc_device="$(python3 -c 'import json; print(json.load(open("build/task054/ios-measured/owner.json"))["device"])')"
+          bash scripts/test-ios-shell-smoke.sh \
+            --device "$cmc_device" --receipt build/task054/ios-measured/owner.json
+      - name: Critical review alone on the same owned Simulator
+        if: inputs.mode == 'native' || inputs.mode == 'review'
+        env:
+          CMC_TASK054_VISUAL_SELECTION: review
+        run: |
+          cmc_device="$(python3 -c 'import json; print(json.load(open("build/task054/ios-measured/owner.json"))["device"])')"
+          bash scripts/test-task054-visual.sh --device "$cmc_device"
+      - name: Review after the two preceding inbox cases
+        if: inputs.mode == 'native' || inputs.mode == 'review'
+        env:
+          CMC_TASK054_VISUAL_SELECTION: review-after-inbox
+        run: |
+          cmc_device="$(python3 -c 'import json; print(json.load(open("build/task054/ios-measured/owner.json"))["device"])')"
+          bash scripts/test-task054-visual.sh --device "$cmc_device"
+      - name: Existing journal runner on the same owned Simulator
+        if: inputs.mode == 'native' || inputs.mode == 'journal'
+        run: >-
+          python3 scripts/run-address-journal-ios.py
+          --owner-receipt build/task054/ios-measured/owner.json
+      - name: Build normal iOS Simulator app for matrix
+        if: inputs.mode == 'native' || inputs.mode == 'matrix'
+        run: flutter build ios --simulator --debug
+      - name: Validate normal iOS bundle security
+        if: inputs.mode == 'native' || inputs.mode == 'matrix'
+        run: bash scripts/check-client-security.sh --artifact build/ios/iphonesimulator/Runner.app
+      - name: Smoke normal app before matrix
+        if: inputs.mode == 'native' || inputs.mode == 'matrix'
+        run: |
+          cmc_device="$(python3 -c 'import json; print(json.load(open("build/task054/ios-measured/owner.json"))["device"])')"
+          bash scripts/test-ios-shell-smoke.sh \
+            --device "$cmc_device" --receipt build/task054/ios-measured/owner.json
+      - name: Capture full fixture matrix after smoke
+        if: inputs.mode == 'native' || inputs.mode == 'matrix'
+        run: |
+          cmc_device="$(python3 -c 'import json; print(json.load(open("build/task054/ios-measured/owner.json"))["device"])')"
+          CMC_OS_FRAME_PLATFORM=ios CMC_OS_FRAME_DEVICE="$cmc_device" \
+            bash scripts/test-task054-visual.sh --device "$cmc_device"
+      - name: Final owned cleanup
+        if: always() && (inputs.mode == 'native' || inputs.mode == 'review' || inputs.mode == 'matrix' || inputs.mode == 'journal' || inputs.surface == 'compatible')
+        run: |
+          if [[ -f build/task054/ios-measured/owner.json ]]; then
+            python3 scripts/run-task054-ios-owned.py cleanup \
+              --receipt build/task054/ios-measured/owner.json
+          fi
+      - name: Save measurements and native receipts
+        if: always() && inputs.mode != 'runtime-query'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-ios-measured
+          path: |
+            build/task054/ios-measured/*
+            build/task054/ios-address-journal/*.json
+            build/task054/visual/*.png
+            build/task054/os-visual/*.png
+            build/task054/os-visual/*.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Save HOST query metadata only
+        if: always() && inputs.mode == 'runtime-query' && inputs.surface == 'canonical'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-ios-runtime-query
+          path: |
+            build/task054/ios-runtime-query/result.json
+            build/task054/ios-runtime-query/processes.jsonl
+          retention-days: 7
+          if-no-files-found: error
+      - name: Create separate iOS PNG previews
+        if: always() && inputs.mode != 'runtime-query'
+        timeout-minutes: 1
+        run: python3 scripts/create-task054-ios-preview.py
+      - name: Save separate iOS PNG previews
+        if: always() && inputs.mode != 'runtime-query'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-ios-measured-previews
+          path: build/task054/ios-visual-preview/
+          retention-days: 7
+          if-no-files-found: warn

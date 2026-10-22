@@ -59,7 +59,7 @@ void main() {
             as YamlMap;
     final jobs = document['jobs'] as YamlMap;
 
-    expect(jobs.length, 5);
+    expect(jobs.length, 7);
     for (final entry in jobs.entries) {
       final steps = (entry.value as YamlMap)['steps'] as YamlList;
       final checkout = steps.whereType<YamlMap>().singleWhere(

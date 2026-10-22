@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "recordedUtc": "2026-10-04T19:18:14.090748+00:00",
+  "scope": "TASK-054 R24/native dependency read-only reconciliation",
+  "writerOwner": "N (TASK-143 Android / TASK-144 iOS); Client root owns its isolated worktree",
+  "authoringChain": "NOT_RUN",
+  "mainAndroid": "fe0927c379082925864b200b747bf9d152c5b750",
+  "androidMainCi": {
+    "result": "PASS",
+    "runId": 37182631429,
+    "headSha": "fe0927c379082925864b200b747bf9d152c5b750",
+    "jobs": 1,
+    "effectiveSuccessfulSteps": 12,
+    "xmlFiles": 74,
+    "tests": 1134,
+    "pass": 1127,
+    "skip": 7,
+    "fail": 0,
+    "error": 0,
+    "savedReceiptInputsRehashed": 11,
+    "inputMismatches": 0,
+    "qualification": "Verified live run head/jobs/steps and saved XML/hash inputs. Does not attest current dirty local-availability patch or authenticated recovery."
+  },
+  "mainIos": "433e7dafaa3ebc093082eaf22320f0070c2d40a2",
+  "iosMainCi": {
+    "result": "PASS",
+    "runId": 37177424913,
+    "headSha": "433e7dafaa3ebc093082eaf22320f0070c2d40a2",
+    "jobs": 1,
+    "effectiveSuccessfulSteps": 10,
+    "savedReceiptInputsRehashed": 6,
+    "inputMismatches": 0,
+    "uniqueCasesCounted": 1478,
+    "statusesCounted": {
+      "Passed": 1442,
+      "Skipped": 36
+    },
+    "remoteXcresultPublished": false,
+    "qualification": "Live head/jobs/steps and hash-verified saved console cases; no remote xcresult or new current local-availability gate claimed."
+  },
+  "notRun": [
+    "No build or local tests launched by this lane",
+    "No authenticated target/device/backend mutation",
+    "No runtime authoring/readback or image lifecycle verification",
+    "No performance sample or approval/merge issued"
+  ],
+  "owner_patch_status": "In esecuzione presso N; gli snapshot di gruppi locali non costituiscono nuova CI o recovery live. Consultare owner corrente prima di usare le receipt storiche.",
+  "public_product_identity": "localId -> sourceProductId UUID -> publicationId = Client product.id; correlare separatamente le versioni e immagini"
+}

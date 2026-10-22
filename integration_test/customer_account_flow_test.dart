@@ -139,6 +139,7 @@ Widget _buildApp(FakeCustomerAccountRepository repository) {
         TestDeliveryContextController.new,
       ),
       customerAccountRepositoryProvider.overrideWithValue(repository),
+      customerAccountShopSlugProvider.overrideWithValue(null),
       customerIdempotencyKeyFactoryProvider.overrideWithValue(
         () => '21000000-0000-4000-8000-000000000777',
       ),

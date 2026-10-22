@@ -1,0 +1,16 @@
+{
+  "command": "gh api repos/XNIW/ClientMerchandiseControl/actions/runs/37848510649 --jq <minimal metadata>",
+  "exitCode": 0,
+  "metadata": {
+    "conclusion": "failure",
+    "created_at": "2026-10-08T21:41:12Z",
+    "event": "pull_request",
+    "head_sha": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+    "html_url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37848510649",
+    "id": 37848510649,
+    "run_attempt": 1,
+    "run_started_at": "2026-10-08T21:41:12Z",
+    "status": "completed",
+    "updated_at": "2026-10-08T22:10:22Z"
+  }
+}

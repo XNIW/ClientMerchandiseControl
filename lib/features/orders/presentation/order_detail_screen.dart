@@ -21,6 +21,7 @@ import '../../reviews/presentation/customer_reviews.dart';
 import '../application/customer_order_controller.dart';
 import '../domain/customer_order_failure.dart';
 import '../domain/customer_order_models.dart';
+import 'customer_delivery_tracking_eta.dart';
 import 'customer_reorder_card.dart';
 import 'customer_order_presentation.dart';
 import 'orders_screen.dart';
@@ -623,6 +624,10 @@ class _DeliveryTrackingCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Text(l10n.deliveryTrackingUnavailable),
+                      if (state.cacheCleanupFailed) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(l10n.deliveryTrackingCacheCleanupFailed),
+                      ],
                       const SizedBox(height: AppSpacing.sm),
                       TextButton.icon(
                         key: const ValueKey('delivery-tracking-retry'),
@@ -724,27 +729,12 @@ class _DeliveryTrackingCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (snapshot.etaStartsAt != null &&
-                  snapshot.etaEndsAt != null) ...[
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  l10n.deliveryTrackingWindow(
-                    customerOrderDate(
-                      context,
-                      snapshot.etaStartsAt!,
-                      timeZone: detail.timeZone,
-                    ),
-                    customerOrderDate(
-                      context,
-                      snapshot.etaEndsAt!,
-                      timeZone: detail.timeZone,
-                    ),
-                  ),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
-                ),
-              ],
+              CustomerDeliveryTrackingEta(
+                snapshot: snapshot,
+                timeZone: detail.timeZone,
+                orderTerminal: _isTerminalCustomerOrderStatus(detail.status),
+                isForeground: state.isForeground,
+              ),
               DeliveryLiveMap(
                 snapshot: snapshot,
                 ownerAuthenticated: ownerAuthenticated,

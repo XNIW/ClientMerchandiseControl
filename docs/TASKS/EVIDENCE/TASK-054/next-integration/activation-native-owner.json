@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "scope": "N_OWNER_REPORT_NOT_CLIENT_RUNTIME_OR_R24",
+  "recorded_at": "2026-10-09T00:46:55.080485+00:00",
+  "owner_thread": "01a0e903-0c9d-7583-8d62-4c25da6785e1",
+  "android": {
+    "main": "bbbda83bee33b5374d5164a5c989a95db28f7e0f",
+    "APK_sha256": "74e75a1219eb2784e6db73cb2098ead33b350de7e61d6e4c7fc2afe3675dffdb",
+    "proper_build_receipt": {
+      "path": "/Users/minxiang/Projects/MerchandiseControl-Ecosistema/evidence/native-local-availability-20261004/native-residuals-continuation-20261007-01/android-sync-banner-header-proper-test-preparation-01/actual-empty-fab-build-01/receipt.json",
+      "sha256": "0a1bdbe07d636179a572c6a8f94c4f0a96caecd6598fbd8431f880855e4808c0",
+      "root_file_hash_check": "PASS"
+    },
+    "main_CI": {
+      "run": 37862704857,
+      "reported_result": "PASS",
+      "tests": 1250,
+      "xml_files": 76,
+      "skips": 7,
+      "lint": 59,
+      "adjudication_sha256": "51c07a021163bc5d02c984efbb02fb20b110e359b7998c4d4b989666925d20cf",
+      "root_independent_run_inspection": "NOT_RUN"
+    },
+    "install_preserving_data": {
+      "result": "PASS",
+      "provenance": "N owner report; separate from root hash verification of the build receipt"
+    },
+    "PID": 20553,
+    "runtime": "Checking at +81s and +776s; source-validated passive read observes bootstrap timeout10s/deferred/SignedOut; no subsequent authenticated session observed",
+    "cause": "UNKNOWN_SDK",
+    "R24_new_chain": "NOT_RUN"
+  },
+  "ios": {
+    "main": "b869c9b3d1a23e6bb38234ade965005e790180e1",
+    "proper_binary_sha256": "2cb5de15e40804cc7ae41efc6a6085990fb9487a44f94ccbe75b607f34fdc5f5",
+    "reported_CI": {
+      "tests": 1576,
+      "skips": 36,
+      "UI_tests": 16,
+      "result": "PASS"
+    },
+    "installed": {
+      "result": "PASS",
+      "provenance": "N owner report; not a Client installation"
+    },
+    "PID": 88298,
+    "runtime": "Cloud check failed; preferences-installer semantics UNKNOWN",
+    "cause": "UNKNOWN",
+    "R24_new_chain": "NOT_RUN"
+  },
+  "root_device_interactions": 0,
+  "Client_installation_or_auth_inferred": false,
+  "historical_ACK_search_repeated": false,
+  "new_Save_stock_image_publication": {
+    "result": "NOT_RUN",
+    "provenance": "N owner report"
+  },
+  "N_Mac": "Locked; manual unlock already requested by N; no root use"
+}

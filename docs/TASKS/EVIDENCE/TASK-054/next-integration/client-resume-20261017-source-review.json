@@ -1,0 +1,143 @@
+{
+  "schema": "task054-targeted-source-review.v1",
+  "baseline": "75bff91b3b06b8f166fe612398a0ebb9c9ca9fcd",
+  "date": "2026-10-17",
+  "mandate": "Ripresa utente del mandato Client e addendum esistenti",
+  "verdict": "CHANGES_REQUIRED",
+  "scope": "Due interleaving applicativi mirati; nessun audit generale o nuova diagnosi runner",
+  "findings": [
+    {
+      "id": "CART-REFRESH-QUEUE-RR-01",
+      "severity": "P2",
+      "reviewer": "/root/cart_review",
+      "file": "lib/features/cart/application/cart_controller.dart",
+      "line": 110,
+      "sequence": "Mutation A differita, refresh checkout accodato, add B distinto ammesso prima dell'ACK A; refresh incrementa generation e scarta B nello stesso owner/shop",
+      "reviewReceiptSha256": "c100ed26536a05f2ba79fb5acaede436fd91d431fa23c1bf721b1d2c339d18f6",
+      "runtimeRED": "NOT_RUN",
+      "requiredRegression": "Provider refresh produzione, ACK cart sintetici, add/quantity/remove, dedup attraverso refresh e negative owner/shop ABA"
+    },
+    {
+      "id": "AS-QUERY-01",
+      "severity": "P2",
+      "reviewer": "/root/journal_origin_diagnostic",
+      "file": "lib/features/after_sales/presentation/customer_after_sales_screen.dart",
+      "line": 45,
+      "sequence": "Router reale /after-sales?orderId=A verso stessa route con B conserva State/righe/nota A ma submit usa orderId B; anche risposta righe A differita resta agganciata",
+      "reviewReceiptSha256": "9f2672d67b202829cdc8348c9955f3599a49feb9415f9dae116dc070141abe48",
+      "runtimeRED": "NOT_RUN",
+      "requiredRegression": "A caricato e A differito, stessa query conserva bozza, B riceve proprie righe e draft, query senza orderId torna alla lista"
+    }
+  ],
+  "strategyReview": {
+    "reviewer": "/root/cold_preflight_reviewer",
+    "result": "APPROVED",
+    "scope": "Sola strategia; non implementazione o runtime",
+    "sha256": "97b649b96e760edab2b50ae814fd85dc56a1c08c8b6e6a2519fb1d0c4c35cfbf",
+    "constraints": [
+      "RED hosted tests-only prima dell'implementazione",
+      "Epoch scope distinto, rebind solo all'avvio del comando; generation dei callback attivi invariata",
+      "Auth/shop ABA, dedup per epoch, pending/idempotenza preservati",
+      "Key del form per orderId; checkpoint per caseId invariati"
+    ]
+  },
+  "state": "BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED",
+  "newSDKRuntimeTests": "PASS",
+  "liveAcceptance": "BLOCKED",
+  "sourceImplementationChangedAtReviewCutoff": false,
+  "noDuplicateOrServerCommitClaimed": true,
+  "redTestsStaticReview": {
+    "result": "APPROVED",
+    "scope": "TESTS_ONLY_STATIC_PRE_RED",
+    "receiptSha256": "4378dbcbeb8389e6f78569eeaff1e60494b4997c66572828ff3f7d9d25d9c854",
+    "previousChangesRequiredPreserved": true,
+    "runtime": "NOT_RUN"
+  },
+  "preRedHostedAttempt": {
+    "runId": 39076549743,
+    "sha": "cc0f17df655cff9a385f9b950ea16edee8e79d32",
+    "result": "FAIL",
+    "cause": "unnecessary_import nel nuovo test after-sales; corretto senza modifica lib",
+    "DartTests": "NOT_RUN",
+    "formatterPatchAdopted": true
+  },
+  "causalRED": {
+    "runId": 39076768104,
+    "sha": "9475319cbd8f24c37297a2f57f31cebe8be521bb",
+    "jobId": 117525427878,
+    "analyze": "PASS",
+    "passed": 508,
+    "failed": 6,
+    "skipped": 1,
+    "exitCode": 1,
+    "libByteIdenticalToBaseline": true,
+    "formatterPatchBytes": 0,
+    "cartFailures": 4,
+    "afterSalesFailures": 2,
+    "observedOwnerShopABA": "PASS",
+    "serverOrNativeAcceptance": false
+  },
+  "implementation": {
+    "status": "PASS_HOSTED_REGRESSIONS_SOURCE_REVIEW_SCOPED",
+    "scope": "Epoch FIFO carrello e key orderId form after-sales",
+    "newCartAssertions": "CartActionResult è corrente dopo il refresh",
+    "sourceReview": {
+      "cart": {
+        "verdict": "APPROVED_SOURCE_ONLY",
+        "sha256": "658f285dd0e578058041875bea1cb5df6ae5a7294655f0556cb4f270145a563b"
+      },
+      "afterSales": {
+        "verdict": "APPROVED_SOURCE_ONLY",
+        "sha256": "e49fdd9f932af3d67a1ae7d544f218933ae8b6471e045b600a537526f69140e4"
+      }
+    }
+  },
+  "firstFixHosted": {
+    "sha": "4f4be1b28253865425148a47bc6e2cf093fa4875",
+    "runId": 39077194321,
+    "result": "FAIL",
+    "exitCode": 1,
+    "analyze": "PASS",
+    "passed": 513,
+    "failed": 1,
+    "skipped": 1,
+    "cause": "ensureVisible del nuovo test senza scroll del ListView lazy; corretto harness, assert invariati",
+    "cartSixRegressions": "PASS",
+    "afterSalesLateRead": "PASS",
+    "afterSalesSubmitAssertions": "NOT_RUN"
+  },
+  "greenHosted": {
+    "runId": 39077576033,
+    "sha": "93ea7a8a09a27a83e43b79740e05fe0ff238f5f3",
+    "jobId": 117527815765,
+    "result": "PASS",
+    "exitCode": 0,
+    "analyze": "PASS zero issues",
+    "format": {
+      "files": 406,
+      "changed": 0
+    },
+    "tests": {
+      "passed": 514,
+      "failed": 0,
+      "skipped": 1
+    },
+    "newTestsPassed": 8,
+    "formatterPatchBytes": 0,
+    "scope": "HOSTED_REGRESSIONS_NOT_NATIVE_AUTH_ACCEPTANCE"
+  },
+  "newSDKRuntimeTestsScope": "Hosted regressions only, native/auth acceptance not qualified",
+  "canonicalFinalGatesAtDocumentCutoff": {
+    "Quality": "NOT_RUN",
+    "AndroidUnsigned": "NOT_RUN",
+    "iOSUnsigned": "NOT_RUN",
+    "source": "Final Checks PR29 and private canonical-terminal.json; no anticipatory PASS"
+  },
+  "readinessMetadata": {
+    "historyRows": 163,
+    "receiptSha256": "31772d83819740257df0172b75b3f4f9132c2a700409cc7a7f1a1d3c104ee718",
+    "canonicalFourAbsentFromLedger": true,
+    "catalogRlsRuntime": "NOT_RUN",
+    "externalWrites": false
+  }
+}

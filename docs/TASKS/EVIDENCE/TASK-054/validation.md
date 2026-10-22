@@ -1,5 +1,39 @@
 # Verifiche TASK-054
 
+## CI eb0 e fix QUALITY-RR-01 — snapshot prima della nuova PRhead
+
+[Capsula terminale eb0](next-integration/client-cart-tracking-ci-eb0dc221.json):
+CI38320490620,4SUCCESS/3FAIL e16 annotation ispezionate. Quality1241/1FAIL/1SKIP,
+format409/0 e analyze0; performance NOT_RUN dopo il FAIL. Android journal/restart
+e corpus93body/driver/137Flutter+4OS PASS; release unsigned Android12/iOS89 PASS.
+Visual iOS prepare124/cleanup1 FAIL,0PNG e quiescenza non provata; journal iOS
+ready/app avviata/PID23663 ma publisher seed SDK FAIL, recover NOT_RUN, cleanup
+process/log/owner PASS separati. Nessun trasferimento dai tentativi storici.
+[Fix e associazione hosted](next-integration/client-cart-tracking-quality-fix-host.json):
+ec40596+formatter21a,497PASS/1SKIP/analyze0,14test governance compresi; review
+distinta source/focused. CA-05/T-05 resta da qualificare con Quality canonico sul
+nuovo head PR; i successivi Checks saranno letti con SHA e ricevuta propri.
+
+## Addendum carrello e tracking — checkpoint12ottobre
+
+Il [dossier corrente](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md) e il
+[ledger37run](next-integration/client-cart-tracking-host-run-ledger.json) governano
+questo delta. Le sezioni sotto mantengono fonte/data/esito storici.
+
+| CA / test | Comando e revisione | Risultato / limite |
+|---|---|---|
+| CA-05/T-05 Quality | CI38309453984/app07649: format409/0, analyze0, coverage1242/1SKIP, performance11 | PASS/exit0 host, nessuna acceptance TEST |
+| Add/outcome e journal checkout | focused38308535239/695+preparation076,483PASS/1SKIP; RED/GREEN immutabili | PASS host/source distinta; R13/R14 autenticati NOT_RUN |
+| Guest restart Android | GCR38309453440/07649,4152→4363,stessoAPK/UID | PASS storage/UI/cleanup, due processi reali |
+| Journal indirizzi Android | CI38309453984/07649,file terminale,4289→4396 | PASS native storage/restart/cleanup; ordine journal distinto |
+| iOS visual | CI38309453984/07649,93body+driver,2golden,1smoke | PASS esecuzione; FAIL corpus133/137,4OS separati; fix fixture153+formatterec ripristina137Android; nuovo iOS1fb probe124/BLOCKED |
+| Android visual | 4b/38316402128,93body+driver,137Flutter+4OS,prebuilt/installhashidentici | PASS/exit0 ecleanup; vecchi076connect/153sdkZIP FAIL preservati |
+| GCR/readiness iOS | inventory124,environmentmismatch2 e descriptor diagnostico7a85 storici | PASS native guest v2; v1hosttrueFAIL124/dyld preservato; v2 4b/38315958950:19700→21193/14checks/ownercleanupPASS |
+| Pixel tracking4locale×2tema×200% | 16frame host originali revisionati, fonte16f | PASS scoped; 18frame native076 QA parziale, matrice native/AT/Google BLOCKED |
+| Release Android/iOS | CI38309453984/07649 unsigned,12signature/89validatorfixture | PASS unsigned; signing/distribuzione NOT_RUN |
+| R17 reale e funzionalità avanzate | metadata RPC/feed+RLSflags, ricerca configurazioni bounded e proposta owner | BLOCKED Google/ordine/producer; route/ETA/background NOT_RUN |
+
+
 ## Provenance
 
 Client base `493c2c9bc73c2788e97d4141a4fe01216dc8a39a`, candidato sul branch
@@ -303,3 +337,165 @@ backend-reconciliation.md e operational-provenance.json. Nessun apply condiviso.
 Le ricevute della CI sul freeze documentale e del merge successivo sono registrate
 nella PR27 e nel rapporto finale locale dopo la loro conclusione; non si anticipa
 un esito sullo SHA futuro.
+
+
+## Fix diagnostico pre-app — ripresa 16 ottobre 2026
+
+Baseline e77e108 e tre run terminali restano associati al proprio SHA:
+Quality38874967013 PASS, visual38877119329 FAIL124/bootstatus e observerEPERM,
+journal38877142210 FAIL124/readiness prima fixture; fullCI7e77 NOT_RUN.
+Le capsule cc1981eb/9324ed6d/37f1b9d6 e aggregate3cf0217c sono immutate.
+
+Tre nuovi freeze privati revisionati: observerV2/84e099c4, passivo904eb892,
+checkpoint1248b45de181. Seconda review composita dc0d9927 APPROVED solo
+source/pure/privacy:51test e176casi indipendenti PASS, nove postimage esatti.
+Il writer applica esattamente composite1ad30c7006ad su9path; nessun cambio
+lib/android/ios/config/deps/test_driver/test rispetto a e77. La sola fixture
+Dart aggiunge metadatafailure/checkpoint; nessun valore/expect cambiato.
+
+| CA / T | Comando/evidence | Esito al cutoff applicazione |
+|---|---|---|
+| CA-04 / T-04 | root12suitePython su9postimageesatti; receipt9ba375f6 | PASS284test/exit0, SDKMac0 |
+| CA-04 / T-04 | reviewobserver1a012478, passivoc2771ff9, checkpoint44043986, composita dc0d9927 | PASS source/pure/privacy; globaleBLOCKED |
+| CA-05 / T-05 | check-action-pins.sh / check-governance-state.sh / gitdiffcheck | PASS exit0; pin4workflow e faseFIX coerente |
+| CA-05 / T-05 | check-client-security.sh / log89c49d8a | PASS1157file/zero/exit0 prima del handoff documentale; exactSHAhostedNOT_RUN |
+| CA-05 / T-05 | format/analyze/fullhost sul futuro SHA | NOT_RUN; prima pubblicazione e Qualityhosted richieste |
+| CA-06 / T-06 | nuova visual reason/identity/reap e journalpassiva+checkpoint | NOT_RUN; sourcequality/review prima, nessun retry identico |
+
+IOS-OBS-LIFECYCLE-RR-01/P2 V1CHANGES_REQUIRED preservato; V2 distingue
+last_operation/failed_operation per OGGETTOerrore propagato e conserva flow.
+I repro RED/test/setupfail e fixprivati restano tracciabili; non sono FAIL
+prodotto o cause dei runhosted storici. Un wait.25 dopo primoTERMEPERM non
+cancella errore/cleanupFAIL né prova quiescenza gruppo; nessuna nuova sonda
+alternativa dopo rifiuto. PGID/SID misurati distinti dai richiesti, UNKNOWN
+se non osservabili. CAP2048metadata e privacy non esportano valori/raw.
+
+Il passivo usa medesimoPopen/argv/budget300/30; os.getpgid/poll/I/O della
+trace non sono temporalmente neutri. PIDhost, streamlocali aperti e pipe
+possible non provano guestPID/EOF/writer/causa. FAILv4exact8 ha checkpoint
+nullable delle5expectrecover, solo body/recover/assertion, senza promuovere
+SUCCESSv2/FAILv2/v3 o earlyseed/terminalgate. NextQuality/nativi e Maps/live
+restano distinti BLOCKED/NOT_RUN; nessun SDK/inputMac, reset, nuovo accesso,
+SQL/deploy, guarddisabling/timeoutpadding, merge o DONE.
+
+
+HandoffFix:16path(9source+7doc) a re-review distinta; CODEX_FIX_BLOCKED_TO_RE_REVIEW.
+La fase source/pure è qualificata; formatter/analyze/Quality/newnative/fullCI7
+sul candidato da pubblicare sono NOT_RUN. Checksecuritylocale1157/zero/exit0
+precede gli ultimi soli metadati del handoff: nessuna attestazione del futuro
+SHA prima della nuova Quality. Tutti i comandi locali sono terminali.
+
+
+### Re-review finale del freeze diagnostico - 2026-10-16
+
+Review documentale e hash sul freeze Fix b350aa96: esito BLOCKED globale,
+CODEX_REVIEW_BLOCKED. Nove source postimage coincidono con composite1ad30c7006ad
+e approval dc0d9927 scoped; sette documenti di handoff verificati per hash.
+
+| CA / T | Evidence letta, senza riesecuzione | Esito della re-review |
+|---|---|---|
+| CA-04 / T-04 | 9 postimage, 7 doc, source review dc0d9927; root284/12 e reviewer51/176 con provenienze separate | PASS source/pure/statico; globale BLOCKED |
+| CA-05 / T-05 | Security log89c49d8a e ricevute pin4/governance Fix/whitespace | PASS exit0 ai cutoff dichiarati, nessun nuovo gate |
+| CA-05 / T-05 | format/analyze/fullhost/Quality sul futuro SHA | NOT_RUN; richiesti dopo pubblicazione ordinaria |
+| CA-06 / T-06 | nuove domande visual reason/identity/reap e journal passivo/checkpoint | NOT_RUN; solo dopo Quality PASS |
+
+Security1157/zero/exit0 precede gli ultimi metadati di handoff, non attesta
+il docpatch o futuro SHA. Il writer controlla governance/diff dopo apply;
+nessun test/scan/API/SDK eseguito da questa re-review. FullCI7 NOT_RUN, Maps e
+live BLOCKED distinti. Nessun PASS e77 trasferito, nessuna causa o quiescenza
+inferita; V1/RED/setupfail, errata e sezioni storiche Fix/Review preservati.
+
+`CODEX_REVIEW_BLOCKED`
+
+
+## Terminali dd9c0b2 e successivo fix cleanup — 16 ottobre
+
+Le tre ricette sono terminali sul solo
+`dd9c0b2b56cc16478df85f79dc5242313c07160f`; non sono una CI canonica
+con sette job e non trasferiscono PASS a revisioni successive.
+
+| CA / T | Comando o run | Risultato e limite |
+|---|---|---|
+| CA-05 / T-05 | Quality `38887332867`, ricetta canonica equivalente di 19 step | PASS: 1252 test, 1 SKIP, 11 performance, 352 Python in 16 suite; format 411/0, analyze 0, security 1157/zero, governance coerente. Receipt `20239566`, exit 0 dai singoli step SUCCESS |
+| CA-06 / T-06 | Visual iOS `38889394269` | FAIL: bootstatus EXIT0/126.850s, poi readiness 124; cleanup PASS. Smoke, app e visual NOT_RUN. Receipt `3a6fb9c1` |
+| CA-06 / T-06 | Journal iOS `38889397834` | FAIL: bootstatus EXIT0/156.452s, poi readiness 124; cleanup FAIL, secondo resource cleanup PASS. Fixture, seed/recover/checkpoint NOT_RUN. Receipt V2 `09dc2bca` |
+| CA-04 / T-04 | Repro e fix privato `IOS-OWNED-KILL-EPERM-RR-01` | PASS source/pure: autore RED 4 test/8 subcase FAIL exit 1, GREEN 4 PASS exit 0; reviewer distinto stessi RED/GREEN e 3 avversi PASS. Patch `27ac8561`, review `7be308cb`; nuovo hosted e native fix NOT_RUN |
+
+Le trace mostrano i leader HOST 31261 e 5246 ancora attivi al poll del
+timeout; non sono PID guest attestati. Popen separati 3.308/3.469s;
+communicate 28.611/26.874s sui residui 28.408/26.151s. Non si deduce un
+walltime totale di readiness entro 30s dal solo timeout passato a communicate.
+Nessuna inherited-pipe o causa trasporto/guest dimostrata.
+
+Visual: tre lifecycle finite, identità richieste e misurate coerenti, observer
+quiescent espliciti. Sample boot e state readiness oltre il loro budget;
+nessun frame o log UUID acquisito. EPERM/wait dopo EPERM NOT_TRAVERSED.
+Journal: il KILL/EPERM salta il wait esplicito, riprodotto puro; lo stato
+finale individuale del leader resta UNKNOWN e zombie_only del gruppo non
+identifica il PID del membro. Il fix conserva lo stesso EPERM, primary 124 e
+cleanup FAIL, tenta soltanto wait2; può aggiungere fino a 2s in quel ramo.
+
+Artifact visual 8435B e journal 7128B: digest API e publisher, CRC e privacy
+JSON/JSONL PASS. Nessun PNG, app o corpus nuovo. Immagini/worker distinti,
+nessun A/B. I warning stdout Quality (2 drag/hit-test, 32 Drift) e lo SKIP
+golden Linux restano espliciti, senza acceptance UX/database dal verde.
+La V1 journal con sole linee checkout errate resta preservata; V2 corregge
+39/124 senza cambiare gli esiti. Tutti i run e i collector sono terminali.
+
+Il lavoro continua sul fix applicato ai due postimage verificati e sul piano
+minimo per recuperare l'unica query CoreSimulator UUID già prevista prima
+della probe ps. Fonte/pure e source non qualificano quei futuri gate.
+Full CI7, Maps/TEST/Auth e gli altri gate restano distinti BLOCKED o NOT_RUN.
+
+
+Successivo freeze source: resource-first `dd199b8d` applicato dopo review
+indipendente `b178343f`, insieme al fix owner `27ac8561` già revisionato.
+Una query UUID allo stesso milestone, prima di ps, con callback ownership
+fresca e STOP su errore/rifiuto; stessi guard PID prima di sample. Parser e
+cap, budget300/30, default/Boot/journal passivo invariati. Scopo limitato a
+recuperare evidenza UUID, nessuna distinzione garantita trasporto/guest.
+Autore tracer80/readiness17 PASS; reviewer13mirati+4avversi PASS. RED causale
+isolato1/1FAIL senza errore API; setup mancanti preservati separatamente.
+Quattro source e sette documenti del writer; nuova Quality/native exact-SHA
+NOT_RUN. Review globale BLOCKED/CODEX_REVIEW_BLOCKED, PR29 draft/HOLD.
+
+
+## Terminali 516 e nuove domande diagnostiche — 16 ottobre
+
+| CA / T | Run o verifica | Risultato e limite |
+|---|---|---|
+| CA-05 / T-05 | Quality38893955534, 19step canonici equivalenti | PASS sul516:1252PASS/1SKIP,+11performance,365Python/16suite,format411/0,analyze0; receipt58034f45; stepcoreSUCCESS/exit0 |
+| CA-06 / T-06 | Visual38895852835 | FAILexit124 dopo boot0/218.075s; queryUUID BLOCKED3.409s/0B, freshauth/query-first/STOP attraversati; cleanupPASS, smoke/visualNOT_RUN; capsuleV2d6c8fa64 |
+| CA-06 / T-06 | Journal38895857215 | FAILexit1 recover dopo preparePASS e seed36545PASS/v2; recover37155 terminal_gate/assertion, sottopredicati non conservati; cleanupPASS, uguaglianza finaleNOT_RUN; capsulea4ee9e22 |
+| CA-04 / T-04 | Nuovi metadata terminali e querylive | NOT_RUN sul futuroSHA; candidate private source/pure da revisionare, nessun dispatch identico |
+
+Le capsule indipendenti qualificano digestAPI/publisher e CRC dei JSON/JSONL.
+VisualV1 e relativa correzione BLOCKED/NOT_RUN sono preservati. Nessun evento
+UUID/frame readiness qualificato e nessuna probe dopo STOP. Journal: assertion
+è fallback con errorType nullo, non prova body completato, tutti i cinque check
+PASS o difetto Keychain. Sei input terminali e versione raw non acquisiti;
+checkpoint non attribuito. Cleanup PROCESS/LOG/SIMULATOR non certifica
+clear/readback. KILL/EPERM non attraversato; immagini/worker diversi, nessun A/B.
+
+Il consolidamento37748031 non chiude i FAIL storici o la causa corrente.
+Budget300/30 e guard invariati; nessun SDK/device/input Mac o Asus. FullCI7,
+Maps/TEST/Auth e altri gate distinti BLOCKED o NOT_RUN. Candidato futuro:
+Quality reali prima di nuove domande native motivate, mai PASS inferiti.
+
+
+## Freeze successivo a516 — metadata terminali e raccolta live
+
+| CA / T | Verifica | Risultato e limite |
+|---|---|---|
+| CA-04 / T-04 | JournalV5 patch218b49a8/review4397c850 | PASS source/pure: RED1test/1FAIL exit1, reviewer39mirati+6avversi PASS exit0.95mask,64implica8; congiunto7/8expect/bodyI/O invariati. FindingstaticoP2chiuso solo sorgente; analyzeNOT_RUN |
+| CA-04 / T-04 | Querylive patch4fa45f1e/review9467c7d4 | PASS source/pure: RED1/1FAIL/0error, reviewer12mirati+3avversi PASS exit0. Unica stream1s/capture3s, cap/ownership/STOP identici, nessun fallback; legacy/Boot/parser/cleanup invariati |
+| CA-05 / T-05 | Nuova Quality exact-SHA | NOT_RUN al freeze: format/analyze/fullhost richiesti sul futuro commit, inclusi54owner/87tracer; la receipt Quality516 non viene trasferita |
+| CA-06 / T-06 | Nuove domande native journalmask/livecollection | NOT_RUN al freeze, solo dopo QualityPASS sul medesimo candidato; fullCI7NOT_RUN |
+
+Autorejournal39V2 e13/21soloV1, autorequery29: provenienze distinte dai reviewer,
+non sommate. Source6postimage esatti, app/nativeconfig/deps/unitDart/test_driver
+invariati. Supporttestowner della query è storico dbc129/50, non equivalenza54.
+V1/finding/negativi harness preservati; nessun falsoFAILSDK dimostrato.
+Live non equivale allo storico; rc0/cleanup è raccolta,0righe coverageUNKNOWN,
+nonzero/rifiuto/errore STOP. Maschera non attribuisce causaKeychain/SDK.
+`CODEX_REVIEW_BLOCKED`; PR29draft/HOLD, Maps/live distinti, rootwriterattivo.

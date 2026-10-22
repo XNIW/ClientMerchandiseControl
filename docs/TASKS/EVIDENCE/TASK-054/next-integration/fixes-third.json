@@ -1,0 +1,301 @@
+{
+  "source": "d9da3c56845dc3ebab23d2d783edbffb795af927",
+  "tipo": "Verifiche writer, non approvazione indipendente",
+  "files": [
+    {
+      "path": "lib/features/reviews/presentation/customer_reviews.dart",
+      "sha256": "3b8a3a7ce5fee5f7af4e6af3c8ab78556bfb108ea8f00edf1924ee0950eed0eb"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_feedback_test.dart",
+      "sha256": "bf94a36ca3a4cbd344d6d7f6441aa6799b860706e5266f0c9714b9dec39c12e4"
+    },
+    {
+      "path": "scripts/run-task054-ios-owned.py",
+      "sha256": "f7594ff1511d7767dc1f9bb9de4c521f590ac41767de631a23ed43e54d5965e8"
+    },
+    {
+      "path": "scripts/test-task054-ios-owned.py",
+      "sha256": "36db6878f90fe4861497b9de9c54c34715654f7da95c45477cfdde78a173c7c8"
+    },
+    {
+      "path": "integration_test/support/visual_capture.dart",
+      "sha256": "de6a13f82053cf4807f5b88f3634a680636d47cb748f11b35e8144eb3ba8e68f"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "sha256": "be55bc82ef5f2dd0d7b922c44852a113a296e0d4a4d4b9d00d62420524a57180"
+    }
+  ],
+  "feedback": {
+    "schemaVersion": 1,
+    "finding": "C-NI054-07",
+    "role": "CODEX_FIXER",
+    "base": "d9fcbfd96add14b7effa00be8fa310d483bdb9b3",
+    "sourceCommit": "46210ecb6fe9f5c112e72edec20c995f992bbe57",
+    "recordedAtUtc": "2026-10-05T17:47:43.056001+00:00",
+    "sourceFiles": [
+      {
+        "path": "lib/features/reviews/presentation/customer_reviews.dart",
+        "sha256": "3b8a3a7ce5fee5f7af4e6af3c8ab78556bfb108ea8f00edf1924ee0950eed0eb"
+      },
+      {
+        "path": "test/features/reviews/customer_review_dialog_feedback_test.dart",
+        "sha256": "bf94a36ca3a4cbd344d6d7f6441aa6799b860706e5266f0c9714b9dec39c12e4"
+      }
+    ],
+    "change": "Errore persistente nel dialog con liveRegion, testo localizzato, colore error e scroll al messaggio; clear solo al retry. Bozza/rating, busy e ACK separato da readback conservati.",
+    "gates": [
+      {
+        "command": "flutter test build/task054/feedback-fix/review_error_overlay_reproduction_test.dart --reporter expanded",
+        "result": "FAIL",
+        "exitCode": 1,
+        "source": "base",
+        "observed": "submitCalls=1, dialog aperto, errore fuori dal dialog",
+        "localLog": "reproduction-before.log"
+      },
+      {
+        "command": "flutter test --no-pub test/features/reviews build/task054/feedback-fix/review_error_overlay_reproduction_test.dart --reporter expanded",
+        "result": "PASS",
+        "exitCode": 0,
+        "tests": 31,
+        "canonicalReviewTests": 30,
+        "newRegressionTests": 14,
+        "independentOriginalPoc": 1,
+        "localLog": "reviews-freeze.log"
+      },
+      {
+        "command": "flutter analyze --no-pub lib/features/reviews/presentation/customer_reviews.dart test/features/reviews/customer_review_dialog_feedback_test.dart",
+        "result": "PASS",
+        "exitCode": 0,
+        "issues": 0,
+        "localLog": "analyze-freeze.log"
+      },
+      {
+        "command": "dart format --output=none --set-exit-if-changed lib/features/reviews/presentation/customer_reviews.dart test/features/reviews/customer_review_dialog_feedback_test.dart",
+        "result": "PASS",
+        "exitCode": 0,
+        "filesChanged": 0
+      },
+      {
+        "command": "git diff --cached --check",
+        "result": "PASS",
+        "exitCode": 0
+      }
+    ],
+    "hostCoverage": [
+      "submit/edit/withdraw error, draft and rating3 retained, busy prevents duplicate write, retry same version/comment/rating, close/readback only after ACK",
+      "readback failure after ACK never reopens the write",
+      "late ACK and late failure after dialog dispose do not close new dialog or show stale error",
+      "4 locales, light/dark, 320x568, text scale200, error hit-testable in dialog Material, liveRegion and reachable submit"
+    ],
+    "testDevelopmentFailures": [
+      {
+        "log": "feedback-after.log",
+        "result": "FAIL",
+        "exitCode": 1,
+        "cause": "8 fixture SemanticsHandle disposed too late in addTearDown; repaired with try/finally in test body"
+      },
+      {
+        "log": "analyze.log",
+        "result": "FAIL",
+        "exitCode": 1,
+        "cause": "deprecated test hasFlag API; replaced with pinned SDK flagsCollection.isLiveRegion"
+      },
+      {
+        "log": "reviews-final.log",
+        "result": "FAIL",
+        "exitCode": 1,
+        "cause": "3 test dropdown finders used FormField instead of actual DropdownButton; repaired to interact with popup InkWell"
+      },
+      {
+        "log": "feedback-final.log",
+        "result": "PASS",
+        "exitCode": 0,
+        "warnings": "3 test tap warnings on DropdownMenuItem wrapper; repaired to tap actual InkWell, final freeze has zero warnings"
+      }
+    ],
+    "native": {
+      "result": "NOT_RUN",
+      "reason": "Build/emulator/device lanes assigned to other owners; widget tests are not native/IME/staging proof"
+    },
+    "ownerShopFence": {
+      "result": "NOT_RUN",
+      "reason": "Not implemented speculatively; distinct reviewer verifies actual auth/router path before a separate finding/fix"
+    },
+    "repositoryMutationScope": "Only two source/test files, no RPC/model/dependency/harness/global-document changes",
+    "reviewOutcome": "NOT_RUN by writer; distinct reviewer required",
+    "pendingVerificationProcesses": 0,
+    "nativeProcessesStarted": 0,
+    "pushPerformed": false,
+    "mergePerformed": false
+  },
+  "ios": {
+    "finding": "BECI-06 pending attempt edge",
+    "status": "PASS",
+    "base": "99b6f21ef93222d61abab617223bbeb426b39f82",
+    "checks": [
+      {
+        "command": "python3 scripts/test-task054-ios-owned.py",
+        "context": "locale",
+        "exitCode": 0,
+        "tests": 37,
+        "durationSeconds": 48.631
+      },
+      {
+        "command": "CI-like python3 scripts/test-task054-ios-owned.py",
+        "context": {
+          "GITHUB_RUN_ID": "123456789",
+          "GITHUB_RUN_ATTEMPT": "2",
+          "GITHUB_JOB": "ios-build",
+          "GITHUB_SHA": "9eec4641e450070d359c8d2f9b3f1be56bd4102c"
+        },
+        "exitCode": 0,
+        "tests": 37,
+        "durationSeconds": 47.812
+      },
+      {
+        "command": "python3 /tmp/task054-ios-beci06-final-write-reopen.py --repository own-worktree",
+        "exitCode": 0,
+        "pocCopy": "beci06-pending-reviewer-repro.py",
+        "pocSha256": "5f542f3914b7780c966b26f1751a1d4658c1141d609c94fc86cee587c808ee18",
+        "pocByteIdentical": true
+      },
+      {
+        "command": "targeted final write/reopen and primary124 regression",
+        "exitCode": 0,
+        "tests": 2
+      },
+      {
+        "command": "git diff --check",
+        "exitCode": 0
+      }
+    ],
+    "meaning": "Tentativo storico NOT_RUN impedisce aggregate PASS: BLOCKED salvo FAIL già attestato; current resourceCleanup può PASS. First query primary7 e prepareprimary124 preservati.",
+    "budgetsUnchanged": {
+      "bootstatusSeconds": 300,
+      "jobMinutes": 30,
+      "smokeSeconds": 900,
+      "visualSeconds": 900,
+      "targetIos": "14.0"
+    },
+    "nativeBuildBootDeviceBackend": "NOT_RUN",
+    "ciOnComposedRootSha": "NOT_RUN",
+    "testedRevision": "20454e7a71942ea69d2cc21b585d0f05ffdb184e"
+  },
+  "harness": {
+    "baseline": "d9fcbfd96add14b7effa00be8fa310d483bdb9b3",
+    "fix": "41b37390576429a8d7d433feb8b89f25e3cae033",
+    "role": "CODEX_FIXER, autore harness; nessuna review indipendente in questa lane",
+    "expectedCounts": {
+      "tests": 67,
+      "flutter": 105,
+      "os": 4
+    },
+    "nativeAfter": {
+      "result": "NOT_RUN",
+      "reason": "Lane senza native/build; nuova CI e review pixel distinte necessarie"
+    },
+    "results": [
+      {
+        "log": "locale:host-next-final.log",
+        "sha256": "c6e80a59cd591f387c73deff280e7398bd2aa8c623ab4a593902cecd6d5128f6",
+        "command": "flutter test --no-pub build/task054/host_next_integration_test.dart --reporter expanded",
+        "result": "PASS",
+        "exitCode": 0,
+        "scope": "24/24; fixture UI/controller produzione, screenshot flag disabilitato"
+      },
+      {
+        "log": "locale:host-320x640-after.log",
+        "sha256": "a96773168332c0b76c54e9626f7a267473e112c02faf9b99989ab2ada4d29ec4",
+        "command": "flutter test --no-pub build/task054/assistance_ci_geometry_probe_test.dart --name 'assistenza' --reporter expanded",
+        "result": "PASS",
+        "exitCode": 0,
+        "scope": "2/2; geometria host320×640, senza IME OS"
+      },
+      {
+        "log": "locale:caret-metrics-helper-before.log",
+        "sha256": "833682710c53dd07addb5c8793be062e696fde1b08f057726fb20c3d119ed301",
+        "command": "flutter test --no-pub build/task054/assistance_caret_metrics_probe_test.dart --reporter expanded [helper d9f copiato]",
+        "result": "FAIL",
+        "exitCode": 1,
+        "scope": "0/4; finder picker0 dopo reflow sintetico300/400, focus true/false"
+      },
+      {
+        "log": "locale:caret-metrics-helper-after.log",
+        "sha256": "70df29e57748d3bb9f9012822ee5789fb5497590b1b54b015b26633b352a12b9",
+        "command": "flutter test --no-pub build/task054/assistance_caret_metrics_probe_test.dart --reporter expanded [helper fix copiato]",
+        "result": "PASS",
+        "exitCode": 0,
+        "scope": "4/4; testo preservato, picker montato e hitTestable dopo metriche sintetiche"
+      },
+      {
+        "log": "locale:frame-order-actual-before.log",
+        "sha256": "362b5def6b3b39ae47fe2c6a86e6f87c62c3f9f66994423fcaa856cd8c9e380f",
+        "command": "flutter test --no-pub --dart-define=CMC_VISUAL_CAPTURE=true --dart-define=CMC_OS_FRAME_CAPTURE=true --dart-define=INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false build/task054/capture_frame_order_actual_test.dart --reporter expanded [source d9f]",
+        "result": "FAIL",
+        "exitCode": 1,
+        "scope": "Vero captureVisual: TimeoutException readiness20s, screenshot sentinel mai raggiunto"
+      },
+      {
+        "log": "locale:frame-order-actual-after.log",
+        "sha256": "d444ecf3c84d4754ca798da96b568ceb79469b73fc2b5beb94d5ae819044d4f2",
+        "command": "flutter test --no-pub --dart-define=CMC_VISUAL_CAPTURE=true --dart-define=CMC_OS_FRAME_CAPTURE=true --dart-define=INTEGRATION_TEST_SHOULD_REPORT_RESULTS_TO_NATIVE=false build/task054/capture_frame_order_actual_test.dart --reporter expanded [source fix]",
+        "result": "PASS",
+        "exitCode": 0,
+        "scope": "1/1; screenshot sentinel propagato prima del gate OS; nessuna misura pixel/paint/IME"
+      },
+      {
+        "log": "locale:os-sync-after.log",
+        "sha256": "b17739f54c784561aa7be95bacc9d74697d84cdf496e5ec296c1281f3331b70a",
+        "command": "dart scripts/test-task054-os-sync.dart",
+        "result": "PASS",
+        "exitCode": 0,
+        "scope": "14/14; claim/ACK/timeout/failure/fence bridge invariati"
+      },
+      {
+        "log": "locale:analyze-after.log",
+        "sha256": "cf3970e49e2516eb2d13c20b6d79cfcd787092da63672cff47e8db8c8509c98f",
+        "command": "flutter analyze --no-pub integration_test/support/visual_capture.dart integration_test/task054_next_integration_surfaces_test.dart",
+        "result": "PASS",
+        "exitCode": 0,
+        "scope": "No issues found"
+      }
+    ],
+    "sdk": {
+      "revision": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+      "sources": [
+        {
+          "path": "locale:_callback_io.dart",
+          "sha256": "dc4a9cebf11d61327188413aeeb798fb757a0db4f0f32cc8923e673838c9e751",
+          "lines": "82–98"
+        },
+        {
+          "path": "locale:FlutterDeviceScreenshot.java",
+          "sha256": "cccb8507cfccf53081fb1741be495333783a32ec0c737d0db27c76743ca7c724",
+          "lines": "150–161,193–205,250–271"
+        },
+        {
+          "path": "locale:IntegrationTestPlugin.m",
+          "sha256": "8469f29b3323c46038108d3ecddcc8a3f62e633c39f4338b34e3b0eb27161c61",
+          "lines": "84–106"
+        }
+      ]
+    },
+    "changedSources": [
+      {
+        "path": "integration_test/support/visual_capture.dart",
+        "blob": "9c8689c2cbd388cad1e90a92d4f0a7523784cf56",
+        "sha256": "de6a13f82053cf4807f5b88f3634a680636d47cb748f11b35e8144eb3ba8e68f"
+      },
+      {
+        "path": "integration_test/task054_next_integration_surfaces_test.dart",
+        "blob": "025e8594be1399f720033919c47a930657a4a1e1",
+        "sha256": "be55bc82ef5f2dd0d7b922c44852a113a296e0d4a4d4b9d00d62420524a57180"
+      }
+    ]
+  },
+  "new_ci": "NOT_RUN",
+  "new_native": "NOT_RUN",
+  "pending_writer_processes": 0
+}

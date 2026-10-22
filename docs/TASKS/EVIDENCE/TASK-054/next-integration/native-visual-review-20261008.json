@@ -1,0 +1,430 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-08",
+  "role": "CODEX_RE_REVIEWER",
+  "reviewer": "client_reviewer, distinto dal writer",
+  "candidate_commit": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+  "review_status": "APPROVED",
+  "review_scope": "ANDROID_NATIVE_FIXTURE_PIXEL_SAMPLE",
+  "quality_result": "PASS",
+  "integrated_acceptance": "BLOCKED",
+  "conclusion": "Nessun finding visivo bloccante nei 27 PNG originali effettivamente ispezionati. Approvazione circoscritta al campione Android e alla revisione indicata; non chiude TASK-054.",
+  "ci": {
+    "run_id": 37817219242,
+    "artifact_id": 11569040559,
+    "run_url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37817219242",
+    "artifact_root_local": "build/task054/ci-20261008-37817219242/android-artifact",
+    "platform": "Android emulator API35 x86_64",
+    "receipt_sha256": "d7164a3843c5ea47856588aa5852439e7b744cb32f9cba733ef88ba258cc2899",
+    "log_path_local": "build/task054/ci-20261008-37817219242/android-debug-job.log",
+    "log_sha256": "990106600f13922e0f899847f0b57e5bd7d192f2ce1ed67ce48f2f6d383b85ff",
+    "native_suite_observed_in_log": {
+      "result": "PASS",
+      "count": 76,
+      "exit_code": 0,
+      "terminal": "2026-10-08T17:46:47Z, +76: All tests passed!",
+      "provenance": "Log CI e receipt letti dal reviewer; nessuna nuova esecuzione locale."
+    }
+  },
+  "coverage": {
+    "artifact_inventory": {
+      "flutter_png": 113,
+      "os_png": 4
+    },
+    "independently_viewed": {
+      "flutter_png": 25,
+      "os_png": 2,
+      "total": 27,
+      "method": "tools.view_image(detail=original), originali singoli; nessuna deduzione dal nome o dai flag"
+    },
+    "other_images": "Matrice estesa assegnata a ci_native e al suo child, non inclusa nel presente esito indipendente."
+  },
+  "source_correlation": {
+    "path": "integration_test/task054_next_integration_surfaces_test.dart",
+    "commit": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+    "sha256": "cb8d1dae5c765a85ea441aad4d98c95caca70700304d02e8d8f3a48a4fae78b0",
+    "current_file_equal_frozen": true,
+    "review": "Ispezionate le sezioni indirizzo, fulfillment, inbox e recensioni. _reveal/ensureVisible precedono diverse catture: sono viewport correnti, non pagine complete. Il harness esegue tap/retry/readback e controlli di hitTestable; il log CI terminale è distinto dalla sola ispezione pixel."
+  },
+  "observations": [
+    {
+      "scope": "Recensioni C07/C09",
+      "frames": [
+        "visual/97–103",
+        "os-visual/97"
+      ],
+      "result": "PASS",
+      "observations": [
+        "99 e 101 mostrano il messaggio di errore completo e le azioni Cancelar / Enviar a moderación; 101 mostra anche Retirar.",
+        "98 mostra testo e azioni disabilitati durante invio. 100 mostra il commento originale in moderazione; 102 e 103 mostrano identico commento modificato, coerente con annullamento successivo.",
+        "Nel frame OS97 la tastiera Android è realmente visibile; Cancelar ed Enviar a moderación sono sopra la tastiera e non coperti.",
+        "97 e 101 mostrano solo una parte del commento nel viewport scrollato; non costituiscono una vista completa del campo."
+      ]
+    },
+    {
+      "scope": "Indirizzo UPDATE con errore e IME",
+      "frames": [
+        "visual/62",
+        "os-visual/62"
+      ],
+      "result": "PASS",
+      "observations": [
+        "Il messaggio di errore è interamente leggibile; Cerrar e Guardar sono visibili senza sovrapposizione.",
+        "Nel frame OS62 la tastiera Android è realmente visibile sotto il dialogo; entrambe le azioni restano sopra l’IME.",
+        "Il viewport è posizionato sul messaggio e sulle azioni: non mostra contemporaneamente i campi dell’indirizzo."
+      ]
+    },
+    {
+      "scope": "Indirizzo CREATE con esito incerto, quattro lingue, light/dark",
+      "frames": [
+        "visual/63–70"
+      ],
+      "result": "PASS",
+      "observations": [
+        "Titolo, messaggio di esito incerto e azioni di chiusura/verifica sono leggibili in es-CL, it, en e zh-Hans, nei due temi.",
+        "I campi visibili sono grigi, coerenti con lo stato disabilitato; l’azione di verifica è distinta e completa.",
+        "In inglese le azioni si dispongono verticalmente senza taglio; nelle altre lingue sono entrambe integralmente visibili.",
+        "Questi otto frame Flutter non dimostrano la presenza dell’IME nelle quattro lingue."
+      ]
+    },
+    {
+      "scope": "Inbox, pagina successiva, cache e scadenza sessione",
+      "frames": [
+        "visual/92–96"
+      ],
+      "result": "PASS",
+      "observations": [
+        "92 rende leggibili la spiegazione di altre notifiche non lette e Cargar más.",
+        "93 mostra la notifica non letta della seconda pagina con indicatore rosso e freccia; a 200% testo e riferimento lungo vanno su più righe.",
+        "92–94 sono catture del viewport scrollato: parte superiore dei contenuti fuori vista e, in 93, fine della riga sotto il viewport. Non si inferisce perdita o irraggiungibilità da questi tagli.",
+        "94 mostra il messaggio di assenza di notifiche non lette. 95 mostra avviso cache offline e Reintentar; 96 mostra lo stato indisponibile con Reintentar e nessun contenuto notifica nel frame."
+      ]
+    },
+    {
+      "scope": "Badge fulfillment e azione carrello in quattro lingue",
+      "frames": [
+        "visual/75",
+        "visual/80",
+        "visual/85",
+        "visual/90"
+      ],
+      "result": "PASS",
+      "observations": [
+        "Ritiro in negozio e consegna, icone incluse, sono integralmente visibili nelle quattro lingue.",
+        "Quantità, incremento e aggiunta al carrello sono visibili; nessun testo dei badge o dell’azione primaria è tagliato.",
+        "I titoli lunghi della barra app usano ellissi; il corpo prodotto è scrollato. Questi comportamenti non oscurano badge o azione primaria osservati."
+      ]
+    }
+  ],
+  "actions_reachability": {
+    "visible_targets": "PASS nel campione e nei viewport catturati",
+    "fixture_interaction": "PASS nel run CI letto: tap retry/Verify, pagina successiva e readback sono asseriti dal harness frozen e il runner conclude +76. Non è una nuova interazione autonoma del reviewer.",
+    "manual_native_interaction": "NOT_RUN: questa review è read-only su artifact, senza dispositivo o comandi di test."
+  },
+  "ime": {
+    "pixel_visibility": "PASS per soli OS62 e OS97, tastiera Android effettivamente vista",
+    "actions_unobscured": "PASS per Cerrar/Guardar in OS62 e Cancelar/Enviar a moderación in OS97",
+    "metadata": "I due hash PNG corrispondono ai frame_sha256 dei sidecar e allo SHA candidato. I flag mInputShown non sono stati usati come sostituto dei pixel.",
+    "scope_limit": "Nessuna attestazione di composizione CJK, suggerimenti, altre tastiere, rotazioni o interazione assistiva."
+  },
+  "findings": [],
+  "lanes_not_promoted": {
+    "ios_visual": {
+      "result": "NOT_RUN",
+      "reason": "Nessun frame iOS ispezionato in questa review; nessuna qualificazione dell’esito iOS."
+    },
+    "assistive_accessibility": {
+      "result": "NOT_RUN",
+      "reason": "TalkBack/VoiceOver, ordine focus, annunci semantici e navigazione assistiva non verificati con questi PNG."
+    },
+    "authenticated_live": {
+      "result": "NOT_RUN",
+      "reason": "Le immagini e le interazioni CI usano fixture sintetiche; non provano backend autenticato, ACL, pagamenti, notifiche o integrità live."
+    },
+    "physical_device_usability": {
+      "result": "NOT_RUN",
+      "reason": "Emulatore CI; nessuna prova manuale o su device fisico."
+    },
+    "contrast_measurement": {
+      "result": "NOT_RUN",
+      "reason": "Leggibilità valutata visivamente; nessuna misura quantitativa di contrasto."
+    },
+    "overall_acceptance": {
+      "result": "BLOCKED",
+      "reason": "Il presente campione non copre tutti i gate obbligatori del task."
+    }
+  },
+  "files": [
+    {
+      "path": "visual/62-address-editor-focus-compact200.png",
+      "sha256": "775d48939e70b51fa329f346ad69f1b7832ff30959ccacd05e30c35f771b70f6",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/63-address-create-unknown-compact200-es-CL-dark.png",
+      "sha256": "d979428998baeb9e4b703f787b8c139d80733fd5769dad0958b9408aecc05928",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/64-address-create-unknown-compact200-es-CL-light.png",
+      "sha256": "e0373949cfa33bb0a137ad66ff7561cc28766b0c374df1be61e8ad1293566204",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/65-address-create-unknown-compact200-it-dark.png",
+      "sha256": "d02f7268a68f675318224d6da114fe59b3d312cd4f838cea1f70d7398b560fdf",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/66-address-create-unknown-compact200-it-light.png",
+      "sha256": "701b23c67c29044096d8fa1d615c978aac666bbb8734cf06bbe5e8c225c40d12",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/67-address-create-unknown-compact200-en-dark.png",
+      "sha256": "8fa045cf23876076005cd3e6858276de33506c053832642012a06d196d151594",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/68-address-create-unknown-compact200-en-light.png",
+      "sha256": "65bb2ce620a6ce6c627305eea1e978279122126b1e5ea915331c8bf27f2e5e3c",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/69-address-create-unknown-compact200-zh-Hans-dark.png",
+      "sha256": "5ab4cf845943f3a1e7ab13066940e7c120c1bbdf8ee1df24ad47f7ab942bc237",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/70-address-create-unknown-compact200-zh-Hans-light.png",
+      "sha256": "3e03236bb4346184b9378f1159c8f2b5d4289261981fccd06fb6a77b0892503e",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/75-product-fulfillment-compact200-es-CL.png",
+      "sha256": "28cd76b18d830250605d13290f6b6dd0540cedbe135a3d7396be106ddeca69a1",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/80-product-fulfillment-compact200-it.png",
+      "sha256": "22ac44c3cddba354ceba34d275bb2396a201ee7d298907660e6711617d341786",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/85-product-fulfillment-compact200-en.png",
+      "sha256": "464427e9eb6112a0f120026e65e3ba0ec9aecdd912b514f84c39765186121a6a",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/90-product-fulfillment-compact200-zh-Hans.png",
+      "sha256": "d60c806c53292f1c756071829671d60c58f88f762cab7b241127081064d427a4",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/92-inbox-unread-partial-compact200.png",
+      "sha256": "68233b0f17ea987ef1ebcdeb6167135149853ce1a9c34eab704dbd88dc1fad35",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/93-inbox-page2-unread-compact200.png",
+      "sha256": "ab0ec50ec7ae4e2c2cb21d2ee44a2e23f263bd8eafa8e0d3ac9e042d740acc33",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/94-inbox-page2-read-empty-compact200.png",
+      "sha256": "a73a3591e158f7eb25a66eb6e730f3ca9b94b1d9e15713e1360774dda97edb33",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/95-inbox-offline-cache.png",
+      "sha256": "3dbb5feb6e2773be9792a4c148d3027688e5794bb4cfea3408244cacbc37f15c",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/96-inbox-auth-expired-purged.png",
+      "sha256": "498e4f6840fd5384ec9a0fa337044bb266ac4df1e3c81aa47faaac8d698e7b94",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/97-review-comment-focus-compact200.png",
+      "sha256": "7eb38c4b547ac53216ad9f88fb829012aaa1ba22330f960c740af61bde45bea3",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/98-review-submit-busy-compact200.png",
+      "sha256": "c677a1caa122caa557b9e9295d0145d9097dc7bb99e249bbb824d6ab44817157",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/99-review-submit-failure-comment-preserved-compact200.png",
+      "sha256": "92562837ef238acdc539e244fa0ddd8efaf713babf36b5bda9b65ab26ca4b874",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/100-review-submitted-readback-compact200.png",
+      "sha256": "92f954997fda26025a2ece19733756f5a6490cf8b76b640f872127abeec65ea9",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/101-review-edit-failure-comment-preserved-compact200.png",
+      "sha256": "c2f4dec02d152bd7ae279a116e77a04a2979dc353e5cad720f96ccf246311a55",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/102-review-edited-readback-compact200.png",
+      "sha256": "d87ec27b44891e7ba26a905a5997c8068e6f0721bba1fecba47ecb0753310613",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "visual/103-review-edit-cancel-readback-compact200.png",
+      "sha256": "d87ec27b44891e7ba26a905a5997c8068e6f0721bba1fecba47ecb0753310613",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "os-visual/62-address-editor-focus-compact200.png",
+      "sha256": "63a9d161b77ac73f3a3e2796dc2d3dd6d7a58384804800a34546d5a8bcd9a59c",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    },
+    {
+      "path": "os-visual/97-review-comment-focus-compact200.png",
+      "sha256": "2bbb623563c156244f0259262b8ebf329b79064301c21c409ea7f5085086ea1e",
+      "dimensions": [
+        320,
+        640
+      ],
+      "inspection": "view_image original; pixel effettivi ispezionati dal reviewer",
+      "result": "PASS"
+    }
+  ],
+  "changes_made": "Solo questa capsule JSON e la corrispondente sintesi Markdown. Nessun source, governance, test, build o device modificato/eseguito."
+}

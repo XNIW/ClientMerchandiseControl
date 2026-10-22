@@ -38,6 +38,11 @@ class AppConfig {
   );
   static const _compiledReleaseAttestationMarker =
       '${ReleaseConfigAttestation.markerPrefix}$_compiledReleaseConfigSha256';
+  static const _compiledTestConfigSha256 = String.fromEnvironment(
+    'TEST_CONFIG_SHA256',
+  );
+  static const _compiledTestAttestationMarker =
+      '${TestReleaseConfigAttestation.markerPrefix}$_compiledTestConfigSha256';
 
   const AppConfig._({
     required this.environment,
@@ -47,6 +52,7 @@ class AppConfig {
     required this.googleAuthEnabled,
     required this.storefrontShopSlug,
     required this.releaseConfigSha256,
+    required this.testConfigSha256,
   });
 
   /// Configurazione esclusiva degli harness che verificano il lifecycle OAuth
@@ -73,6 +79,7 @@ class AppConfig {
       googleAuthEnabled: true,
       storefrontShopSlug: safeBase.storefrontShopSlug,
       releaseConfigSha256: safeBase.releaseConfigSha256,
+      testConfigSha256: safeBase.testConfigSha256,
     );
   }
 
@@ -85,6 +92,7 @@ class AppConfig {
     String authCallbackVerifiedHost = '',
     String storefrontShopSlug = '',
     String releaseConfigSha256 = '',
+    String testConfigSha256 = '',
   }) {
     final environment = AppEnvironment.parse(appEnvironment);
     final normalizedUrl = _normalize(supabaseUrl);
@@ -93,6 +101,15 @@ class AppConfig {
     final normalizedGoogleAuthEnabled = _normalize(googleAuthEnabled);
     final normalizedStorefrontShopSlug = _normalize(storefrontShopSlug);
     final normalizedReleaseConfigSha256 = _normalize(releaseConfigSha256);
+    final normalizedTestConfigSha256 = _normalize(testConfigSha256);
+
+    if (normalizedTestConfigSha256 != null &&
+        (environment != AppEnvironment.staging ||
+            !RegExp(r'^[0-9a-f]{64}$').hasMatch(normalizedTestConfigSha256))) {
+      throw const AppConfigurationException(
+        'TEST_CONFIG_SHA256 è una attestazione SHA-256 ammessa soltanto in staging.',
+      );
+    }
 
     if ((normalizedUrl == null) != (normalizedKey == null)) {
       throw const AppConfigurationException(
@@ -199,6 +216,7 @@ class AppConfig {
       googleAuthEnabled: googleAuth,
       storefrontShopSlug: canonicalStorefrontShopSlug,
       releaseConfigSha256: normalizedReleaseConfigSha256,
+      testConfigSha256: normalizedTestConfigSha256,
     );
   }
 
@@ -212,7 +230,34 @@ class AppConfig {
       authCallbackVerifiedHost: _compiledAuthVerifiedHost,
       storefrontShopSlug: _compiledStorefrontShopSlug,
       releaseConfigSha256: _compiledReleaseConfigSha256,
+      testConfigSha256: _compiledTestConfigSha256,
     );
+    if (config.testConfigSha256 != null) {
+      try {
+        final testAttestation = TestReleaseConfigAttestation.fromValues({
+          'APP_ENV': _compiledAppEnvironment,
+          'SUPABASE_URL': _compiledSupabaseUrl,
+          'SUPABASE_PUBLISHABLE_KEY': _compiledSupabasePublishableKey,
+          'AUTH_REDIRECT_URI': _compiledAuthRedirectUri,
+          'GOOGLE_AUTH_ENABLED': _compiledGoogleAuthEnabled,
+          'STOREFRONT_SHOP_SLUG': _compiledStorefrontShopSlug,
+          'DELIVERY_MAPS_ENABLED': _compiledDeliveryMapsEnabled,
+          'DELIVERY_MAPS_NATIVE_CONFIGURED':
+              _compiledDeliveryMapsNativeConfigured,
+          'AUTH_CALLBACK_VERIFIED_HOST': _compiledAuthVerifiedHost,
+        });
+        if (config.testConfigSha256 != testAttestation.sha256 ||
+            _compiledTestAttestationMarker != testAttestation.marker) {
+          throw const AppConfigurationException(
+            'TEST_CONFIG_SHA256 non corrisponde alla configurazione TEST compilata.',
+          );
+        }
+      } on ReleaseConfigValidationException {
+        throw const AppConfigurationException(
+          'La configurazione TEST compilata non supera l’attestazione semantica.',
+        );
+      }
+    }
     if (config.environment != AppEnvironment.production) {
       return config;
     }
@@ -249,6 +294,7 @@ class AppConfig {
   final bool googleAuthEnabled;
   final String? storefrontShopSlug;
   final String? releaseConfigSha256;
+  final String? testConfigSha256;
 
   bool get isBackendConfigured =>
       supabaseUrl != null && supabasePublishableKey != null;
@@ -264,6 +310,7 @@ class AppConfig {
     'googleAuthEnabled': googleAuthEnabled,
     'storefrontConfigured': isStorefrontConfigured,
     'releaseConfigurationAttested': releaseConfigSha256 != null,
+    if (testConfigSha256 != null) 'testConfigurationAttested': true,
   });
 
   @override

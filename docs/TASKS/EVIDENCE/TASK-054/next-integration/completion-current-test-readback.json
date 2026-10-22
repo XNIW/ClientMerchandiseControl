@@ -1,0 +1,339 @@
+{
+  "artifacts": {
+    "baseline-comparison.json": {
+      "bytes": 1581,
+      "sha256": "13059338464f5b35ec72230fe956a513a7d7839d81d5635e3ebaf0ba04a477a2",
+      "storage": "protected_local_not_versioned"
+    },
+    "final-contract-snapshot.json": {
+      "bytes": 20578,
+      "sha256": "3251bd625fe725053f193e9164492d20127d816e939f6200489aa120a80f5e30",
+      "storage": "protected_local_not_versioned"
+    },
+    "final-readback-normalized.json": {
+      "bytes": 36545,
+      "sha256": "919833653d70188be34807e973f3609206cc798c0f0a90a60c658415690ee4e2",
+      "storage": "protected_local_not_versioned"
+    },
+    "final-readback-summary.json": {
+      "bytes": 7784,
+      "sha256": "7de01c5dd5a739bbaba166e8defecbba6213838a58d8da33831f8c537330bdb3",
+      "storage": "protected_local_not_versioned"
+    },
+    "final-readback.sql": {
+      "bytes": 8851,
+      "sha256": "26d1b2829eccd88471b2edece9df767653c987e0d3bdbd6a1bbd37eb85f657b1",
+      "storage": "protected_local_not_versioned"
+    },
+    "local-security-receipt.json": {
+      "bytes": 897,
+      "sha256": "6afe7697caeba48ce31914ce4bb59f9983b323ec997bb61743fabb67799c5d6b",
+      "storage": "protected_local_not_versioned"
+    },
+    "local-security.stdout.json": {
+      "bytes": 18634,
+      "sha256": "fe646e0420b9ce31a5b60fd3b8e453377ffc0742470d2916eaff5cad077652af",
+      "storage": "protected_local_not_versioned"
+    },
+    "local-validation-command-results.json": {
+      "bytes": 815,
+      "sha256": "e2082ef2f8846f858e747e12862bead4641253fc870767205e37eaf1178e5ed2",
+      "storage": "protected_local_not_versioned"
+    },
+    "management-sql-tool-response.json": {
+      "bytes": 34449,
+      "sha256": "afcfd1588126697bbf7e71a6e42f0a90d04eb636ede398e3e509a25e0c52631c",
+      "storage": "protected_local_not_versioned"
+    },
+    "management-tool-envelope.json": {
+      "bytes": 3218,
+      "sha256": "360534681b7e461eeb8dda0ee8731ed169172bedcc2d9acd6fbc904f6dd5d8be",
+      "storage": "protected_local_not_versioned"
+    },
+    "network-and-reference-inventory.json": {
+      "bytes": 3552,
+      "sha256": "0562a7e0a3fbaa906abeeb8f369f49decea2bafa6891a86544e56d3609c7f46c",
+      "storage": "protected_local_not_versioned"
+    },
+    "prepared-plan.json": {
+      "bytes": 2346,
+      "sha256": "295031692caaf60d96d6e6b09b45484ac418ec7faf252c5d09b1e5417d2c3153",
+      "storage": "protected_local_not_versioned"
+    },
+    "project-identity-final.json": {
+      "bytes": 163,
+      "sha256": "f43954175775cd354d51db42343eee8ea4dbebe0b29bce4950960bfa69be77ab",
+      "storage": "protected_local_not_versioned"
+    },
+    "query-review.json": {
+      "bytes": 8555,
+      "sha256": "750626108f1e9b1f0d3217c3267ca4fcbccc03fd8be34d4fdfe16aa055f7bd06",
+      "storage": "protected_local_not_versioned"
+    },
+    "query-review.md": {
+      "bytes": 1988,
+      "sha256": "a998cc6746e127229932545003dc811643f0ec008b4bd90dabd8185f5b2c4db4",
+      "storage": "protected_local_not_versioned"
+    },
+    "source-association-final.json": {
+      "bytes": 1110,
+      "sha256": "868f24f7c1efcb012cb800863bafd6338a332b6db4e32dff630e65249335109c",
+      "storage": "protected_local_not_versioned"
+    }
+  },
+  "commands": {
+    "SQL_readback": {
+      "SQL_statement_timeout_seconds": 10,
+      "batch_finished_at_utc": "2026-10-08T21:58:28.810Z",
+      "exit_code_qualification": "MCP does not expose a PostgreSQL command exit code",
+      "isError": false,
+      "query_sha256": "26d1b2829eccd88471b2edece9df767653c987e0d3bdbd6a1bbd37eb85f657b1",
+      "single_SQL_call": true,
+      "sql_exit_code": null,
+      "started_at_utc": "2026-10-08T21:58:21.264Z",
+      "tool": "supabase_execute_sql",
+      "tool_status": "fulfilled",
+      "transaction_read_only": "on"
+    },
+    "baseline_comparison": {
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    "canonical_snapshot_gate": {
+      "combined_output_receipt": "local-validation-1.output.txt",
+      "combined_output_sha256": "73032be423b30bd59c28feffd8fd56e163569089363123385591bb1958f86432",
+      "command": [
+        "python3",
+        "scripts/check-backend-compatibility.py",
+        "--snapshot",
+        "final-contract-snapshot.json"
+      ],
+      "command_receipt": "local-validation-command-results.json index1",
+      "exit_code": 1,
+      "result": "FAIL",
+      "scope": "snapshot_only_from_Management_API_not_TLS"
+    },
+    "metadata_validator": {
+      "exit_code": 0,
+      "result_qualification": "Successful metadata normalization/classification, not schema acceptance"
+    },
+    "network_and_reference_inventory": {
+      "exit_code": 0,
+      "result": "PASS_inventory_only"
+    },
+    "normalization_attempts": [
+      {
+        "attempt": 1,
+        "cause": "Response parser matched the prose mention of the boundary tag; no SQL/API repeat",
+        "error_kind": "SyntaxError",
+        "result": "FAIL"
+      },
+      {
+        "attempt": 2,
+        "method": "Strict newline-bounded data section parsed as JSON only",
+        "result": "PASS"
+      }
+    ]
+  },
+  "hygiene": {
+    "client_credentials_used": false,
+    "credential_values_read_or_logged": false,
+    "customer_rows_read": false,
+    "devices_accessed": false,
+    "evidence_directory_mode": "0o700",
+    "evidence_files_0600": true,
+    "existing_authorized_Management_connector_session_used": true,
+    "new_clone_or_suite": false,
+    "original_receipts_and_canonical_package_preserved": true,
+    "own_processes_pending": false,
+    "remote_mutations": false
+  },
+  "independent_fidelity_review": "PENDING",
+  "lanes": {
+    "AUTH_LIVE": {
+      "reason": "No approved TEST pilot/A/B/callback references; no Client credential used.",
+      "reference_presence": {
+        "approved_pilot_shop_slug_reference": {
+          "provided": false
+        },
+        "owned_callback_and_native_association_reference": {
+          "provided": false
+        },
+        "synthetic_owner_A_auth_reference": {
+          "provided": false
+        },
+        "synthetic_owner_B_auth_reference": {
+          "provided": false
+        }
+      },
+      "status": "NOT_RUN"
+    },
+    "RLS_ACL_inventory": {
+      "difference_groups": {
+        "different_address_column_acl": 14,
+        "different_private_helpers": 1,
+        "different_relations": 1,
+        "missing_address_column_acl": 9,
+        "missing_policies": 10,
+        "missing_private_helpers": 12,
+        "missing_relations": 12
+      },
+      "existing_relations": [
+        {
+          "name": "public.customer_addresses",
+          "rls_enabled": true,
+          "rls_forced": true
+        },
+        {
+          "name": "public.customer_notification_events",
+          "rls_enabled": true,
+          "rls_forced": true
+        }
+      ],
+      "qualification": "Absences and expected canonical migration differences; not 59 new findings, not an authenticated authorization test.",
+      "reference": "Previously qualified canonical clone; one READ ONLY catalog query",
+      "reference_policies": 14,
+      "reference_private_helpers": 13,
+      "reference_relations": 14,
+      "required_new_relations": 12,
+      "required_new_relations_absent": 12,
+      "security_metadata_differences_total": 59,
+      "status": "FAIL"
+    },
+    "TEST_schema": {
+      "baseline_contract_identical_excluding_timestamp": true,
+      "canonical_migrations_absent": [
+        "20260823023037",
+        "20260823150000",
+        "20260928200000",
+        "20261008151018"
+      ],
+      "contract_errors_count": 30,
+      "history": 155,
+      "indexes_expected": 2,
+      "indexes_present": 1,
+      "prior_server_observed_at": "2026-10-08T19:59:38.840892+00:00",
+      "rpcs_expected": 57,
+      "rpcs_missing": 25,
+      "rpcs_present": 32,
+      "rpcs_present_conformant": 32,
+      "status": "FAIL"
+    },
+    "TLS": {
+      "canonical_previous_gate_exit_code": 2,
+      "canonical_previous_receipt": "backend/backend-summary.json",
+      "fresh_DNS_AAAA_records": 1,
+      "fresh_DNS_A_records": 0,
+      "fresh_application_resolver": {
+        "cause": "gaierror",
+        "status": "BLOCKED"
+      },
+      "fresh_network_has_no_IPv6_states": true,
+      "new_TLS_session_attempted": false,
+      "prepared_service": {
+        "alias_present": true,
+        "exists": true,
+        "mode": "0o600",
+        "no_embedded_password": true,
+        "readonly_role_selected": true,
+        "sha256": "16863f1a6cc2c121d5f9b683fe7fb7ccb040494be0dfb54826ba8ea6d679e5dc",
+        "target_bound": true,
+        "verify_full": true
+      },
+      "previous_exit_code_qualification": "Value recorded in the previous backend capsule; underlying command receipt not independently located/replayed in this lane.",
+      "previous_receipt_sha256": "b0572fce05dbd465b6abbced4aeef89f0f5ce8e4bf520c8be6a45f051cc1c127",
+      "qualification": "Management API ACTIVE_HEALTHY/readback does not satisfy PostgreSQL verify-full; diagnostics refresh only, no new TLS gate executed.",
+      "required_protected_reference_presence": {
+        "approved_execution_host_or_runner_reference": {
+          "provided": false
+        },
+        "protected_passfile_or_auth_reference": {
+          "provided": false
+        },
+        "role_reference": {
+          "provided": true
+        },
+        "trusted_root_certificate_reference": {
+          "provided": false
+        }
+      },
+      "status": "BLOCKED"
+    },
+    "commerce_cron": {
+      "all_active": true,
+      "count": 4,
+      "jobs": [
+        {
+          "active": true,
+          "command_md5": "f6f4b3c8926b7b2195e3b7f267270df2",
+          "jobid": 1,
+          "name": "storefront-promotion-reconcile-v1",
+          "schedule": "* * * * *"
+        },
+        {
+          "active": true,
+          "command_md5": "0d60a28ed4bc82ff660a017b911c6249",
+          "jobid": 2,
+          "name": "storefront-reservation-hold-expire-v1",
+          "schedule": "* * * * *"
+        },
+        {
+          "active": true,
+          "command_md5": "7f3bc0554dc0895712da347244049fe9",
+          "jobid": 3,
+          "name": "storefront-checkout-quote-expire-v1",
+          "schedule": "* * * * *"
+        },
+        {
+          "active": true,
+          "command_md5": "c572917e6d9cab89a1252f929dbd6efe",
+          "jobid": 4,
+          "name": "storefront-delivery-tracking-cleanup-v1",
+          "schedule": "*/15 * * * *"
+        }
+      ],
+      "same_schedule_command_hash_active_as_previous": true,
+      "status": "PASS",
+      "window_exclusion_proven": false,
+      "writer_exclusion_attested": false
+    },
+    "distribution": {
+      "reference_presence": {
+        "android_signing_and_channel_reference": {
+          "provided": false
+        },
+        "ios_signing_and_channel_reference": {
+          "provided": false
+        }
+      },
+      "status": "NOT_RUN"
+    },
+    "shared_apply": {
+      "applied_migrations_by_this_lane": [],
+      "cron_mutated": false,
+      "reason": "Read-only lane; TLS blocked and no attested writer/cron exclusion window.",
+      "status": "NOT_RUN"
+    }
+  },
+  "overall": "BLOCKED",
+  "project_identity": {
+    "database_host": "db.jpgoimipbothfgkokyvm.supabase.co",
+    "database_version": "17.6.1.104",
+    "status": "ACTIVE_HEALTHY",
+    "target": "jpgoimipbothfgkokyvm"
+  },
+  "project_ref": "jpgoimipbothfgkokyvm",
+  "recorded_at_utc": "2026-10-08T22:01:30.618080+00:00",
+  "schema_version": 1,
+  "scope": "TASK054_FINAL_TEST_READONLY_METADATA",
+  "server_observed_at": "2026-10-08T21:58:25.4727+00:00",
+  "source": {
+    "authority_commit": "f16c5f4f37051e7876a847fb1ae2e544c89377d2",
+    "canonical_package_manifest_sha256": "49ef380397c06140a51aa3b2f76b1fa288b632300fd8f00303b71a42893f6b98",
+    "client_commit": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+    "gate_script_sha256": "b42fc17b4ea16191c2602dfc845c993f6bc4e4cfb978f4615ca1f80c5e6b3d2c",
+    "integrated_authority_commit": "02ea44b95d4a05baddbf46f24251f0d5f0dea294",
+    "manifest_sha256": "9eadce2cfddbb894dc6e018a26d5ff152dc69b05dd1c6d9fee9c83f83a9585b8",
+    "worktree_clean": true
+  }
+}

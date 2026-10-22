@@ -87,11 +87,57 @@ final class CustomerAfterSalesEvidenceInput {
     required this.bytes,
     required this.extension,
     required this.mimeType,
+    this.ownerId,
+    this.canContinue,
   });
 
+  final String? ownerId;
+  bool Function()? canContinue;
+  final transfer = CustomerAfterSalesEvidenceTransfer();
   final Uint8List bytes;
   final String extension;
   final String mimeType;
+}
+
+// Checkpoint solo in memoria, legato al singolo file e al proprietario.
+// Non costituisce una promessa di persistenza dei file temporanei.
+final class CustomerAfterSalesEvidenceTransfer {
+  String? objectPath;
+  DateTime? expiresAt;
+  String? evidenceId;
+  bool uploadAttempted = false;
+  bool uploaded = false;
+  bool inFlight = false;
+  DateTime? ticketUncertainUntil;
+}
+
+enum CustomerAfterSalesAttachmentStatus {
+  ready,
+  reading,
+  uploading,
+  confirmed,
+  failed,
+  fileUnavailable,
+  invalidFile,
+  ambiguous,
+}
+
+final class CustomerAfterSalesLocalAttachment {
+  CustomerAfterSalesLocalAttachment({
+    required this.name,
+    required this.extension,
+    required this.mimeType,
+    required this.readBytes,
+  });
+
+  final String name;
+  final String extension;
+  final String mimeType;
+  final Future<Uint8List> Function() readBytes;
+  CustomerAfterSalesAttachmentStatus status =
+      CustomerAfterSalesAttachmentStatus.ready;
+  CustomerAfterSalesEvidenceInput? input;
+  String? evidenceId;
 }
 
 final class CustomerAfterSalesLine {
@@ -174,4 +220,9 @@ final class CustomerAfterSalesCase {
   final List<CustomerAfterSalesEvent> timeline;
 
   bool get canCancel => status == CustomerAfterSalesStatus.submitted;
+  bool get canAttachEvidence => !const {
+    CustomerAfterSalesStatus.closed,
+    CustomerAfterSalesStatus.rejected,
+    CustomerAfterSalesStatus.refunded,
+  }.contains(status);
 }

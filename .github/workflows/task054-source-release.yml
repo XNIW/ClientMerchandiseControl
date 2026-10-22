@@ -1,0 +1,424 @@
+name: TASK054 source and release gates
+
+# Verifica del delta source/config e dei confini release unsigned.
+# Il push sul solo branch composto registra la prima run; dispatch resta esplicito.
+# I tre job sono copie delle ricette canoniche in ci.yml, inclusa la suite
+# adversarial iOS nello stesso job che produce reference app e archive.
+# Non qualifica runtime/UI, autenticazione TEST o distribuzione firmata.
+on:
+  push:
+    branches:
+      - codex/task054-test-activation-source
+    paths-ignore:
+      - .github/workflows/ci.yml
+      - .github/workflows/task054-source-release.yml
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: Confronto causale con sorgente 3f8d3d19, solo nei test mirati
+        type: boolean
+        default: false
+        required: false
+      cart_checkout_baseline:
+        description: Riproduce merge e order recovery sul checkpoint immutabile30c418c
+        type: boolean
+        default: false
+        required: false
+      checkout_scope_baseline:
+        description: Riproduce soltanto i confini checkout sul sorgente cb98b4e
+        type: boolean
+        default: false
+        required: false
+      cart_conflict_baseline:
+        description: Riproduce solo il conflitto add incrementale sul sorgente a373392
+        type: boolean
+        default: false
+        required: false
+      checkout_journal_baseline:
+        description: Riproduce il recupero journal prima del fix 2f5096c
+        type: boolean
+        default: false
+        required: false
+      checkout_retry_baseline:
+        description: Riproduce soltanto la CTA Retry receipt sul sorgente34cc059
+        type: boolean
+        default: false
+        required: false
+      focused:
+        description: Regressioni Client su runner separato; non qualifica build o TEST live
+        type: boolean
+        default: false
+        required: false
+      cjk_fixture:
+        description: Font Noto CJK verificato per le catture del renderer host nei soli test mirati
+        type: boolean
+        default: false
+        required: false
+      refresh_goldens:
+        description: Preparare i riferimenti macOS per review pixel distinta, senza approvarli
+        type: boolean
+        default: false
+        required: false
+      quality_only:
+        description: Riesegue Quality riusando i rilasci invariati già qualificati
+        type: boolean
+        default: false
+        required: false
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: 3.44.8
+
+jobs:
+  quality:
+    name: Quality
+    if: ${{ !inputs.refresh_goldens }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Restore immutable causal baseline
+        if: ${{ inputs.focused && inputs.baseline }}
+        run: git restore --source=3f8d3d19a46d95bc7b7eb494a8f5b85a42372428 -- lib
+      - name: Restore cart checkout causal baseline
+        if: ${{ inputs.focused && inputs.cart_checkout_baseline }}
+        run: git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart lib/features/delivery_tracking/application/delivery_tracking_controller.dart lib/features/checkout/data/shared_preferences_checkout_draft_store.dart
+      - name: Restore checkout scope causal baseline
+        if: ${{ inputs.focused && inputs.checkout_scope_baseline }}
+        run: git restore --source=cb98b4e -- lib/features/checkout/application/checkout_controller.dart lib/features/checkout/presentation/checkout_screen.dart lib/features/cart/presentation/cart_screen.dart
+      - name: Restore cart conflict causal baseline
+        if: ${{ inputs.focused && inputs.cart_conflict_baseline }}
+        run: git restore --source=a373392 -- lib/features/cart/application/cart_controller.dart
+      - name: Restore checkout journal causal baseline
+        if: ${{ inputs.focused && inputs.checkout_journal_baseline }}
+        run: git restore --source=16f6bd2 -- lib/features/checkout/application/checkout_controller.dart
+      - name: Restore checkout failure Retry causal baseline
+        if: ${{ inputs.focused && inputs.checkout_retry_baseline }}
+        run: git restore --source=34cc059 -- lib/features/checkout/presentation/checkout_screen.dart
+      - name: Prepare focused source on hosted runner
+        if: ${{ inputs.focused }}
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Preparare il font CJK del renderer
+        if: ${{ inputs.focused && inputs.cjk_fixture }}
+        run: |
+          mkdir -p build/task054-host-fonts build/task054-client-ui
+          curl --fail --location --silent --show-error --connect-timeout 15 --max-time 120 \
+            https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTC/NotoSansCJK-Regular.ttc \
+            --output build/task054-host-fonts/NotoSansCJK-Regular.ttc
+          printf '%s  %s\n' \
+            b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a \
+            build/task054-host-fonts/NotoSansCJK-Regular.ttc | sha256sum --check --strict
+          curl --fail --location --silent --show-error --connect-timeout 15 --max-time 120 \
+            https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/LICENSE \
+            --output build/task054-client-ui/cjk-fixture-license.txt
+          # Asset del solo renderer QA nel runner effimero, senza package o asset client.
+          sudo mkdir -p /usr/share/fonts/opentype/noto
+          sudo cp build/task054-host-fonts/NotoSansCJK-Regular.ttc \
+            /usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
+      - name: Focused regressions
+        if: ${{ inputs.focused }}
+        env:
+          CMC_CLIENT_CAPTURE_DIR: build/task054-client-ui
+          CHECKOUT_SCOPE_BASELINE: ${{ inputs.checkout_scope_baseline }}
+          CART_CONFLICT_BASELINE: ${{ inputs.cart_conflict_baseline }}
+          CHECKOUT_JOURNAL_BASELINE: ${{ inputs.checkout_journal_baseline }}
+          CHECKOUT_RETRY_BASELINE: ${{ inputs.checkout_retry_baseline }}
+        run: |
+          bash scripts/resolve-flutter.sh
+          flutter pub get --enforce-lockfile
+          flutter gen-l10n
+          dart format lib test integration_test test_driver
+          git diff -- lib test integration_test test_driver > candidate-preparation.patch
+          if [[ "$CHECKOUT_RETRY_BASELINE" == "true" ]]; then
+            flutter analyze lib test/features/checkout/presentation/checkout_screen_test.dart
+            flutter test test/features/checkout/presentation/checkout_screen_test.dart --concurrency=1
+          elif [[ "$CHECKOUT_SCOPE_BASELINE" == "true" ]]; then
+            flutter analyze lib test/features/checkout/application/checkout_order_scope_test.dart test/features/checkout/application/checkout_order_profile_update_test.dart
+            flutter test test/features/checkout/application/checkout_order_scope_test.dart test/features/checkout/application/checkout_order_profile_update_test.dart --concurrency=1
+          elif [[ "$CART_CONFLICT_BASELINE" == "true" ]]; then
+            flutter analyze lib test/features/cart/application/cart_controller_test.dart
+            flutter test test/features/cart/application/cart_controller_test.dart --concurrency=1
+          elif [[ "$CHECKOUT_JOURNAL_BASELINE" == "true" ]]; then
+            flutter analyze lib test/features/checkout/application/checkout_controller_test.dart
+            flutter test test/features/checkout/application/checkout_controller_test.dart --concurrency=1
+          else
+            flutter analyze
+            flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders test/features/product_detail/presentation/product_detail_screen_test.dart test/l10n/app_localizations_contract_test.dart test/governance/ios_release_configuration_test.dart test/governance/android_startup_observer_test.dart --concurrency=1
+          fi
+      - name: Preserve focused source preparation
+        if: ${{ always() && inputs.focused }}
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: candidate-preparation
+          path: |
+            candidate-preparation.patch
+            build/task054-client-ui/*.png
+            build/task054-client-ui/host-fonts.json
+            build/task054-client-ui/cjk-fixture-license.txt
+          if-no-files-found: error
+      - name: Validate workflow action pins
+        if: ${{ !inputs.focused }}
+        run: bash scripts/check-action-pins.sh
+      - name: Validate shell scripts
+        if: ${{ !inputs.focused }}
+        run: bash -n scripts/*.sh
+      - name: Validate backend consumer contract
+        if: ${{ !inputs.focused }}
+        run: |
+          python3 scripts/check-backend-compatibility.py --source-only
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-backend-compatibility.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-auth-entitlements.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-visual-runner.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-android-runner.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-visual-prebuilt.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-android-startup-diagnostics.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-os-frame.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-owned-process.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-owned.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-preview.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-guest-cart-process-restart.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-native-file.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-readiness.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-descriptor-observation.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-descriptor-launchd.py
+      - name: Validate client security boundary
+        if: ${{ !inputs.focused }}
+        run: |
+          bash scripts/check-client-security.sh
+          bash scripts/test-client-security-scan.sh
+      - name: Validate governance state
+        if: ${{ !inputs.focused }}
+        run: |
+          bash scripts/check-governance-state.sh
+          bash scripts/test-governance-release-train.sh
+      - name: Set up Flutter
+        if: ${{ !inputs.focused }}
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        if: ${{ !inputs.focused }}
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        if: ${{ !inputs.focused }}
+        run: flutter pub get --enforce-lockfile
+      - name: Validate synchronized OS capture bridge
+        if: ${{ !inputs.focused }}
+        run: dart scripts/test-task054-os-sync.dart
+      - name: Validate architecture boundaries
+        if: ${{ !inputs.focused }}
+        run: |
+          bash scripts/check-architecture-boundaries.sh
+          bash scripts/test-architecture-boundaries.sh
+      - name: Generate localizations
+        if: ${{ !inputs.focused }}
+        run: flutter gen-l10n
+      - name: Validate release metadata and native assets
+        if: ${{ !inputs.focused }}
+        run: bash scripts/check-release-metadata.sh
+      - name: Verify generated and locked files
+        if: ${{ !inputs.focused }}
+        run: |
+          git diff --exit-code -- pubspec.lock lib/l10n/generated
+          if [[ -n "$(git status --porcelain --untracked-files=all -- pubspec.lock lib/l10n/generated)" ]]; then
+            git status --short --untracked-files=all -- pubspec.lock lib/l10n/generated
+            exit 1
+          fi
+      - name: Check formatting
+        if: ${{ !inputs.focused }}
+        run: dart format --output=none --set-exit-if-changed .
+      - name: Analyze
+        if: ${{ !inputs.focused }}
+        run: flutter analyze
+      - name: Test with coverage
+        if: ${{ !inputs.focused }}
+        run: flutter test --coverage --exclude-tags performance
+      - name: Performance gate
+        if: ${{ !inputs.focused }}
+        run: flutter test --tags performance --concurrency=1
+      - name: Check whitespace errors
+        if: ${{ !inputs.focused }}
+        run: git diff --check
+
+  android-release:
+    name: Android release candidate
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.quality_only && !inputs.focused && !inputs.refresh_goldens }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Build production-like unsigned AAB
+        run: >-
+          flutter build appbundle --release
+          --dart-define-from-file=config/app_config.production.release.json
+      - name: Build production-like unsigned inspection APK
+        run: >-
+          flutter build apk --release
+          --dart-define-from-file=config/app_config.production.release.json
+      - name: Validate Android release candidate
+        run: >-
+          bash scripts/check-android-release.sh
+          --aab build/app/outputs/bundle/release/app-release.aab
+          --apk build/app/outputs/flutter-apk/app-release.apk
+      - name: Validate Android v2-only signature boundary
+        run: >-
+          bash scripts/test-android-release-signature.sh
+          --aab build/app/outputs/bundle/release/app-release.aab
+          --apk build/app/outputs/flutter-apk/app-release.apk
+
+  ios-release:
+    name: iOS release candidate
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.quality_only && !inputs.focused && !inputs.refresh_goldens }}
+    runs-on: macos-26
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Validate iOS release source
+        run: bash scripts/check-ios-release.sh --source-only
+      - name: Build production-like unsigned iOS app
+        run: >-
+          flutter build ios --release --no-codesign
+          --dart-define-from-file=config/app_config.production.release.json
+      - name: Attest iOS reference build
+        id: ios-reference
+        run: |
+          cmc_reference_output="$(
+            bash scripts/create-ios-reference-attestation.sh \
+            --app build/ios/iphoneos/Runner.app
+          )"
+          case "${cmc_reference_output}" in
+            IOS_REFERENCE_ATTESTATION=*) ;;
+            *) exit 1 ;;
+          esac
+          cmc_reference_digests="${cmc_reference_output#IOS_REFERENCE_ATTESTATION=}"
+          if [[ ! "${cmc_reference_digests}" =~ ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]]; then
+            exit 1
+          fi
+          printf 'macho_sha256=%s\n' "${cmc_reference_digests}" >>"${GITHUB_OUTPUT}"
+      - name: Archive production-like unsigned iOS app
+        run: >-
+          xcodebuild archive
+          -workspace ios/Runner.xcworkspace
+          -scheme Runner
+          -configuration Release
+          -destination 'generic/platform=iOS'
+          -archivePath build/ios/archive/Runner.xcarchive
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_REQUIRED=NO
+          COMPILER_INDEX_STORE_ENABLE=NO
+      - name: Attest iOS archive Runner
+        id: ios-archive-runner
+        run: |
+          cmc_archive_output="$(
+            bash scripts/create-ios-reference-attestation.sh \
+            --archive-app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
+          )"
+          case "${cmc_archive_output}" in
+            IOS_ARCHIVE_RUNNER_ATTESTATION=*) ;;
+            *) exit 1 ;;
+          esac
+          cmc_archive_digest="${cmc_archive_output#IOS_ARCHIVE_RUNNER_ATTESTATION=}"
+          if [[ ! "${cmc_archive_digest}" =~ ^[0-9a-f]{64}$ ]]; then
+            exit 1
+          fi
+          printf 'macho_sha256=%s\n' "${cmc_archive_digest}" >>"${GITHUB_OUTPUT}"
+      - name: Validate iOS release candidate
+        run: >-
+          bash scripts/check-ios-release.sh
+          --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
+          --archive build/ios/archive/Runner.xcarchive
+          --sealed-app-output build/ios/Runner.app.validated.zip
+          --reference-app build/ios/iphoneos/Runner.app
+          --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
+          --archive-runner-attestation '${{ steps.ios-archive-runner.outputs.macho_sha256 }}'
+      - name: Validate iOS adversarial release boundaries
+        run: >-
+          bash scripts/test-ios-release-validator.sh
+          --archive build/ios/archive/Runner.xcarchive
+          --reference-app build/ios/iphoneos/Runner.app
+          --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
+          --archive-runner-attestation '${{ steps.ios-archive-runner.outputs.macho_sha256 }}'
+
+# Queste build restano production-like unsigned; i test del ramo staging
+# eseguiti su host non qualificano un artifact TEST nativo o la sua distribuzione.
+
+  golden-reference:
+    name: Prepare macOS golden references for independent pixel review
+    if: ${{ inputs.refresh_goldens }}
+    runs-on: macos-26
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Set up pinned Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Verify locked and generated files
+        run: |
+          bash scripts/resolve-flutter.sh
+          flutter pub get --enforce-lockfile
+          flutter gen-l10n
+          git diff --exit-code -- pubspec.lock lib/l10n/generated
+      - name: Capture proposed golden references
+        run: |
+          flutter test --update-goldens --plain-name golden test/features/checkout/presentation/checkout_screen_test.dart test/features/orders/presentation/customer_orders_screen_test.dart
+          git diff --numstat -- test/features/checkout/presentation/goldens test/features/orders/presentation/goldens > golden-delta.txt
+      - name: Preserve proposed frames without automatic adoption
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: candidate-macos-golden-references
+          path: |
+            test/features/checkout/presentation/goldens/*.png
+            test/features/orders/presentation/goldens/*.png
+            test/features/checkout/presentation/failures/*.png
+            test/features/orders/presentation/failures/*.png
+            golden-delta.txt
+          if-no-files-found: error

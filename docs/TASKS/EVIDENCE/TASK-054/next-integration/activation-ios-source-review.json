@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "reviewer": "/root/ios_xcode265/ios_workflow_review",
+  "role": "CODEX_RE_REVIEWER",
+  "created_at": "2026-10-09T00:11:25.678700+00:00",
+  "scope": "DIAGNOSTIC_SOURCE_ONLY",
+  "verdict": "APPROVED",
+  "qualification": "APPROVED_SOURCE_CODE_ONLY",
+  "base": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "revision": "530260b2db7ff29a81f14b7ec5f06f678a862ded",
+  "source_files_sha256": {
+    ".github/workflows/task054-ios-measured.yml": "60b20a21ee24ca54460a51ee350977e6247f9c60576d6dc8985898f9be27f1ce",
+    "integration_test/task054_next_integration_surfaces_test.dart": "42ff6f1b9d9bd99d3359a58be3abf7c2b2e89535a49787da201f2acf08ec904b",
+    "scripts/run-ios-preflight-measured.py": "951a4f1ef3fa395e74eba781630561efc95f2eb4bf58eb6b4248fdba3b2b80f7",
+    "scripts/test-ios-process-trace.py": "81bff1e92b68f915513394ff5c06b4535bdefcb32beabc5b0ea980c5525bffde",
+    "scripts/test-task054-visual-runner.py": "2082dfda95d7f9e0a673c8458a85a5f7b181e7d4c0981e96c2f971136cb04fe3",
+    "scripts/test-task054-visual.sh": "e46cedd99e215540b27167e82b35d26c85a69eb52d6c93c98239f4d05c395e08"
+  },
+  "findings": [],
+  "independent_checks": {
+    "only_six_diagnostic_files": true,
+    "clean_worktree": true,
+    "preflight_before_flutter": true,
+    "sequence_review_trio_journal_build_smoke_full": true,
+    "budget35": true,
+    "flutter3448": true,
+    "xcode265": true,
+    "cleanup_always": true,
+    "no_continue_on_error": true,
+    "raw_upload_before_preview": true,
+    "review_hook_preserves_error": true,
+    "review_hook_restored": true,
+    "snapshot_failure_guard": true,
+    "full_matrix_unchanged": true,
+    "native_selection_no_uninstall_override": true,
+    "poc_first_error_while_mounted": true,
+    "poc_geometry_before_overflow_console": true,
+    "poc_no_comment_content": true,
+    "trio_actual_three_pass": true,
+    "all_requested_stages_in_positive": true
+  },
+  "commands": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-visual-runner.py",
+      "exit_code": 0,
+      "tests_passed": 17,
+      "tool_output": "a41a52"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py",
+      "exit_code": 0,
+      "tests_passed": 12,
+      "tool_output": "2662e0"
+    },
+    {
+      "individual_commands": [
+        {
+          "argv": [
+            "bash",
+            "-n",
+            "scripts/test-task054-visual.sh"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "bash",
+            "scripts/check-action-pins.sh"
+          ],
+          "exit_code": 0,
+          "stdout": "Action pin verificati in 2 workflow.\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "exit_code": 0,
+      "tests_passed": 3,
+      "tool_output": "ff66bf",
+      "input": "review_trio_positive_test.dart",
+      "output": "review-trio-positive.log",
+      "scope": "HOST_WIDGET_FIXTURE; copia readonly trasformata soltanto binding/import/font/test viewport320x568 inset0",
+      "argv": [
+        "flutter",
+        "test",
+        "--no-pub",
+        "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/review/review_trio_positive_test.dart",
+        "--name",
+        "^(?:inbox non lette parziale raggiunge pagina2 e deduplica|inbox offline conserva cache e auth scaduta la elimina|recensione submit busy failure retry edit conserva commento)$",
+        "--reporter",
+        "expanded"
+      ]
+    },
+    {
+      "exit_code": 1,
+      "test_result": "FAIL",
+      "expected_negative": true,
+      "tool_output": "bea5c0",
+      "input": "review_overflow_poc_test.dart",
+      "output": "review-overflow-poc.log",
+      "assessment": "PASS diagnostica logger: primo errore29px host registrato mentre montato; FAIL rendering preservato, non riproduzione24px iOS; errore diagnostico framework secondario dopo teardown conservato nel log.",
+      "argv": [
+        "flutter",
+        "test",
+        "--no-pub",
+        "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/review/review_overflow_poc_test.dart",
+        "--plain-name",
+        "recensione submit busy failure retry edit conserva commento",
+        "--reporter",
+        "expanded"
+      ]
+    }
+  ],
+  "negative_history": [
+    {
+      "issue": "multiple_plain_name_filters_are_AND",
+      "source": "Writer host-selected.log reported exit79, zero tests; independently verified test_core runner/suite.dart docs and corrected actual trio execution",
+      "resolution": "single anchored --name alternation with re.escape; isolated --plain-name retained",
+      "reviewer_correction": "Initial reviewer source-forwarding inference incorrectly said multiple plain-name selected union; retracted explicitly before approval."
+    }
+  ],
+  "fixture_native_isolation": {
+    "minimum_ios14": "UNCHANGED",
+    "pubspec_lock": "UNCHANGED",
+    "app_lib_native": "UNCHANGED",
+    "compact_projection": "UNCHANGED",
+    "journal_seed_recover_runner": "UNCHANGED",
+    "ownership_cleanup_runner": "UNCHANGED",
+    "full_matrix_fixture_data": "UNCHANGED",
+    "canonical_ci": "UNCHANGED"
+  },
+  "limits": [
+    "Native iOS/Xcode26.5 preflight/runtime NOT_RUN in this review.",
+    "Journal, native review, smoke and full visual matrix NOT_RUN until hosted receipts.",
+    "Synthetic host397px inset and29px overflow only verify first-error logging; historical24px iOS cause remains NOT_VERIFIED.",
+    "No Auth, TEST, iOS14 execution, deployment, release signing, or global task approval.",
+    "Review workspace global documents remain baseline f326; coordinator owns current governance reconciliation."
+  ],
+  "protected_artifacts": {
+    "review_overflow_poc_test.dart": {
+      "bytes": 71390,
+      "sha256": "d9d03ef0a703cdae8aef59d3de6c390e228fa56f03444d12dfe34d39db535f54"
+    },
+    "review-overflow-poc.log": {
+      "bytes": 17273,
+      "sha256": "cf7ee26c42adc7a921ad2a35d9f12f488e12da695e3d55101c3e4ca1c7f8120a"
+    },
+    "review_trio_positive_test.dart": {
+      "bytes": 71368,
+      "sha256": "68345af811eb422a76e5f977f96aa8d9619f83938a6b36fe46f9caf502f32d2d"
+    },
+    "review-trio-positive.log": {
+      "bytes": 15434,
+      "sha256": "1d084d6461bcbeec6ff382fe5ef2d81221315e365d9c474f7e5f6b0fafec2e37"
+    }
+  },
+  "processes": "all reviewer commands terminal; no device/network/dispatch/implementation/Git mutations by reviewer"
+}

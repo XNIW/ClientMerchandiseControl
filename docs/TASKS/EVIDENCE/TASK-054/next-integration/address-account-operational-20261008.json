@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "scope": "source_client_address_account_and_development_admin_integration",
+  "client_commit": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+  "client_source_bundle_sha256": "f641d63fe25d0d2f0e1e5a056eea5d8420a9f69619cebf1aa3b4221449fca0bb",
+  "source_files": {
+    "android/app/src/main/kotlin/com/xniw/clientmerchandisecontrol/AddressCreationDurability.kt": "c20b3712a89d8832f4447b92efc39be26f718db66da9a5180dca7dd295352775",
+    "android/app/src/main/kotlin/com/xniw/clientmerchandisecontrol/MainActivity.kt": "eeb53450b2dc8a5dc5b0c3fd4b3c93ad9e6e3f1a783889958ec5724d88b6d877",
+    "android/app/src/test/kotlin/com/xniw/clientmerchandisecontrol/AddressCreationDurabilityTest.kt": "d6efb2da4993fbe1598ec73871b58b533c8b3adf41969d93075ffc374ddb715e",
+    "integration_test/customer_account_flow_test.dart": "1684c7da591a242730028b7697222f7f58a5e003958b3dcf8bf152ce2a94c641",
+    "lib/features/account/application/customer_account_controller.dart": "8681eee5e3b10aaecbe580cdda95a22c7b871ee6e9c737d57c84bf27fc1847b2",
+    "lib/features/account/application/customer_account_providers.dart": "bb9b4da5a8cb820936b57f4cf5ffdddaf7c0803366c44e8634a8e6513159ee7b",
+    "lib/features/account/data/secure_address_creation_journal.dart": "49d0f55b5fb0f879a2da8a26fc7aea0d21834a9fb29a4fa492e402bfd4b93d78",
+    "lib/features/account/data/supabase_customer_account_repository.dart": "11ef13e1be34f2ca0fdaa14ed4e36193855f4beee301bc62286e67feb4d32d51",
+    "lib/features/account/domain/address_creation_intent.dart": "fac23068824a8b1cb773dacc08a6710dd16833066caf385adff18762ba8230b0",
+    "lib/features/account/domain/customer_account_failure.dart": "429bfe1863ddc66ff03aad24252c86366dc06fcc5ce0caf4f195ee1a64a04188",
+    "lib/features/account/domain/customer_account_models.dart": "7b996fd0fe6f0525df07e19e06cbf9b017a74414717b06514aa0d399f72e8038",
+    "lib/features/account/domain/customer_account_repository.dart": "91bd6d27d2bca155496fe6e74c0a2db58e5bd990e1a0b3fa81a85089a408d386",
+    "lib/features/account/presentation/account_presentation_model.dart": "e8e376d96f01003a22c7ad196442a3d45b111337d7af1083a62d491941a3111f",
+    "lib/features/account/presentation/account_screen.dart": "2399c951b22673608c8ad67dfc944495146556a21aae4919b75106a2dac9e104",
+    "lib/features/account/presentation/customer_account_panel.dart": "7d854c736c589fe6b859272d15de5338ab53f7a325d4bbb6956bf0fb648cc42f",
+    "lib/features/delivery_context/application/delivery_context_providers.dart": "37a08f28111f9944dbb9af2dc3a84c614fe73a5f791b3649d16ea3a525e22505",
+    "lib/l10n/app_en.arb": "3d54701f9193b765b09b9c45b457bed49ae91e956f7a051bf87c9dd7f29a7e78",
+    "lib/l10n/app_es.arb": "69318670d15e5cd9eeb8578025c6749ca37582de58de4582a57cde2a99c63763",
+    "lib/l10n/app_it.arb": "3b80ef880b7d9c46245393468ad2cac80292a5d9139b05311dfe9998aa504e85",
+    "lib/l10n/app_zh.arb": "81e112bacff30307df2e5ff45a27b899c3a6ad7a2ef5e3b9cd931bd7f051dced",
+    "lib/l10n/app_zh_Hans.arb": "be1536efe08fa17d4d031b03a78ab406cf4701d763532afe8834427c1a86b7c2",
+    "lib/l10n/generated/app_localizations.dart": "d246a159d38773be8d62309ac4098013cf1e4d00e238511c7c0b5b5358bfbb46",
+    "lib/l10n/generated/app_localizations_en.dart": "9cfa76bc887735d2802b0f8dd6fe09a5a383ae34d72e57ba7208eb98b925662b",
+    "lib/l10n/generated/app_localizations_es.dart": "d6b292826f1d8fa5911c1c9aa7e56f217660ac018384f5d1065138ec677287f6",
+    "lib/l10n/generated/app_localizations_it.dart": "d3f92a3d0c4a2a56eeca29451b721fad1083c1666188478c9177fcea20c7f948",
+    "lib/l10n/generated/app_localizations_zh.dart": "b4fa5c3ada462398c5bac3d7afee507e2dfe7c654fc2f4357f4576824d79dae2",
+    "test/features/account/account_auth_states_test.dart": "8f92cbe7444cc895be5ee2ecf9d4fd99b36310bba935d2455e06abee0d3186ba",
+    "test/features/account/account_dialog_scope_test.dart": "4658005d4c2fb37bfe532e27ee1afb597cf89ef2e2e9a9820ca68b0138811c8e",
+    "test/features/account/account_screen_test.dart": "c8ca7e3299698ef602fcf2bf024d484ba336459edaa1dc5d5bbb6abeed6f4f59",
+    "test/features/account/address_editor_monitor_cleanup_test.dart": "256ce943b3c41ac91e5973f1b95e60ed1c627c16264c60f56a57d8a4e8726ad0",
+    "test/features/account/address_editor_opening_scope_test.dart": "de3fa8b878f7812bcd49674774888e406c3e2879a620195d51ccb2f0225afa9f",
+    "test/features/account/application/address_creation_ack_contract_test.dart": "40a96f8486cd9fef61fade20ea3a3708a2c7fbc5eb5c4482dd5aa04146f0f03c",
+    "test/features/account/application/customer_account_controller_test.dart": "03ef77ddadbabdbe3592ee69b39b27ae6069dd71c19b69910d2a2177a070af69",
+    "test/features/account/customer_account_panel_test.dart": "3495e396d42a46145c40b79f36594b82b9a9961c0628543d1f5e26bbeac34505",
+    "test/features/account/customer_account_test_support.dart": "1b7cd4d756b46b1022390a3def68abacf4f0d0d289275693bd5feb176176a51b",
+    "test/features/account/data/secure_address_creation_journal_test.dart": "4a89398ba44b3aa27692255a30b2fc13c69234a6743b97868136fd20424afa91",
+    "test/features/account/data/supabase_customer_account_repository_test.dart": "3b06b0918db4d01d26efcc4e598e4c78b9eb810e7cb140016d083de64c77bc7a",
+    "test/features/account/domain/customer_account_failure_test.dart": "f6f1df8a4858658b1527255ede4df097b584e4ab80b4a43a28311dce56fd65b1",
+    "test/features/account/domain/customer_account_models_test.dart": "f839b58c8b51d503a7e008f6b3092ab65e43cb6ec413716194b4d4246ef2c047",
+    "test/features/account/pending_address_initial_test.dart": "75cfcc07ae7bd6802eb1312d8a2c5e0d4a6e2c2f07305b57a1fed7e6a1fa494b"
+  },
+  "gates": [
+    {
+      "command": "flutter test --no-pub --concurrency=1 test/features/account",
+      "exitCode": 0,
+      "passed": 99,
+      "log": "build/task054/address-20261008/account-auth-aba-final.log",
+      "result": "PASS"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "result": "PASS"
+    }
+  ],
+  "unchanged_native_gate": {
+    "command": "./gradlew :app:testDebugUnitTest --no-daemon --max-workers=2",
+    "cwd": "android",
+    "exitCode": 0,
+    "log": "build/task054/address-20261008/android-unit.log",
+    "passed": 4,
+    "failures": 0,
+    "skipped": 0
+  },
+  "source_receipt_sha256": "c926ba976b6903532c84f1e5cfb410a3aef10287478e4423103e9d1428fc980b",
+  "prior_independent_review": {
+    "receipt_sha256": "4f2c39381cc24d08ddeec7467b920d6c18833ad52592be215526d6d46a2059f9",
+    "passed": 10,
+    "failed": 1,
+    "finding": "P1_export_owner_change_before_mount",
+    "status_at_that_review": "CHANGES_REQUIRED",
+    "fix_new_commit_review": "NOT_RUN",
+    "historical": true,
+    "qualification": "Esito storico conservato; la re-review finale SOURCE_CODE_ONLY del candidato edfec536 è nella sezione final_independent_review."
+  },
+  "admin": {
+    "pull_request": "https://github.com/XNIW/merchandise-control-admin-web/pull/131",
+    "reviewed_source": "f16c5f4f37051e7876a847fb1ae2e544c89377d2",
+    "merge_sha": "02ea44b95d4a05baddbf46f24251f0d5f0dea294",
+    "merged_at": "2026-10-08T15:46:30Z",
+    "tree_identical": true,
+    "remote_main_verified": true,
+    "runs": [
+      {
+        "name": "CI",
+        "id": 37803517965,
+        "result": "success",
+        "url": "https://github.com/XNIW/merchandise-control-admin-web/actions/runs/37803517965",
+        "jobs": [
+          {
+            "name": "Database migrations and pgTAP",
+            "result": "success",
+            "steps": 7
+          },
+          {
+            "name": "Verify",
+            "result": "success",
+            "steps": 19
+          },
+          {
+            "name": "TASK-094 staging E2E",
+            "result": "skipped",
+            "steps": 0
+          }
+        ]
+      },
+      {
+        "name": "Cloudflare",
+        "id": 37803518056,
+        "result": "success",
+        "url": "https://github.com/XNIW/merchandise-control-admin-web/actions/runs/37803518056",
+        "jobs": [
+          {
+            "name": "Cloudflare build",
+            "result": "success",
+            "steps": 15
+          },
+          {
+            "name": "Deploy staging",
+            "result": "skipped",
+            "steps": 0
+          },
+          {
+            "name": "Deploy production",
+            "result": "skipped",
+            "steps": 0
+          }
+        ]
+      }
+    ],
+    "annotations_count": 6,
+    "scope": "development_only",
+    "migration_file": "20261008151018_customer_address_create_intent_v3.sql",
+    "migration_sha256": "b290c6373d2d49a3c9fb4847e5ee8f47f2ce11f4eeeb17da4d3fc4086a615e56",
+    "assertions": 162,
+    "concurrency": "PASS_two_real_sessions_one_canonical_address",
+    "independent_source_local_review": "APPROVED",
+    "test_apply": "NOT_RUN"
+  },
+  "limitations": [
+    "Native journal force-stop/restart NOT_RUN until dedicated CI job",
+    "Shared TEST authenticated smoke NOT_RUN",
+    "Native keyboard, TalkBack/VoiceOver and physical profile NOT_RUN; QA 9/75 is host widget evidence",
+    "Final independent re-review APPROVED SOURCE_CODE_ONLY; global candidate tests and CI remain separate gates"
+  ],
+  "logs_versioned": false,
+  "historical_client_evidence": [
+    {
+      "qualification": "Evidence storica della revisione precedente; i FAIL e la review qui registrati non descrivono il risultato del candidato finale.",
+      "client_commit": "56883610e0132b2d1f02175ee88b6b0d8ceca07c",
+      "client_source_bundle_sha256": "67f93cb0bc2ad0e4959e1e22d7b14238bf0d1af273fdbfb283428af38a0723aa",
+      "source_files": {
+        "android/app/src/main/kotlin/com/xniw/clientmerchandisecontrol/AddressCreationDurability.kt": "c20b3712a89d8832f4447b92efc39be26f718db66da9a5180dca7dd295352775",
+        "android/app/src/main/kotlin/com/xniw/clientmerchandisecontrol/MainActivity.kt": "eeb53450b2dc8a5dc5b0c3fd4b3c93ad9e6e3f1a783889958ec5724d88b6d877",
+        "android/app/src/test/kotlin/com/xniw/clientmerchandisecontrol/AddressCreationDurabilityTest.kt": "d6efb2da4993fbe1598ec73871b58b533c8b3adf41969d93075ffc374ddb715e",
+        "integration_test/customer_account_flow_test.dart": "1684c7da591a242730028b7697222f7f58a5e003958b3dcf8bf152ce2a94c641",
+        "lib/features/account/application/customer_account_controller.dart": "18bb75ac0f7e09e378f0f2bf4e366a048c9416725e8cf8ba40a01b2c87aa7cb8",
+        "lib/features/account/application/customer_account_providers.dart": "bb9b4da5a8cb820936b57f4cf5ffdddaf7c0803366c44e8634a8e6513159ee7b",
+        "lib/features/account/data/secure_address_creation_journal.dart": "49d0f55b5fb0f879a2da8a26fc7aea0d21834a9fb29a4fa492e402bfd4b93d78",
+        "lib/features/account/data/supabase_customer_account_repository.dart": "11ef13e1be34f2ca0fdaa14ed4e36193855f4beee301bc62286e67feb4d32d51",
+        "lib/features/account/domain/address_creation_intent.dart": "fac23068824a8b1cb773dacc08a6710dd16833066caf385adff18762ba8230b0",
+        "lib/features/account/domain/customer_account_failure.dart": "429bfe1863ddc66ff03aad24252c86366dc06fcc5ce0caf4f195ee1a64a04188",
+        "lib/features/account/domain/customer_account_models.dart": "7b996fd0fe6f0525df07e19e06cbf9b017a74414717b06514aa0d399f72e8038",
+        "lib/features/account/domain/customer_account_repository.dart": "91bd6d27d2bca155496fe6e74c0a2db58e5bd990e1a0b3fa81a85089a408d386",
+        "lib/features/account/presentation/account_presentation_model.dart": "e8e376d96f01003a22c7ad196442a3d45b111337d7af1083a62d491941a3111f",
+        "lib/features/account/presentation/account_screen.dart": "2399c951b22673608c8ad67dfc944495146556a21aae4919b75106a2dac9e104",
+        "lib/features/account/presentation/customer_account_panel.dart": "1074afa799635e3b80d86c400a8ec7bd0abf10513a0514df3c3e2f93861e053e",
+        "lib/features/delivery_context/application/delivery_context_providers.dart": "37a08f28111f9944dbb9af2dc3a84c614fe73a5f791b3649d16ea3a525e22505",
+        "lib/l10n/app_en.arb": "3d54701f9193b765b09b9c45b457bed49ae91e956f7a051bf87c9dd7f29a7e78",
+        "lib/l10n/app_es.arb": "69318670d15e5cd9eeb8578025c6749ca37582de58de4582a57cde2a99c63763",
+        "lib/l10n/app_it.arb": "3b80ef880b7d9c46245393468ad2cac80292a5d9139b05311dfe9998aa504e85",
+        "lib/l10n/app_zh.arb": "81e112bacff30307df2e5ff45a27b899c3a6ad7a2ef5e3b9cd931bd7f051dced",
+        "lib/l10n/app_zh_Hans.arb": "be1536efe08fa17d4d031b03a78ab406cf4701d763532afe8834427c1a86b7c2",
+        "lib/l10n/generated/app_localizations.dart": "d246a159d38773be8d62309ac4098013cf1e4d00e238511c7c0b5b5358bfbb46",
+        "lib/l10n/generated/app_localizations_en.dart": "9cfa76bc887735d2802b0f8dd6fe09a5a383ae34d72e57ba7208eb98b925662b",
+        "lib/l10n/generated/app_localizations_es.dart": "d6b292826f1d8fa5911c1c9aa7e56f217660ac018384f5d1065138ec677287f6",
+        "lib/l10n/generated/app_localizations_it.dart": "d3f92a3d0c4a2a56eeca29451b721fad1083c1666188478c9177fcea20c7f948",
+        "lib/l10n/generated/app_localizations_zh.dart": "b4fa5c3ada462398c5bac3d7afee507e2dfe7c654fc2f4357f4576824d79dae2",
+        "test/features/account/account_auth_states_test.dart": "8f92cbe7444cc895be5ee2ecf9d4fd99b36310bba935d2455e06abee0d3186ba",
+        "test/features/account/account_dialog_scope_test.dart": "354d7c50da38d415a4a36d93c4be3f4d3d523b83b8b8b58efd6e722d1e0ff781",
+        "test/features/account/account_screen_test.dart": "c8ca7e3299698ef602fcf2bf024d484ba336459edaa1dc5d5bbb6abeed6f4f59",
+        "test/features/account/address_editor_monitor_cleanup_test.dart": "256ce943b3c41ac91e5973f1b95e60ed1c627c16264c60f56a57d8a4e8726ad0",
+        "test/features/account/address_editor_opening_scope_test.dart": "de3fa8b878f7812bcd49674774888e406c3e2879a620195d51ccb2f0225afa9f",
+        "test/features/account/application/address_creation_ack_contract_test.dart": "40a96f8486cd9fef61fade20ea3a3708a2c7fbc5eb5c4482dd5aa04146f0f03c",
+        "test/features/account/application/customer_account_controller_test.dart": "03ef77ddadbabdbe3592ee69b39b27ae6069dd71c19b69910d2a2177a070af69",
+        "test/features/account/customer_account_panel_test.dart": "0e16515bcd58b192c8c98e21bb8ceb40501ff97a07a74e0e1fca21b923e3935e",
+        "test/features/account/customer_account_test_support.dart": "44796421e0835bd830e95808f111b04db432dceb9ebcb0084b2cb9a3b336dda2",
+        "test/features/account/data/secure_address_creation_journal_test.dart": "4a89398ba44b3aa27692255a30b2fc13c69234a6743b97868136fd20424afa91",
+        "test/features/account/data/supabase_customer_account_repository_test.dart": "3b06b0918db4d01d26efcc4e598e4c78b9eb810e7cb140016d083de64c77bc7a",
+        "test/features/account/domain/customer_account_failure_test.dart": "f6f1df8a4858658b1527255ede4df097b584e4ab80b4a43a28311dce56fd65b1",
+        "test/features/account/domain/customer_account_models_test.dart": "f839b58c8b51d503a7e008f6b3092ab65e43cb6ec413716194b4d4246ef2c047",
+        "test/features/account/pending_address_initial_test.dart": "75cfcc07ae7bd6802eb1312d8a2c5e0d4a6e2c2f07305b57a1fed7e6a1fa494b"
+      },
+      "gates": [
+        {
+          "command": "flutter test --no-pub --concurrency=1 test/features/account",
+          "exitCode": 0,
+          "passed": 96,
+          "log": "build/task054/address-20261008/account-export-layout-final.log"
+        },
+        {
+          "command": "flutter test --no-pub --concurrency=1 build/task054/qa-20261008/address_keyboard_host_test.dart --plain-name 'address editor focus compatto200% rende recuperabili errori immediati e differiti'",
+          "exitCode": 1,
+          "log": "build/task054/address-20261008/address-layout-targeted.log",
+          "detail": "All three error and recovery geometry checkpoints completed without overflow; final third-retry dialog dismissal assertion failed. QA confirms same tail fails on baseline396; diagnosis pending, overall result FAIL."
+        },
+        {
+          "command": "git diff --check",
+          "exitCode": 0
+        }
+      ],
+      "source_receipt_sha256": "58ab898cc6cbe95257ceb5c0445d714c4bb33d826707e22be4ba99adbd22226b",
+      "limitations_at_that_revision": [
+        "Native journal force-stop/restart NOT_RUN until dedicated CI job",
+        "Shared TEST authenticated smoke NOT_RUN",
+        "QA UPDATE third-retry tail FAIL on both baseline and candidate, diagnosis pending; no overall visual PASS",
+        "Global candidate tests, review and CI remain separate gates"
+      ]
+    }
+  ],
+  "source_file_count": 40,
+  "red_inflight_auth_aba": {
+    "result": "FAIL",
+    "phase": "RED storico prima del fix",
+    "source_controller_sha256": "18bb75ac0f7e09e378f0f2bf4e366a048c9416725e8cf8ba40a01b2c87aa7cb8",
+    "command": "flutter test --no-pub --concurrency=1 test/features/account/account_dialog_scope_test.dart --plain-name 'real AuthController A-B-A invalidates in-flight ACK'",
+    "exitCode": 1,
+    "passed": 0,
+    "failed": 1,
+    "log": "build/task054/address-20261008/inflight-auth-aba-red/permanent-red.log",
+    "preserved_evidence_sha256": "3839fcf1d63f7155fd2066f1801009c18b0b5cd3f98ee1027285484b90f06ba1",
+    "fix_validation": "Incluso nei 99 PASS sul candidato finale: ACK precedente nullo, stato READY non occupato, journal recuperato e verifica esplicita dello stesso intento con un solo commit; refresh dello stesso owner preservato."
+  },
+  "ni05432_closure": {
+    "result": "PASS",
+    "tested_client_commit": "eab76f7a6b1b14be28f49be71980bc0ab93b0101",
+    "level": "HOST_WIDGET_PRODUCTION_UI_SYNTHETIC_REPOSITORIES",
+    "ui_source_sha256": "7d854c736c589fe6b859272d15de5338ab53f7a325d4bbb6956bf0fb648cc42f",
+    "ui_identical_in_final_candidate": true,
+    "fix": "Key stabile della sezione indirizzi: conserva il contesto opener durante i rebuild della notice, senza rimuovere i guard mounted/owner.",
+    "address_matrix": {
+      "result": "PASS",
+      "tests": 9,
+      "exitCode": 0,
+      "log": "address-matrix-green-final.log",
+      "cases": "UPDATE immediate+deferred error with IME focus precondition and successful third retry;4locales CREATE unknown light direct Verify and dark close/reopen Verify"
+    },
+    "full_harness": {
+      "result": "PASS",
+      "tests": 75,
+      "exitCode": 0,
+      "log": "visual-host-75-final.log",
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test build/task054/qa-20261008/host_harness/task054_visual_flow_test.dart --no-pub --concurrency=1 --reporter expanded"
+    },
+    "analyze": {
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "harness-analyze-green-final.log"
+    },
+    "qa_receipt_sha256": "209267a604f7f62e8cc274613aa30b0e99b82b27a7dacb27a2a7c902f5a2acd2",
+    "qualification": "NI054-32 chiuso dalla QA indipendente 9/75 sul codice UI di eab76f7, invariato nel candidato finale. Le prove host con repository sintetici non sono una prova nativa né un gate globale del nuovo commit del controller.",
+    "local_evidence_directory": "build/task054/qa-20261008"
+  },
+  "final_independent_review": {
+    "result": "APPROVED",
+    "scope": "SOURCE_CODE_ONLY",
+    "source_commit": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+    "passed": 36,
+    "exit_code": 0,
+    "evidence": "docs/TASKS/EVIDENCE/TASK-054/next-integration/client-source-review-20261008.json",
+    "sha256": "4b905d6f9a9ffe7466890e7f48b74165402cb6601c70a2bceede78d566711f7c"
+  },
+  "final_candidate_association": {
+    "commit": "bb53892393710d3ed6d2574053fe1206561b87f0",
+    "qualification": "Original 99 account gate and source_files retain their edfec536 revision. Only technical zh fallback/generated and CI count changed afterwards; zh_Hans and account runtime unchanged. Global final gate is separate.",
+    "source_delta": [
+      "lib/l10n/app_zh.arb",
+      "lib/l10n/generated/app_localizations_zh.dart",
+      "test/governance/ci_performance_gate_test.dart"
+    ],
+    "targeted_writer_passed": 9,
+    "targeted_reviewer_passed": 9,
+    "exit_code": 0,
+    "review": "APPROVED",
+    "scope": "SOURCE_CODE_ONLY",
+    "receipt": "build/task054/address-20261008/zh-fallback/receipt.json"
+  }
+}

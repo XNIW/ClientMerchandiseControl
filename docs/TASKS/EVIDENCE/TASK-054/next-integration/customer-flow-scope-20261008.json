@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "data": "2026-10-08",
+  "ruolo": "CODEX_EXECUTOR",
+  "lane": "customer-flow-scope",
+  "mandato": "TASK-054, emendamento operativo 2026-10-08, paragrafi7 e8",
+  "sourceGateCapturedAtUtc": "2026-10-08T16:24:01.655428+00:00",
+  "sourceReadbackAtUtc": "2026-10-08T16:26:50.728951+00:00",
+  "esitoWriter": "PASS",
+  "reviewIndipendente": "NOT_RUN",
+  "ambito": "Due difetti lifecycle riprodotti; cinque file implementazione/test. Nessuna modifica a router, controller, contratti, dipendenze o budget.",
+  "findings": [
+    {
+      "id": "C-OC-FLOW-01",
+      "residuo": "NI054-29",
+      "severita": "P1",
+      "stato": "FIXED_AWAITING_INDEPENDENT_REVIEW",
+      "acceptance": [
+        "R20",
+        "R03",
+        "R25"
+      ],
+      "file": "lib/features/orders/presentation/customer_reorder_card.dart",
+      "lineeBaseline": "40-68;117-139",
+      "riproduzione": "Preview riordino già aperta dopo revoca; risultato apply A dopo ingresso B; apertura A→B→A prima del primo paint. In tutti i casi resta visibile contenuto privato A.",
+      "intervento": "Monitor owner/shop prima di preview e push, latch della sorgente AuthController, rimozione della sola route e cleanup anche pre-mount; nessun publish, refresh carrello o navigazione tardiva dopo invalidazione."
+    },
+    {
+      "id": "C-OC-FLOW-02",
+      "residuo": "NI054-30",
+      "severita": "P1",
+      "stato": "FIXED_AWAITING_INDEPENDENT_REVIEW",
+      "acceptance": [
+        "R21",
+        "R03",
+        "R25"
+      ],
+      "file": "lib/features/after_sales/presentation/customer_after_sales_screen.dart",
+      "lineeBaseline": "39-40;219-231;338-345",
+      "riproduzione": "Bozza assistenza A visibile dopo ingresso B; Future listOrderLines A completata dopo revoca pubblica righe nel form.",
+      "intervento": "Scope fissato alla creazione del form, invalidazione permanente e pulizia dei buffer/focus propri; guard prima e dopo picker, lettura allegati, upload e navigazione."
+    }
+  ],
+  "sourceBaselineSha256": [
+    {
+      "path": "lib/features/orders/presentation/customer_reorder_card.dart",
+      "sha256": "0febdea2fd99abc905e478f61cad003d10d98f2fa37f0602912072125974f84b"
+    },
+    {
+      "path": "lib/features/after_sales/presentation/customer_after_sales_screen.dart",
+      "sha256": "28595a429eaffaa4f2aebd87b233a971ae2d4de294e47c4cd1eeeb3be2f253e4"
+    }
+  ],
+  "sourceFinaleSha256": [
+    {
+      "path": "lib/features/orders/presentation/customer_reorder_card.dart",
+      "sha256": "ed2097e8b6f8b960cfe06dd5e7a420e9edafdd77419358b26dc646470251e4c0"
+    },
+    {
+      "path": "lib/features/after_sales/presentation/customer_after_sales_screen.dart",
+      "sha256": "5ad7ad694d2121237e27ccaa0a4074ab61bd563851f07f0d8be90443b6479c17"
+    },
+    {
+      "path": "test/features/orders/customer_reorder_scope_test.dart",
+      "sha256": "052ab271bf6705a287e50f00d1c10eed61ba021502927f77c9bc8dae14a9fd99"
+    },
+    {
+      "path": "test/features/after_sales/customer_after_sales_scope_test.dart",
+      "sha256": "37d53d793910a0300f1bd3d353188f2a7377317314a758c3085f1e9e4855a06e"
+    },
+    {
+      "path": "test/support/customer_session_route_fixture.dart",
+      "sha256": "643313ea63e2b5a03665c7f4e91239ba607856e279b38cbe30c43d4debd098fe"
+    }
+  ],
+  "provenanceRED": "I due file produzione baseline sono stati copiati e hashati prima dei fix. Il RED funzionale usa l’harness corretto rispetto alle prime tre run; i passaggi sono conservati nelle chiamate tool e nei log locali. Gli hash dei test finali includono due controlli positivi aggiunti dopo il RED e non sono attribuiti retroattivamente al test iniziale.",
+  "verifiche": [
+    {
+      "fase": "preparazione-harness-1",
+      "comando": "flutter test --concurrency=1 --reporter expanded test/features/orders/customer_reorder_scope_test.dart test/features/after_sales/customer_after_sales_scope_test.dart",
+      "esito": "FAIL",
+      "exitCode": 1,
+      "logLocaleNonVersionato": "red.log",
+      "logSha256": "8d37fa05dea94a9d229bc09ce6531e0909eca59906751caf7ee8ed310135af69",
+      "qualificazione": "Due tap riordino fuori viewport; il caso ABA non esercita l’apertura ed è un falso positivo. Due failure assistenza sono funzionali, ma questa run non qualifica il riordino.",
+      "passNumerici": 1,
+      "failNumerici": 4
+    },
+    {
+      "fase": "preparazione-harness-2",
+      "comando": "flutter test --concurrency=1 --reporter expanded test/features/orders/customer_reorder_scope_test.dart test/features/after_sales/customer_after_sales_scope_test.dart",
+      "esito": "FAIL",
+      "exitCode": 1,
+      "logLocaleNonVersionato": "red-corrected-scroll.log",
+      "logSha256": "b549c8565dc76bc2d38da96258436d85afb4d0255ed2c6a22dbb1bfcb7072eb5",
+      "qualificazione": "Tre timeout harness: pumpAndSettle attende l’indicatore continuo del pulsante che ha aperto il modal. Le due failure assistenza restano funzionali.",
+      "passNumerici": 0,
+      "failNumerici": 5
+    },
+    {
+      "fase": "preparazione-harness-3",
+      "comando": "flutter test --no-pub --concurrency=1 --reporter expanded test/features/orders/customer_reorder_scope_test.dart test/features/after_sales/customer_after_sales_scope_test.dart",
+      "esito": "FAIL",
+      "exitCode": 1,
+      "logLocaleNonVersionato": "red-final.log",
+      "logSha256": "4b2263821e44a51fa03c87ad68922c9500511cde1f530a958eeba106dc82ac44",
+      "qualificazione": "Quattro failure funzionali; un tap Apply ancora fuori viewport durante l’animazione di ingresso. Non è una nuova failure prodotto.",
+      "passNumerici": 0,
+      "failNumerici": 5
+    },
+    {
+      "fase": "RED-funzionale",
+      "comando": "flutter test --no-pub --concurrency=1 --reporter expanded test/features/orders/customer_reorder_scope_test.dart test/features/after_sales/customer_after_sales_scope_test.dart",
+      "esito": "FAIL",
+      "exitCode": 1,
+      "logLocaleNonVersionato": "red-final-target.log",
+      "logSha256": "e64d03d481d8552a7c0b2f3350c3c93a2770fbe6e7da756dec0421dd51b4218f",
+      "qualificazione": "Cinque assertion falliscono per dati A ancora visibili. Tap verificato e paint iniziale seguito da 350 ms; nessun miss-tap o timeout. Warning fixture Drift per database multipli, successivamente eliminato con database in-memory dedicato.",
+      "passNumerici": 0,
+      "failNumerici": 5
+    },
+    {
+      "fase": "GREEN-iniziale",
+      "comando": "flutter test --no-pub --concurrency=1 --reporter expanded test/features/orders/customer_reorder_scope_test.dart test/features/after_sales/customer_after_sales_scope_test.dart",
+      "esito": "PASS",
+      "exitCode": 0,
+      "logLocaleNonVersionato": "green-scope.log",
+      "logSha256": "b64a4b459216b77faa23647b12fcfe3dc12f0481af2aa6a16b1f2173b6e5d468",
+      "qualificazione": "Cinque regressioni e due controlli positivi stesso owner; prima dei guard mounted espliciti.",
+      "passNumerici": 7,
+      "failNumerici": 0
+    },
+    {
+      "fase": "suite-mirata-pre-mounted",
+      "comando": "flutter test --no-pub --concurrency=1 --reporter expanded test/features/orders test/features/after_sales",
+      "esito": "PASS",
+      "exitCode": 0,
+      "logLocaleNonVersionato": "green-orders-after-sales.log",
+      "logSha256": "5c0e251101bf2ba751011ca62e7c6cdb825682e67a32dbb227130a0056b754f5",
+      "qualificazione": "Fix verificato prima dell’aggiunta dei guard mounted espliciti; non è presentato come riesecuzione della suite65 sui byte finali.",
+      "passNumerici": 65,
+      "failNumerici": 0
+    },
+    {
+      "fase": "analyze-iniziale",
+      "comando": "flutter analyze --no-pub lib/features/orders/presentation/customer_reorder_card.dart lib/features/after_sales/presentation/customer_after_sales_screen.dart test/support/customer_session_route_fixture.dart test/features/orders/customer_reorder_scope_test.dart test/features/after_sales/customer_after_sales_scope_test.dart",
+      "esito": "FAIL",
+      "exitCode": 1,
+      "logLocaleNonVersionato": "analyze.log",
+      "logSha256": "cce7698a2ad1548b94ee835c63f0d5da946e01f7f57c2b8a1e42a79e4820f006",
+      "qualificazione": "Quattro use_build_context_synchronously: il getter _isCurrent non è riconosciuto dal lint. Aggiunto mounted esplicito, senza disabilitare regole.",
+      "issue": 4
+    },
+    {
+      "fase": "analyze-finale",
+      "comando": "flutter analyze --no-pub lib/features/orders/presentation/customer_reorder_card.dart lib/features/after_sales/presentation/customer_after_sales_screen.dart test/support/customer_session_route_fixture.dart test/features/orders/customer_reorder_scope_test.dart test/features/after_sales/customer_after_sales_scope_test.dart",
+      "esito": "PASS",
+      "exitCode": 0,
+      "logLocaleNonVersionato": "analyze-final.log",
+      "logSha256": "9b1b5da84b59137efc97d93736661afd97f0e7f86c2780a37db173183b17ac82",
+      "qualificazione": "Sui cinque file identificati dagli hash finali.",
+      "issue": 0
+    },
+    {
+      "fase": "GREEN-finale",
+      "comando": "flutter test --no-pub --concurrency=1 --reporter expanded test/features/orders/customer_reorder_scope_test.dart test/features/after_sales/customer_after_sales_scope_test.dart",
+      "esito": "PASS",
+      "exitCode": 0,
+      "logLocaleNonVersionato": "green-final.log",
+      "logSha256": "e2255324bf5ac889af97e471ef35fd85e4ef238b038fc1075f80d579eb2fc9e3",
+      "qualificazione": "Sui byte finali: cinque regressioni e due controlli positivi, nessuna esclusione.",
+      "passNumerici": 7,
+      "failNumerici": 0
+    },
+    {
+      "fase": "diff-check-finale",
+      "comando": "git diff --check -- lib/features/orders/presentation/customer_reorder_card.dart lib/features/after_sales/presentation/customer_after_sales_screen.dart test/support/customer_session_route_fixture.dart test/features/orders/customer_reorder_scope_test.dart test/features/after_sales/customer_after_sales_scope_test.dart",
+      "esito": "PASS",
+      "exitCode": 0,
+      "qualificazione": "Nessun whitespace error; output vuoto."
+    }
+  ],
+  "ambiente": {
+    "tipo": "WIDGET host Flutter, concurrency1",
+    "componentiReali": [
+      "AuthController",
+      "appRouter",
+      "ClientMerchandiseControlApp",
+      "UI e controller di produzione"
+    ],
+    "fixture": "Repository sintetici; eventi sessione asincroni tramite StreamController.broadcast. Nessun override di identity/controller e nessuna lettura identity forzata tra A→B→A. Nessun dato reale.",
+    "isolamentoFinale": "Database Drift in-memory proprio per fixture."
+  },
+  "limiti": [
+    {
+      "gate": "review indipendente del fix",
+      "esito": "NOT_RUN",
+      "motivo": "Consegna writer; reviewer distinto assegnato dal coordinatore."
+    },
+    {
+      "gate": "suite globale sul candidato finale",
+      "esito": "NOT_RUN",
+      "motivo": "Responsabilità del coordinatore dopo freeze; questa lane non duplica il gate."
+    },
+    {
+      "gate": "TEST autenticato, ruoli e runtime Admin",
+      "esito": "NOT_RUN",
+      "motivo": "Fixture locali non esercitano sessione o backend condiviso."
+    },
+    {
+      "gate": "device fisici, interazione OS nativa, provider, VoiceOver/TalkBack",
+      "esito": "NOT_RUN",
+      "motivo": "Nessun device o provider utilizzato in questa lane."
+    }
+  ],
+  "e2eStorici": "E2E-01…25 invariati; nessuna certificazione retroattiva.",
+  "processiPropriPendenti": 0,
+  "commitDellaLane": "NOT_RUN; integrazione selettiva del coordinatore"
+}

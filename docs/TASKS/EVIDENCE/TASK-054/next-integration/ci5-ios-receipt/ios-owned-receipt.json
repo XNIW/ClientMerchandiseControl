@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "nonce": "e94fd9bb653a49cf98238e4d3c9f7744",
+  "device": "8DBD144C-9C1C-4B63-945E-1F06CE8B7BE5",
+  "creationStarted": true,
+  "cleanup": "PASS",
+  "ownerContext": {
+    "GITHUB_RUN_ID": "37369690043",
+    "GITHUB_RUN_ATTEMPT": "1",
+    "GITHUB_JOB": "ios-build",
+    "GITHUB_SHA": "02d0a7cbe5a6600e31e2f42e8b73f7aa16df1698"
+  },
+  "name": "CMC-Task054-Owned-e94fd9bb653a49cf98238e4d3c9f7744",
+  "processCleanupFailed": false,
+  "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-5",
+  "cleanupAttempts": [
+    {
+      "attempt": 1,
+      "result": "PASS",
+      "resourceCleanup": "PASS",
+      "processCleanupFailed": false
+    },
+    {
+      "attempt": 2,
+      "result": "PASS",
+      "resourceCleanup": "PASS",
+      "processCleanupFailed": false
+    }
+  ]
+}

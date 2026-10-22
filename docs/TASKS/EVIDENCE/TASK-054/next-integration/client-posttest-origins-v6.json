@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "task": "TASK-054",
+  "scope": "POSTTEST_FINITE_ORIGIN_OBSERVABILITY_ONLY",
+  "baseline": "6dc9258327e2b272622c69487efed6ad3ff67c21",
+  "canonicalBaselineRun": 39078074948,
+  "baselineCI": {
+    "event": "pull_request",
+    "attempt": 1,
+    "jobsPASS": 6,
+    "jobsFAIL": 1,
+    "failedJob": 117529373977,
+    "gate": "journal-seed",
+    "exitCode": 1,
+    "failureOrigin": "terminal_gate",
+    "terminalGateMask": 21,
+    "candidateAssignmentReached": true,
+    "postTestFailed": true,
+    "recover": "NOT_RUN",
+    "cleanup": "PASS",
+    "rootCause": "UNKNOWN"
+  },
+  "trigger": "Distinguish which existing postTest branch registered failure; current mask/artifacts/SDK source do not discriminate. No identical replay.",
+  "wire": {
+    "failureVersion": "address-journal-native-evidence.v6",
+    "keys": 10,
+    "field": "postTestFailureOrigins",
+    "enumOrder": [
+      "entryInvokerUnavailable",
+      "liveTestFailing",
+      "superException"
+    ],
+    "entryMutuallyExclusive": true,
+    "superMayCoexist": true,
+    "nonemptyIffMaskBit4": true,
+    "bodyOriginsAndMask": null,
+    "successVersion": "address-journal-native-evidence.v2",
+    "legacyExactVersions": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "exportedDiagnostic": "native_post_test_failure_origins"
+  },
+  "pure": {
+    "red": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-native-file.py",
+      "exitCode": 1,
+      "methods": 47,
+      "failures": 2,
+      "errorsAcrossSubtests": 13,
+      "threeSourcesByteIdenticalBaseline": true,
+      "logSha256": "23f7bf84d008c67bef15aac857ee04b5e458bcaba99d8b345c5c3320e41fd29d"
+    },
+    "green": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-native-file.py",
+      "exitCode": 0,
+      "passedMethods": 47,
+      "logSha256": "4824ea5a2a03896bee88e429725e38ac5d03e39691ed8bfaedc1c51897a5fa6c"
+    },
+    "inherited": {
+      "ios": 21,
+      "android": 13,
+      "trace": 87,
+      "exitCode": 0,
+      "type": "PURE_PYTHON_NOT_NATIVE"
+    },
+    "nativeOrDartFinal": "NOT_RUN"
+  },
+  "reviews": {
+    "plan": "8e724c3604da0319237f04b41eb5c998174b6b3d7ecc9f96f43bed74eebced7c",
+    "sourcePure": {
+      "result": "APPROVED_SOURCE_PURE_ONLY",
+      "patchSha256": "25c3c3a72d1265dd5a6a8ea4b93b57bcfe5a607d8a506b786c989f449245f63f",
+      "coldReceiptSha256": "538fd3f1d012098e710bce2be1299ba65f68992447cbc45508bcaff17952e80b",
+      "coldIndependentPure": 47,
+      "coldAdversarialJsonChecks": 2093,
+      "sdkReceiptSha256": "1c876972c37aadff27138ee001b66cc694824ba7cc922bf8962ae4f3a6e5d31a",
+      "sdkReviewerAlsoProposedContract": true,
+      "authorIsDifferent": true
+    }
+  },
+  "postimages": {
+    "integration_test/address_creation_journal_native_test.dart": "89320f0fc17192754a2a00e4337c7587097d3aadaa3e768e2da13e0ca14b16f9",
+    "scripts/run-address-journal-file-android.py": "943818e64fe1290734caae8fa52283732f9c9cf90195f925f61d0a1bf9258932",
+    "scripts/run-address-journal-file-ios.py": "253cb3c74373b6d847fa654e464e7c980113fd928ca66f706df9253164d59836",
+    "scripts/test-address-journal-native-file.py": "f209b74b768be1139d147f6edc99c1610131bd99861bb00c0dad4bfd521d790c"
+  },
+  "unchanged": [
+    "lib",
+    "native platform sources",
+    "app config/dependencies",
+    "workflow selectors",
+    "7 terminal predicates",
+    "teardown/rethrow",
+    "timeouts/cleanup/ownership",
+    "SUCCESS contract",
+    "legacy strict FAIL contracts"
+  ],
+  "publication": "NOT_RUN at prepush cutoff; one automatic canonical CI, no manual duplicate",
+  "limits": [
+    "No local SDK/CUA/device/TEST",
+    "No raw SDK messages/stack/secret values",
+    "No SQL/Worker/deploy/billing",
+    "No merge/DONE",
+    "Full authenticated TEST/Maps/AT/signing acceptance remains BLOCKED"
+  ],
+  "globalState": "BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED",
+  "handoff": "CODEX_FIX_BLOCKED_TO_RE_REVIEW"
+}

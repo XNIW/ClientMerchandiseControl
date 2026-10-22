@@ -1,0 +1,44 @@
+{
+  "schema": "task054-native-owner-report-fidelity-review-v1",
+  "reviewer": "/root/final_audit",
+  "created_at_utc": "2026-10-09T23:02:10.482Z",
+  "scope": "READONLY_OWNER_REPORT_FIDELITY_ONLY",
+  "source_thread": "01a0e903-0c9d-7583-8d62-4c25da6785e1",
+  "source_turn": "01a122d5-58e4-7051-b560-d56e2e7271df",
+  "source_message": "msg_0c460bc73c6a1bf7016ac9711a82b487d2ac53bbb2b6ac526d",
+  "source_read_tool": "read_thread",
+  "source_outputs_included": false,
+  "source_message_text": "Entrambe le app mostrano ora “Cloud account connected” dopo l’avvio ordinario, senza nuovi accessi manuali. Questo consente di continuare le verifiche della copia locale; l’autorità di scrittura e la convergenza cloud restano da provare. La diagnostica iOS mostra ancora errori con timestamp di ieri, che non attribuisco a questa ripresa.\n",
+  "checks": [
+    {
+      "name": "exact_referenced_thread_turn_message_exists",
+      "result": "PASS"
+    },
+    {
+      "name": "ordinary_startup_no_new_manual_login",
+      "result": "PASS"
+    },
+    {
+      "name": "both_management_apps_Cloud_connected",
+      "result": "PASS"
+    },
+    {
+      "name": "write_authority_and_convergence_unproven",
+      "result": "PASS"
+    },
+    {
+      "name": "old_diagnostics_not_attributed_to_fresh_attempt",
+      "result": "PASS"
+    }
+  ],
+  "N_owner_thread_active_independent": true,
+  "Client_Auth": "NOT_RUN",
+  "R24_Android": "NOT_RUN",
+  "R24_iOS": "NOT_RUN",
+  "root_native_interaction": false,
+  "reviewer_native_interaction": false,
+  "remote_SQL": false,
+  "new_CI": false,
+  "all_own_commands_terminal": true,
+  "integrated_verdict": "BLOCKED"
+}

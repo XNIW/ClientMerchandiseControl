@@ -1,0 +1,523 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-16",
+  "task": "TASK-054",
+  "baseline": "2e9f7a9a79d505187eda9c89ef281f8cd6881ea3",
+  "priorNative": {
+    "revision": "9d4fe2f386bee12cacae24110eeec88c6ae1a1b2",
+    "run": 38841333617,
+    "visualAndroid": "FAIL before suite resume SentinelCollected",
+    "visualIos": "FAIL launchctl readiness124 after bootstatusPASS",
+    "journalAndUnsigned": "PASS with own limits"
+  },
+  "qualityPrior": {
+    "revision": "2e9f7a9a79d505187eda9c89ef281f8cd6881ea3",
+    "run": 38845283993,
+    "result": "PASS",
+    "tests": 1243,
+    "skip": 1,
+    "performance": 11,
+    "metadata": 14,
+    "format": "409/0",
+    "analyze": 0,
+    "review": "QUALITY-RR-02 CLOSED APPROVED scoped",
+    "reviewReceiptSha256": "9bdd1052cf7047f3bb3532c563e8f4167fb431430a41e66bd70bd2ef5fcf1afe",
+    "capsuleSha256": "f4233af7456dda78298974ee5eee072b6db9fa0d2c5e61f2e2566dea930d0679"
+  },
+  "androidQuestion": "IsolateStart/Exit and own package lifecycle correlated to PID/APK; engine replacement is hypothesis, no crash proof; installed_fixture null is post-driver NOT_TRAVERSED",
+  "iosQuestion": "Own pending launchctl PID state/stack plus CoreSimulator UUID-filtered diagnostics; no AB inference from journal/cold/visual on different workers",
+  "criteria": [
+    "bounded sanitized output",
+    "ownership package/PID/UUID preserved",
+    "no reconnect arbitrary sleep retry or timeout increase",
+    "diagnostic failures do not mask original gate failure",
+    "observer quiescence and normal cleanup verified",
+    "source review and pertinent tests before experiment",
+    "one final canonical CI7job no overlapping visual dispatch",
+    "all prior SHA results and FAIL preserved"
+  ],
+  "testPlan": [
+    "pure Python mocks ownership/privacy/budget/cleanup/refusal",
+    "new Dart unit tests under test/governance executed by hosted focused; full canonical Quality remains final7job",
+    "independent source review of new diagnostic delta only",
+    "single instrumented attempt for each question"
+  ],
+  "experiment": {
+    "revision": "d195602bddf3b23c04530f32ae6ddf06fdd39c15",
+    "run": 38862344656,
+    "status": "FAIL",
+    "jobs": {
+      "success": 5,
+      "failure": 2,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "quality": "1252PASS/1SKIP,11performance,14metadata,format411/0,analyze0",
+    "androidVisual": "PASS93body+driver,corpus137+4,cleanupPASS;VMconnected samePID; lifecycleempty limits",
+    "iosVisual": "FAIL bootstatus300 before readiness,observer target NOT_TRAVERSED; cleanupFAIL preserved",
+    "iosJournal": "readinessPASS, native seedFAIL, restartNOT_RUN, causeUNKNOWN, ownedcleanupPASS",
+    "releaseUnsignedBoth": "PASS",
+    "androidJournal": "PASS"
+  },
+  "globalAcceptance": "BLOCKED",
+  "externalGates": [
+    "Maps/live TEST",
+    "Auth/C04/R24",
+    "AT/IME",
+    "signing/distribution"
+  ],
+  "preExperimentReviewHistory": [
+    {
+      "platform": "ios",
+      "freezeSha256": "d7088e14a1f763521b7d9d1af5b745f874e31426e4f6f3494f8b1b199ab0c7af",
+      "outcome": "CHANGES_REQUIRED",
+      "findingIds": [
+        "IOS-OBS-RR-01",
+        "IOS-OBS-RR-02",
+        "IOS-OBS-RR-03",
+        "IOS-OBS-RR-04"
+      ],
+      "scope": [
+        "preserve Timeout124 on observer cleanup failure",
+        "natural EOF before teardown",
+        "stop on refusal",
+        "enable only intended canonical visual prepare"
+      ],
+      "reviewReceiptSha256": "8645437bf494180dc77dbc4998c36a2127e9a1d6852c482a1e4cae8a207c9fd2",
+      "remoteExperiment": "NOT_RUN"
+    },
+    {
+      "platform": "ios",
+      "freezeSha256": "7bed59b518ea18c646ee573a4cc52466f3564df1e8fd750a6cde6d304c7ddc4f",
+      "outcome": "CHANGES_REQUIRED",
+      "priorFourFindings": "CLOSED source/pure",
+      "newFinding": "IOS-OBS-RR-05 trace-context I/O primary masking",
+      "reviewReceiptSha256": "d3bce5c41f36c4bca8925f785b2feb19b42d01b78b21ac8a0a2d2f6da9f45fc6"
+    },
+    {
+      "platform": "ios",
+      "freezeSha256": "3616909a7ac46c912bb108640526e602df358d1fef3ec932948bff878f03c783",
+      "outcome": "APPROVED",
+      "scope": "new diagnostic source and pure tests only",
+      "closedFindings": [
+        "IOS-OBS-RR-01",
+        "IOS-OBS-RR-02",
+        "IOS-OBS-RR-03",
+        "IOS-OBS-RR-04",
+        "IOS-OBS-RR-05"
+      ],
+      "independentPureTests": {
+        "tracer": 34,
+        "descriptor": 16,
+        "owner": 50,
+        "exitCodes": [
+          0,
+          0,
+          0
+        ]
+      },
+      "reviewReceiptSha256": "1ca7bfa0d280f7dd4a85f95140efb11bf92e819516409d65d963764a2b3f1a3a",
+      "nativeExperiment": "NOT_RUN",
+      "limit": "sample perturbs timing; no app/global acceptance"
+    },
+    {
+      "platform": "android",
+      "freezeSha256": "cb633ea04e8f64c7824f77a470e0f2256aa7b1d908811b2faae3f3227985bc12",
+      "outcome": "CHANGES_REQUIRED",
+      "findingId": "ANDROID-OBS-RR-01",
+      "scope": "sync socket send can orphan unlistened pending reply; no historical app cause"
+    },
+    {
+      "platform": "android",
+      "freezeSha256": "1f475cabb94e89aeed8ac00f64fae9cb4d978c5f3e8f52cdb41225ea717330c7",
+      "outcome": "APPROVED",
+      "scope": "new diagnostic source only plus four hosted workflow additions",
+      "closedFindingSource": "ANDROID-OBS-RR-01",
+      "reviewReceiptSha256": "9384f22fd9fb35be6c6f498959a7374775ddbb6e6829dc9e6f6c9338408d0c6b",
+      "dartRuntimeRegression": "NOT_RUN before hosted focused",
+      "independentPythonTests": 47
+    }
+  ],
+  "localCompositeTests": {
+    "result": "PASS",
+    "suites": 9,
+    "tests": 178,
+    "commands": [
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-android-startup-diagnostics.py"
+        ],
+        "exitCode": 0,
+        "tests": 11,
+        "logSha256": "85ca96fb207a9acf727b042ed3fd6fdb6890b8cc0d45810393b27db424a95d19"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-android-runner.py"
+        ],
+        "exitCode": 0,
+        "tests": 28,
+        "logSha256": "e4b47fb8fee25760cf227b600edc1f232f5adce4a69b89bc0e7c2fc62b9adf46"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-visual-prebuilt.py"
+        ],
+        "exitCode": 0,
+        "tests": 8,
+        "logSha256": "a28a10fe6afe4790f4554f54f3cee2a55a4bb85691557d6c0ed6430480324fc8"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-ios-process-trace.py"
+        ],
+        "exitCode": 0,
+        "tests": 34,
+        "logSha256": "2c868e7a3429f3076b8d6083ceda8e27cc33164f8c4fba7dace6e27caf0c491f"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-descriptor-launchd.py"
+        ],
+        "exitCode": 0,
+        "tests": 16,
+        "logSha256": "ac8f70674d73bcdb5907661bfda345521ec2b0772aed4c2a47d5287ca5493d57"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-descriptor-observation.py"
+        ],
+        "exitCode": 0,
+        "tests": 13,
+        "logSha256": "a5ebef065fe6b2453764af2e765bb8c3862ff35523afa213dc3d24e05b07d8c6"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-readiness.py"
+        ],
+        "exitCode": 0,
+        "tests": 9,
+        "logSha256": "d4173fdc65dfdb098a1863b85e3811d795f6d512bb0011fdc74f464e36640260"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-ios-canonical-cold.py"
+        ],
+        "exitCode": 0,
+        "tests": 9,
+        "logSha256": "0b91efbf18bf599405ac2d4b15a2eefd01b926339e841af31a3da4aa2361e4f9"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-owned.py"
+        ],
+        "exitCode": 0,
+        "tests": 50,
+        "logSha256": "76c67c8efeb927cb0ad019846b1883d942513a635678b9e1d24d9ad030aa1378"
+      }
+    ]
+  },
+  "hostedFocused": {
+    "result": "PASS",
+    "newDartUnitTests": 9,
+    "formatIncludesTestDriver": true,
+    "baselineFlags": false,
+    "newNativeTests": false,
+    "finalCanonicalCi": "NOT_RUN at normal source freeze; all7 required on final commit",
+    "revision": "90f380707674c0f683cdff69fa124698e711b006",
+    "run": 38861373311,
+    "passed": 506,
+    "skipped": 1,
+    "failed": 0,
+    "priorTests": 497,
+    "formatFiles": 405,
+    "formatChanged": 0,
+    "analyzeIssues": 0,
+    "review": "APPROVED FOCUSED_HOSTED_TEST_HARNESS_ONLY",
+    "reviewReceiptSha256": "9a81aed9cd6199df1eeb9174966119f419a2fe53d63224cfa5c21e343fd9fed2",
+    "terminalCapsuleSha256": "e19f1b10fccd5bd4775672b65c840948b31688826b89aa627a42dcb93bd1c32a"
+  },
+  "hostedPreparationHistory": [
+    {
+      "revision": "c55995ad61019ea88d0f11b29de94a81ea2aa6a1",
+      "run": 38860609181,
+      "result": "FAIL",
+      "boundary": "analyze: three lint diagnostics; tests not started",
+      "format": {
+        "files": 405,
+        "changed": 3,
+        "patchSha256": "e12d0e444fd8f455b2cad1f7ca3b71ae17ac47d645be69c8a006402d2c579371",
+        "archiveDigestCrc": "PASS"
+      },
+      "dartNewTests": "NOT_RUN",
+      "priorFocusedTests": "NOT_RUN",
+      "nativeExperiment": "NOT_RUN",
+      "fix": "apply reviewed actual formatter patch; two braces and local function declaration",
+      "fixReview": {
+        "outcome": "APPROVED SOURCE_ONLY",
+        "receiptSha256": "94263ad0df23ede854b9f8ef07771de0b5435e45aa33b45525510c6c25088030",
+        "nativeRuntime": "NOT_RUN"
+      }
+    }
+  ],
+  "testFindingsClosedScoped": [
+    "ANDROID-OBS-RR-01 test/harness",
+    "ANDROID-OBS-ANALYZE-01 analyze"
+  ],
+  "journalFailureEnumFix": {
+    "finding": "IOS-JOURNAL-OBS-RR-01",
+    "patchSha256": "a8bdd37295c66bab321d9e6708433a37f15c4a00fb9dc3b1b51f8afeaff2171d",
+    "reviewSha256": "746ac2ffab631935ebeff9aabc7fd3067e1b1d39175701cbe8790f3a93087e3c",
+    "review": "APPROVED SOURCE_PURE_OBSERVABILITY_ONLY",
+    "pureRed": "11tests/4assertFAIL on d195",
+    "pureGreenIndependent": "11+21PASS",
+    "rootPureGreen": {
+      "nativeFile": 11,
+      "iosOwner": 21,
+      "androidOwner": 13,
+      "exitCodes": [
+        0,
+        0,
+        0
+      ]
+    },
+    "scope": "Preserve only validated enum; same error/code and failclosed semantics; no native fixture or product change",
+    "historicalNativeCategory": "NOT_AVAILABLE_NOT_RECOVERED",
+    "nextQuestion": "Which validated safe enum does a future native journal failure emit? Future green does not recover historical cause/category",
+    "targetedNative": "NOT_RUN at new source freeze; one gate=ios-address-journal on new head",
+    "fullCanonicalNewHead": "NOT_RUN; no transfer from d195; six other targeted jobs SKIPPED"
+  },
+  "bootstatusSupplement": {
+    "question": "Distinguish migration wait from service wait during own pending bootstatus before readiness observer exists; no causal inference from build/prepare order or uncontrolled workers",
+    "scope": "bounded own PID stack and UUID-filtered CoreSimulator log during bootstatus; same300s/sequence/guard/cleanup; no warmup/reset/refusalbypass",
+    "nativeExperiment": "NOT_RUN; one future existing gate=ios-visual after source/pure/distinct review",
+    "coordination": "same source candidate as approved enum fix; one separate gate=ios-address-journal; no Android repeat or new workflow inputs",
+    "imageErratum": {
+      "originalReviewPreserved": "467d484b80f85cd4744a4a7a744f6de5aaca0899d4856de265f304f43d1760b3",
+      "correctedReview": "de6c074606499191ea8a0f8d3e68a195269f893078de77067f31a90177c67f08",
+      "visualImage": "20261013.0424.1",
+      "journalImage": "20260907.0351.1",
+      "causality": "NOT_CONFIRMED"
+    },
+    "preExperimentReviewHistory": [
+      {
+        "freezeSha256": "54e545c9a66e06b1d27fd4da0daced9744eb16d9b197590420a95c6259d2659b",
+        "outcome": "CHANGES_REQUIRED",
+        "finding": "IOS-BOOT-OBS-RR-01/P2",
+        "scope": "Proof true despite actual check_device False for UUID absent; two independent reviewers and realhelper reproduction",
+        "reviewSha256": "32c224a5848251367f14a8599120b4d7ff693104f8866f24dfdb41ee556d6881",
+        "reproSha256": "35d6a8ca720a4c16db8273db6f7ae6acca27398727014e6ac1ac4b45da027e9b",
+        "independentPurePassed": 125,
+        "findingNotClosedByTests": true,
+        "rootApplied": false,
+        "nativeExperiment": "NOT_RUN",
+        "fixRequest": "V2 depends on actual existing positive identity result; no newquery/reorder/budget change; False+boot0 never authorizes observer; RED/GREEN and distinct re-review required"
+      },
+      {
+        "freezeSha256": "1e21f62eeb15bac1cb77351ab504a62f279dfd5033f30a721fb4e11e3585fe39",
+        "outcome": "APPROVED SCOPED_SOURCE_PURE_ONLY",
+        "findingClosedScoped": "IOS-BOOT-OBS-RR-01",
+        "independentReviewSha256": [
+          "1d85e68c7a1d66280747f14c9d877727b04e55dd8b26266cc6b73bad0a190d3e",
+          "4940ccc3c0c4e3ec8bc9b4f9f2710cc6a8f29272d2a8e61080a539d79005b72f"
+        ],
+        "realHelperRedGreen": "V1 missingUUID new testFAIL;V2 False+boot0 no proof/auth,NOT_RUN,same124/SDKsequence",
+        "independentPurePassed": 126,
+        "rootApplied": true,
+        "nativeExperiment": "NOT_RUN at composite freeze"
+      }
+    ]
+  },
+  "rootCompositeBootAndEnum": {
+    "result": "PASS",
+    "suites": 12,
+    "passed": 240,
+    "commands": [
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-android-startup-diagnostics.py"
+        ],
+        "tests": 11,
+        "exitCode": 0,
+        "logSha256": "d2fb41082e408e2f5f8300e0c9aff827e840b3ea83198866cf636f19a4657296"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-android-runner.py"
+        ],
+        "tests": 28,
+        "exitCode": 0,
+        "logSha256": "94f44160ea5d6d284ef9e4f758b03638b221b7cedc18a147bd66290916b99d1f"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-visual-prebuilt.py"
+        ],
+        "tests": 8,
+        "exitCode": 0,
+        "logSha256": "a28a10fe6afe4790f4554f54f3cee2a55a4bb85691557d6c0ed6430480324fc8"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-ios-process-trace.py"
+        ],
+        "tests": 51,
+        "exitCode": 0,
+        "logSha256": "fa5f0a984f60d5033df0a4e2923f57bcbe51cf1b27ff36eb961aa1fc86ccc73d"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-descriptor-launchd.py"
+        ],
+        "tests": 16,
+        "exitCode": 0,
+        "logSha256": "9203a6dcb8430c8d3ca50aa302e24528d2bb1ca14bec4e64353cbb8713245b1d"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-descriptor-observation.py"
+        ],
+        "tests": 13,
+        "exitCode": 0,
+        "logSha256": "a5cfd21a632ed9972dd90f3bb99fd518dfd2b8f7ce03951b1839a689ac6ce0b8"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-readiness.py"
+        ],
+        "tests": 9,
+        "exitCode": 0,
+        "logSha256": "58e44cab695d7d07b31b56db9d15dfa2b29de6c21aa9a133ee95e1cf7b4aaa4f"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-ios-canonical-cold.py"
+        ],
+        "tests": 9,
+        "exitCode": 0,
+        "logSha256": "7fc5f2f21d548c41100beac4e406a660cb9de1f9215153fa438389d418d8eb81"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-owned.py"
+        ],
+        "tests": 50,
+        "exitCode": 0,
+        "logSha256": "7e67c006850bf69de9399d2e43bb8a0c18cf00690404c4dade7314c7578721f2"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-address-journal-native-file.py"
+        ],
+        "tests": 11,
+        "exitCode": 0,
+        "logSha256": "6ca39c1958c0c58711f7abd39d3a13bfa23c5d6b6e5ee25cb02e058fd6597a2a"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-address-journal-ios.py"
+        ],
+        "tests": 21,
+        "exitCode": 0,
+        "logSha256": "25aab7a044d8632e09f81203c4ce4f9e95d3a0c2ef88e4df20096d37cbde3b65"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-address-journal-android.py"
+        ],
+        "tests": 13,
+        "exitCode": 0,
+        "logSha256": "1bea6429e372f0d5239deaac148c4d1b70446026791ce2389e8303dc838c6a3e"
+      }
+    ],
+    "scope": "Python/mocks only; exact approved postimage code; no local SDK",
+    "futureQuestions": [
+      "one existing gate=ios-visual on new head",
+      "one existing gate=ios-address-journal on same new head"
+    ],
+    "fullCanonicalNewHead": "NOT_RUN; no transfer from d195; other6jobs each targeted SKIPPED"
+  },
+  "postTargetedFix": {
+    "base": "a2a7e6db8dbb0f24f604efb43d6252660f052395",
+    "targetedResults": {
+      "iosVisual": {
+        "run": 38869800564,
+        "result": "FAIL",
+        "bootstatus": "EXIT0/117.566083s",
+        "prepare": "FAIL2 observercleanup reap unresolved",
+        "app": "NOT_RUN",
+        "cleanup": "FAIL sticky",
+        "reviewSha256": "e0390b77cba2f1b997245e17c1b95c0d1d8af528b6c25c50b1ed2f1c2143f039"
+      },
+      "iosJournal": {
+        "run": 38869808912,
+        "result": "FAIL",
+        "seed": "PASS23482",
+        "recover": "assertionFAIL23761",
+        "cleanup": "PASS separateowner",
+        "backend": "NOT_RUN",
+        "reviewSha256": "44a82aab13c21af3d74858a0cedaa3276faaa2ef022607665a162c920a358f49"
+      }
+    },
+    "observerFix": {
+      "finding": "IOS-BOOT-OBS-RR-02",
+      "patchSha256": "304d89a6610c5dc51a325333e28262cfe2069d32414765ca77bc1a558d82b14a",
+      "reviews": [
+        "c792eeeb22aaa1e4568383b908f0a7c4e4b1e47a9d5b0fb3056bbd66447bf237",
+        "871e3f120303160bb9b490e8a54c42e3656fc09f33c7a215dc81f4860ab39d26"
+      ],
+      "closure": "SOURCE_PURE_ONLY; cause hostedUNKNOWN"
+    },
+    "journalOrigin": {
+      "finding": "IOS-JOURNAL-OBS-RR-02",
+      "patchSha256": "5ba8f1c01a73df489c3689bc703c4863ece92d05893d18ce8382a1817b74782f",
+      "reviews": [
+        "7906850be4f461706599bc0648113a13f8653ea5195ac99539bd281382985682",
+        "c8fa4dc7c02ecf4bdf4d908f2185b3a48004dc69c5c6841f871619d912bc0ddd"
+      ],
+      "failureSchema": "v3exact7 finitebody|terminal_gate; success/legacyfailurev2 unchanged",
+      "metadataFinalV2Sha256": "9239343de007bd22fdb75433ac2eb6d3ff60578e6387095bb3c47c14e0764ea9",
+      "metadataErratumSha256": "e60ffbc71f915cc55cc25fe81b3c1dff6d7c8439604da5d0bf8d9e1dc158cf2e"
+    },
+    "rootPure": {
+      "result": "PASS",
+      "suites": 12,
+      "tests": 248,
+      "exitCode": 0,
+      "receiptSha256": "634523bab1c43ebdba45db1018651434ed72237481cb3ccb7cbb69340de5c102"
+    },
+    "futureGates": {
+      "qualityHosted": "NOT_RUN",
+      "iosVisualCorrectedCleanup": "NOT_RUN only afterQualityPASS once",
+      "iosJournalOrigin": "NOT_RUN only afterQualityPASS once",
+      "fullCanonicalCI7": "NOT_RUN; targeteddoesnotsubstitute"
+    },
+    "limits": [
+      "NoSDKMac/Androidrepeat/newinputs/guardbudgetchanges/refusalbypass/identicalretry",
+      "a2a2FAIL/d1955SUCCESS2FAIL retainownSHA; noAB/cause/stabilitytransfer",
+      "Origin identifies branch only; historicalcategory/cause not recovered",
+      "Maps/live/Auth/C04/R24/AT/IME/signing separate"
+    ]
+  }
+}

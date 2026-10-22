@@ -1,0 +1,245 @@
+{
+  "scope": "SOURCE_CODE_ONLY and HOST_TEST; no native/auth/upload acceptance",
+  "base": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "commits": [
+    "02d089d4e9a0e893df328feffaee2ab891dfe602",
+    "6461194f68cf7d18f011b22e15fa6269dca19eb5"
+  ],
+  "branch": "codex/task054-test-release-preflight",
+  "source_file_count": 16,
+  "source_hashes": {
+    "lib/core/config/app_config.dart": "6e909f29086fc884fe8146f28dddc9a70306c684dc90755b0e3f7140189b3601",
+    "lib/core/config/release_config_attestation.dart": "ba9b1899bd4c299a658dc6ee6b4b5ef8cfe5cc4a4d1788ac0c1e1855ddd4d2a6",
+    "scripts/check-android-release.sh": "6f620304bc176f144225c085f48c546514f16af5d3e76000b3d91fd6a450e369",
+    "scripts/check-android-runtime-binding.py": "1a790c081b8c9aa9078a55c762e16bd79f6c4c58bfaefb3f541648db577d47ce",
+    "scripts/check-android-test-callback.py": "079bf0dc03e0bf226ce47516f50e1ed00e6ce4ace5fd83c942443e093b52b8c4",
+    "scripts/check-ios-release.sh": "e426aa09f8f9398c15497eae60fd91a1baa84dbfffae99bc24bc8e44aaf03671",
+    "scripts/check-ios-test-callback.py": "433892a7435a0eff733e412e504214d73505928f15005184035a3e02092b0e9e",
+    "scripts/test-android-runtime-binding.py": "37c1c4527657e1ce3ffc584bff72d139328beb8178abc7712c342e5c0b806f9f",
+    "scripts/test-architecture-boundaries.sh": "518e237c741893d6eb6b2cf4b945768c6efaa81c85bf5d34f057708f349e5907",
+    "scripts/test-ios-test-callback.py": "c6d2b2c91883c2cd6c32c25d00b152a8ddfcbf2f2dbdaceac87ea6f2cb62c8ad",
+    "test/core/config/test_release_attestation_test.dart": "c5240dff681f7e01dce29d57235fd10ba34ee37b972ea41838b4404eaae46996",
+    "test/governance/android_bundle_manifest_validator_test.dart": "0ca54ffbb1b42440d361666ae45269acb5b9bd2fb77762ca7accde9ee5dd273f",
+    "test/governance/test_release_preflight_test.dart": "4e91a3f9971caf7a592c230ce4e24de7b7e4db1486e701c0852f1995e814ba21",
+    "tool/check_android_bundle_manifest.dart": "5f086ff9f32be7dbf5dd4ec53b03aded516975ff0b226eb5024c6c3064c3b9f4",
+    "tool/check_app_config_binding.dart": "8ab1d71e2732dfb46e27f5f77fe573f1c1d3af08f5677765cf947048d26c5b31",
+    "tool/check_ios_runtime_config.dart": "1e7c8d0fe565e4d71e5bb0f4e8fca7e007182c470af88828e78ac3c0fe23c8f6"
+  },
+  "worktree_clean": true,
+  "authorization": "Parent authorized explicit TEST preflight, AppConfig optional TEST_CONFIG_SHA256, and P2 fixes after RED; no native build/sign/upload/provider activation.",
+  "functional_contract": {
+    "default": "production validator/RELEASE_CONFIG_SHA256 remains distinct and production-only",
+    "test": "explicit --test with --require-upload-ready; staging pinned to jpgoimipbothfgkokyvm; Google ON/maps OFF; exact approved HTTPS callback host; nine-key TEST digest excludes its own hash",
+    "artifact": "TEST_CONFIG_SHA256 computed from compiled values, distinct marker checked in all AAB ABI/MachO; opposite/duplicate marker rejected; existing AAB/APK libapp.so and signer equality retained",
+    "snapshot": "TEST source passes bounded regular-file reader; private readonly copy must yield identical digest+host, then native checks and fresh backend --live use that copy",
+    "native_callback": "AAB protobuf and APK XML require exact HTTPS host/path /auth-callback/, autoVerify, VIEW/DEFAULT/BROWSABLE; unique keyset; signed iOS entitlement exact applinks:host with compatible profile grant",
+    "profile_policy": "signed app array exact; profile grant accepts exact array or wildcard array/scalar; conservative compatibility policy, real profile NOT_VERIFIED",
+    "retained": "all existing signature, upload authorization, distribution credential, TLS and RPC gates stay required"
+  },
+  "tests": [
+    {
+      "name": "causal original staging opt-in RED",
+      "status": "PASS",
+      "command_exit_code": 1,
+      "expected_failure": "--test config expected0 actual1 USAGE before patch; production default rejects staging ENVIRONMENT_INVALID",
+      "log": "red.log"
+    },
+    {
+      "name": "initial targeted Flutter",
+      "status": "PASS",
+      "count": 88,
+      "command_exit_code": 0,
+      "log": "targeted-green.log",
+      "provenance": "before final additions; not global suite"
+    },
+    {
+      "name": "final first-revision impacted Flutter",
+      "status": "PASS",
+      "count": 34,
+      "command_exit_code": 0,
+      "log": "final-impacted.log",
+      "revision": "02d089d"
+    },
+    {
+      "name": "P2 RED AAB duplicate host missing path",
+      "status": "PASS",
+      "command_exit_code": 1,
+      "expected_failure": "canonical callback path absent but checker returned0; expected1",
+      "log": "red-duplicate-attribute.log"
+    },
+    {
+      "name": "P2 fixes targeted Flutter",
+      "status": "PASS",
+      "count": 32,
+      "command_exit_code": 0,
+      "log": "p2-green.log",
+      "note": "Final production bytes; final independent re-review ran32 tests on immutable6461194 and passed."
+    },
+    {
+      "name": "architecture negative fixtures",
+      "status": "PASS",
+      "count": 21,
+      "new_TEST_mutations": 4,
+      "command_exit_code": 0,
+      "log": "architecture-negative.log",
+      "reuse": "AppConfig/attestation/AST validator and fixture script unchanged in P2 commit"
+    },
+    {
+      "name": "compiled-match",
+      "status": "PASS",
+      "count": 1,
+      "command_exit_code": 0,
+      "log": "compiled-match.log",
+      "scope": "Flutter host compiled configuration, not native artifact"
+    },
+    {
+      "name": "compiled-mismatch",
+      "status": "PASS",
+      "count": 1,
+      "command_exit_code": 0,
+      "log": "compiled-mismatch.log",
+      "scope": "Flutter host compiled configuration, not native artifact"
+    },
+    {
+      "name": "compiled-cross-environment",
+      "status": "PASS",
+      "count": 1,
+      "command_exit_code": 0,
+      "log": "compiled-cross-environment.log",
+      "scope": "Flutter host compiled configuration, not native artifact"
+    },
+    {
+      "name": "Python binding/callback tests",
+      "status": "PASS",
+      "methods": 5,
+      "logs": [
+        "python-android.log",
+        "python-ios.log"
+      ],
+      "command_exit_code": 0,
+      "scope": "synthetic bytes/profile grants only; also invoked by Flutter Quality tests"
+    },
+    {
+      "name": "analyze impacted config/tools/tests",
+      "status": "PASS",
+      "count": 8,
+      "command_exit_code": 0,
+      "log": "analyze-green.log"
+    },
+    {
+      "name": "analyze P2 impacted tools/tests",
+      "status": "PASS",
+      "count": 3,
+      "command_exit_code": 0,
+      "log": "p2-analyze-green.log"
+    },
+    {
+      "name": "format/bash syntax/diff check",
+      "status": "PASS",
+      "command_exit_code": 0
+    },
+    {
+      "name": "default source-only Android/iOS preflight",
+      "status": "PASS",
+      "command_exit_code": 0,
+      "scope": "source policy only, not signed artifacts"
+    }
+  ],
+  "permanent_flutter_delta": {
+    "core_config": 4,
+    "governance": 20,
+    "android_manifest": 7,
+    "total_new_test_cases": 31,
+    "global_suite_count": "not asserted"
+  },
+  "intermediate_failures": [
+    {
+      "log": "targeted.log",
+      "status": "FAIL",
+      "cause": "new stderr assertion observed Dart run build-hook noise; concurrent Dart run native-asset rewriting also failed before validator",
+      "resolution": "new pure-Dart CLI probes call dart --disable-dart-dev; existing prod tool tests serialized; validator conditions retained"
+    },
+    {
+      "logs": [
+        "analyze.log",
+        "p2-analyze.log"
+      ],
+      "status": "FAIL",
+      "cause": "curly-braces lint in newly added code/tests",
+      "resolution": "braces corrected; final analyzes PASS"
+    }
+  ],
+  "review": {
+    "initial_revision": "02d089d",
+    "initial_verdict": "CHANGES_REQUIRED",
+    "findings": [
+      "TEST-PREFLIGHT-01",
+      "TEST-PREFLIGHT-02"
+    ],
+    "final_revision": "6461194f68cf7d18f011b22e15fa6269dca19eb5",
+    "final_verdict": "APPROVED",
+    "reason": "Distinct read-only re-review resolved both P2 findings with autonomous verification.",
+    "scope": "SOURCE_CODE_ONLY",
+    "final_json": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/source-review-6461194.json",
+    "final_json_sha256": "e6920d449ce209ad2f99fa99bc62f87de4ccc63488db6a14c4df4d29ebd1e345",
+    "final_markdown": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/source-review-6461194.md",
+    "final_markdown_sha256": "5b99f16ccc6a6dceabb2f3d048c8eaf37b0f56e58aa16ecca3fbd5c740401693",
+    "independent_verification": {
+      "new_Flutter": 32,
+      "original_AAB_PoC_cases_green": 2,
+      "shell_checks": 4,
+      "native_peer_helper_cases": 18,
+      "native_peer_actual_guard_cases": 6,
+      "base_Flutter_reused": 60,
+      "base_file_reuse_count": 14,
+      "reuse_rule": "byte-identical files only; source/host scope, not native acceptance"
+    }
+  },
+  "not_run": {
+    "signed_android_ios_preflight": "No owner-designated signed TEST artifacts or signing credentials used",
+    "native_compile_install_device": "Not authorized in this writer lane; no native build or device access",
+    "hosted_assetlinks_aasa_ownership": "NOT_VERIFIED; local binding is not hosted association proof",
+    "authenticated_TEST_session": "No accounts, sessions or OAuth provider activation performed",
+    "backend_live": "Root owns DB lane; preflight call retained, not executed here",
+    "store_upload": "No upload/signing performed; channel selection remains parent/owner",
+    "AT_profile_R24": "Outside this source/host scope; no acceptance inferred"
+  },
+  "apple_primary_sources": [
+    "https://developer.apple.com/documentation/technotes/tn3125-inside-code-signing-provisioning-profiles",
+    "https://developer.apple.com/library/archive/technotes/tn2415/_index.html",
+    "https://developer.apple.com/documentation/xcode/supporting-associated-domains"
+  ],
+  "logs_sha256": {
+    "p2-analyze-green.log": "83a17da523dbfd3353d4c9747f7ca071cd0d425400db7826f72a6316c2fdc732",
+    "architecture-negative.log": "06cc5940da0bb009e9c9b24d9e6a56c5bf2b57a2809b34302645bc3a6852c311",
+    "red.log": "670900fe28b49327ea3f7bb505509ad4b9dc4a999b9c3481981ecb860fe1c846",
+    "targeted.log": "45817b2aa76a1850bf82e020aa13a8c2b4d7cc216ca75e68d53030d649898ff2",
+    "compiled-cross-environment.log": "2ad8c2e056d457a6a229de2fe4f172bb48e8943f483f16749258dcd005f3de2d",
+    "targeted-green.log": "c9993a562fcbd76187e913b8093177684d94a406f557e976f12cf994066ee1ad",
+    "analyze-green.log": "31708b3b4e0c997b2fa6a29d59f2459c649ded5245f3ef63202aa692d4935e7e",
+    "red-duplicate-attribute.log": "2cb8ee294bee5e0f5a2429118f2e42588b93b26ed37f2c1daef6ff2869b3a322",
+    "python-android.log": "53b77ed73b881186e0f76e3a51bce55b2d9b1423f4fc18759eb12e7a5b519b65",
+    "compiled-mismatch.log": "2ad8c2e056d457a6a229de2fe4f172bb48e8943f483f16749258dcd005f3de2d",
+    "p2-green.log": "07ccdaac4bad0c05b5e5c6926a3e2f6117d6768b872496978e767c60e327ad56",
+    "p2-analyze.log": "968169163f8368edf4bfd968963b820aa460320f7e638f169b17a20ef433a35c",
+    "python-ios.log": "33060fd73862c5e1af97335504d5b45211fce6d229657f556d8deceeadc52ce4",
+    "analyze.log": "33b3cb49bda5e667e51a5aacb51811e5727ab3a6e7ac8424d626809272d241af",
+    "final-impacted.log": "c18d249241cc1da1693e50b1c3ccec9f3cb2bedd224ce1e49489c85b2d18d55d",
+    "compiled-match.log": "2ad8c2e056d457a6a229de2fe4f172bb48e8943f483f16749258dcd005f3de2d"
+  },
+  "known_limits": [
+    {
+      "component": "standalone APK XML helper",
+      "observation": "Direct UTF-16 input with harmless DTD is accepted by the byte-based DTD guard.",
+      "actual_caller": "Exact apkanalyzer command substitution and actual TEST guard reject both diagnostic UTF-16 inputs exit1; no reachable additional finding qualified.",
+      "scope": "Not a general-purpose XML security validator; no external entity/exploit claim.",
+      "provenance": "Distinct reviewer native-peer re-review; 18 helper cases and 6 actual guard cases."
+    }
+  ],
+  "verified_at_utc": "2026-10-09T00:53:44.926783+00:00",
+  "processes": {
+    "writer": "TERMINAL",
+    "reviewer_and_peer": "TERMINAL",
+    "other_agents": "outside this receipt scope"
+  }
+}

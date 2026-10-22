@@ -1,0 +1,274 @@
+{
+  "mandate_date": "2026-10-08",
+  "baseline": "e7b194cea8bb53b23d3e994268d5cd47e67d085e",
+  "journal_commit": "b820f826184f2dd5503f086576d228b15ca1be7a",
+  "final_commit": "26713a4294f3976236e8e83f983950b8f281c6fc",
+  "branch": "codex/task054-journal-unreadable-ux",
+  "worktree_clean": true,
+  "scope": "Mandato7D journal illeggibile,3/7B destinazione inbox assistenza mancante,7D localizzazione/layout recupero.",
+  "checks": [
+    {
+      "id": "journal-test-setup",
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": "red-journal.log",
+      "log_sha256": "ad89529f8f462189a1c9643e5964b118568a6f918d21b607661f4c4848f7b9a6",
+      "qualification": "Tentativo iniziale con factory test inesistente; errore del test corretto prima della riproduzione causale.",
+      "command": "flutter test test/features/account/application/customer_account_controller_test.dart test/features/account/customer_account_panel_test.dart --plain-name 'journal'"
+    },
+    {
+      "id": "journal-red",
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": "red-journal-behavior.log",
+      "log_sha256": "326e8e31d420ca620932b564cc4197f76e27250885544890270c6d3a57c5420b",
+      "qualification": "Tre nuove regressioni falliscono: snapshot account assente e mancato recupero UI. Tre test preesistenti passano.",
+      "command": "flutter test --no-pub test/features/account/application/customer_account_controller_test.dart test/features/account/customer_account_panel_test.dart --plain-name 'journal'"
+    },
+    {
+      "id": "journal-green",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "green-journal.log",
+      "log_sha256": "39871225d3aaa4064f359ec0b8d058fe6676a316e8c8e6656588cbc9207cfe29",
+      "qualification": "Sei test mirati passano: tre nuovi e tre preesistenti.",
+      "command": "flutter test --no-pub test/features/account/application/customer_account_controller_test.dart test/features/account/customer_account_panel_test.dart --plain-name 'journal'"
+    },
+    {
+      "id": "account-command-locator",
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": "journal-account-regressions.log",
+      "log_sha256": "d8eb14bba930e9316c8e86b3a6985ec9c40cd37e47b770d731eb9dbb6590926c",
+      "qualification": "102 test account passano; il comando fallisce per locator l10n errato. Conservato e corretto nei due comandi seguenti.",
+      "command": "flutter test --no-pub test/features/account test/app/localization/app_localization_contract_test.dart --concurrency=1 --reporter expanded"
+    },
+    {
+      "id": "account-final",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "journal-account-final.log",
+      "log_sha256": "5766f023754caa08f387566b63292de9b76a942de9eca053e18fa3abc77fd676",
+      "qualification": "102 test account passano.",
+      "command": "flutter test --no-pub test/features/account --concurrency=1 --reporter expanded"
+    },
+    {
+      "id": "journal-l10n",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "journal-l10n-contract.log",
+      "log_sha256": "bbf30581e0521ac6963a6f3e1af5270ede641971741370a58a1870dd3a3908f9",
+      "qualification": "Sei test contratto locale passano, incluso fallback tecnico zh uguale a es.",
+      "command": "flutter test --no-pub test/l10n/app_localizations_contract_test.dart --concurrency=1 --reporter expanded"
+    },
+    {
+      "id": "journal-matrix",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "journal-host-matrix.log",
+      "log_sha256": "633b0510cd5356e8a8498d2d513ffc49da968397927fd3c201357f0837d5bb5a",
+      "qualification": "Otto casi host, quattro lingue, due temi, viewport320x568 e testo200%. Nessuna PNG prodotta.",
+      "command": "flutter test --no-pub /private/tmp/task054-client-ux-20261008/journal_host_harness_test.dart --plain-name 'journal illeggibile' --concurrency=1 --reporter expanded"
+    },
+    {
+      "id": "journal-analyze",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "journal-analyze.log",
+      "log_sha256": "4e47634633cbab19fb51747f679fe467a40eb44b59b3d095292c8f13462e4fba",
+      "qualification": "Analisi mirata account, test e harness: nessun issue.",
+      "command": "flutter analyze --no-pub lib/features/account integration_test/task054_next_integration_surfaces_test.dart test/features/account"
+    },
+    {
+      "id": "after-sales-red",
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": "red-after-sales-missing.log",
+      "log_sha256": "d1c512767d47934c5b88b227fe21df77d40e7bee82f580e7ee34a28f24d69a5b",
+      "qualification": "Due regressioni falliscono: UUID assente senza spiegazione/azione e failure transitoria senza retry.",
+      "command": "flutter test --no-pub test/features/after_sales/customer_after_sales_missing_destination_test.dart --concurrency=1 --reporter expanded"
+    },
+    {
+      "id": "after-sales-green",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "green-after-sales-missing.log",
+      "log_sha256": "5fd2428269b461830d418285420bf5ea3052cad9b28126e903de3488e1ba756a",
+      "qualification": "Due regressioni passano dopo il fix.",
+      "command": "flutter test --no-pub test/features/after_sales/customer_after_sales_missing_destination_test.dart --concurrency=1 --reporter expanded"
+    },
+    {
+      "id": "after-sales-matrix",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "after-sales-host-matrix.log",
+      "log_sha256": "eeec904ca2aff4ca1ff684be0082b71e22c33dfce177bf0d01d4199693133e2c",
+      "qualification": "Otto casi host inbox pagina2, mark-read, dettaglio assente, lista, failure transitoria, retry e dettaglio canonico.",
+      "command": "flutter test --no-pub /private/tmp/task054-client-ux-20261008/journal_host_harness_test.dart --plain-name 'inbox destinazione assistenza' --concurrency=1 --reporter expanded"
+    },
+    {
+      "id": "after-sales-regressions",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "after-sales-regressions.log",
+      "log_sha256": "f8a969c7ea5b0cad234e36c4e4a177f6f648705ac8b5cf454eb371c4df43e3b0",
+      "qualification": "30 test: after-sales, navigazione inbox e contratto l10n.",
+      "command": "flutter test --no-pub test/features/after_sales test/features/customer_notifications/customer_notification_inbox_navigation_test.dart test/l10n/app_localizations_contract_test.dart --concurrency=1 --reporter expanded"
+    },
+    {
+      "id": "after-sales-analyze",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "after-sales-analyze.log",
+      "log_sha256": "1c61ea4f77c37d9df0b6c9c38286dd4281e44f776633571167fc1397a8845980",
+      "qualification": "Analisi mirata after-sales, test e harness: nessun issue.",
+      "command": "flutter analyze --no-pub lib/features/after_sales integration_test/support/next_integration_fixtures.dart integration_test/task054_next_integration_surfaces_test.dart test/features/after_sales"
+    },
+    {
+      "id": "final-host-matrix",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "final-host-matrix-16.log",
+      "log_sha256": "4f02ffb20e162cb7a556c7325fc2b3a68749f1b689a130eb8a8463e39761843f",
+      "qualification": "16 casi host finali: otto journal e otto inbox/after-sales; visualCaptureEnabled false. Nessuna prova nativa.",
+      "command": "flutter test --no-pub /private/tmp/task054-client-ux-20261008/journal_host_harness_test.dart --name 'journal illeggibile|inbox destinazione assistenza' --concurrency=1 --reporter expanded"
+    }
+  ],
+  "source_files": {
+    "integration_test/support/next_integration_fixtures.dart": "104c39ad74f5602cb365987fa1739f16330e29d73b4a14ad6c777b2a8e136cae",
+    "integration_test/task054_next_integration_surfaces_test.dart": "18e3d20e1bbde38af14d1ba448f70256fbc09fc72b213c4b8410977b839ac658",
+    "lib/features/account/application/customer_account_controller.dart": "275d3fb13523c15afb20006647b580ad42322207d2dfd0301900b6f7aef3c66a",
+    "lib/features/account/presentation/customer_account_panel.dart": "19947aae772b0c0189a8dbaffeb2f45ad4e3d13823f0a733a329ed9af6cfcd20",
+    "lib/features/after_sales/presentation/customer_after_sales_screen.dart": "57acdb45e1d53e4e8aa59b7cf994a970ca699075097e35d5c1c90016d95a2977",
+    "lib/l10n/app_en.arb": "331c165e8df668f8eca21e6d3d189de6b8ca5c877f2ebd6e54cc822234008b83",
+    "lib/l10n/app_es.arb": "9fdf8d58e6b0f6f02435abc284de858159029e0d3c70cc9ee3c0d128deaa93b9",
+    "lib/l10n/app_it.arb": "d674697d1a6437824c4fe620d2b0ca758e750ca7a594e0cec22a3336a727c5f2",
+    "lib/l10n/app_zh.arb": "a608af6f71394b2ad6ccc27638d6fb8d0d5ebc85b332c851e2c0d5abcdf94e96",
+    "lib/l10n/app_zh_Hans.arb": "29754e8d3373f1acf0d1d3d6fe50a576572e186c2a83267c6970ba7656778c98",
+    "lib/l10n/generated/app_localizations.dart": "58a684ea3a209eb4f42a1ce55da97caba3805ceb6da5c335a87b0b28144e29a7",
+    "lib/l10n/generated/app_localizations_en.dart": "335cce899585c93448fa955767bc8d9d00d5f401d1662f748da15a65176d5c52",
+    "lib/l10n/generated/app_localizations_es.dart": "b8537419e2050141ee740e981ad1763a8a06bdbc429807e44002724e7847df91",
+    "lib/l10n/generated/app_localizations_it.dart": "83e2023031b40beea6714e72c884a80faec45af30459f2c9cfe36e763e00ec3a",
+    "lib/l10n/generated/app_localizations_zh.dart": "9949ee3eac836de8d9a9bcc5619e1d46a64dfacb81dec75db6200c19f35cc6cf",
+    "test/features/account/application/customer_account_controller_test.dart": "2a8c90dd660bbb3021b0361ad5f5c19713e6ad7a22deb78e53c746948c831497",
+    "test/features/account/customer_account_panel_test.dart": "28f788e96bcfccf94ccbefeb05feaaec1102168990dc078f39ed994dd44f2603",
+    "test/features/account/customer_account_test_support.dart": "70ead18455f782aaf08dff780833b0978b272fa610e7ce4ff6b623cd7a96744b",
+    "test/features/after_sales/customer_after_sales_missing_destination_test.dart": "edad86e28599ab2edff12d27133115c6bd7724de4e6162382beac00db540ec96"
+  },
+  "other_checks": [
+    {
+      "command": "git diff --check",
+      "status": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "dart format --output=none --set-exit-if-changed [nove file applicativi/test/harness impattati]",
+      "status": "PASS",
+      "exit_code": 0,
+      "qualification": "Nessun file cambiato."
+    },
+    {
+      "command": "bash scripts/check-user-facing-localization.sh",
+      "status": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "status": "PASS",
+      "exit_code": 0
+    }
+  ],
+  "unchanged_assessment": {
+    "payment": "Metodi payAtPickup/cashOnDelivery e online dormiente distinti dal messaggio checkoutOfflineError; nessun difetto riprodotto e nessuna modifica.",
+    "sensitive_links": "Codec produttivo accetta solo product/category su schema privato. orderUri/notificationUri falliscono chiusi e decodeHTTPS restituisce null. Nessun bypass o fix speculativo.",
+    "dormant_route_ABA": "Rischio statico del resolver route controller non corretto: nessun ingresso order/notification attualmente attraversabile dal codec; non presentato come difetto runtime."
+  },
+  "native_capture_plan": {
+    "status": "NOT_RUN",
+    "reason": "Nessuna superficie nativa o dispositivo N usato dalla lane; esecuzione sul candidato composto affidata alla CI root.",
+    "previous_count": 113,
+    "journal_new": 8,
+    "after_sales_new": 16,
+    "expected_total": 137,
+    "new_states": [
+      "address-journal-unavailable-compact200-LOCALE-THEME",
+      "assistance-missing-destination-compact200-LOCALE-THEME",
+      "assistance-detail-retry-compact200-LOCALE-THEME"
+    ],
+    "qualification": "Ogni stato ha quattro lingue per due temi. Root/owner iOS aggiornano gli script cardinalita."
+  },
+  "lanes": {
+    "CODE": "PASS",
+    "HOST_TESTS": "PASS",
+    "SOURCE_REVIEW_JOURNAL": "APPROVED",
+    "SOURCE_REVIEW_AFTER_SALES": "APPROVED",
+    "CI_FINAL": "NOT_RUN",
+    "ANDROID_NATIVE_DELTA": "NOT_RUN",
+    "IOS_NATIVE_DELTA": "NOT_RUN",
+    "AUTH_LIVE": "NOT_RUN",
+    "STAGING_E2E": "NOT_RUN",
+    "ASSISTIVE_TECHNOLOGY": "NOT_RUN",
+    "PHYSICAL_PROFILE": "NOT_RUN"
+  },
+  "unchanged_source_blobs": {
+    "lib/features/deep_links/application/storefront_deep_link.dart": {
+      "baseline": "c720ff14d3c0855ab6b2db5c1e9c42c614e74f4a",
+      "current": "c720ff14d3c0855ab6b2db5c1e9c42c614e74f4a",
+      "identical": true
+    },
+    "lib/app/router/app_router.dart": {
+      "baseline": "6993a64d640ba4a3312ddb7948f4c720c08ef301",
+      "current": "6993a64d640ba4a3312ddb7948f4c720c08ef301",
+      "identical": true
+    },
+    "lib/features/customer_notifications/application/customer_notification_inbox_controller.dart": {
+      "baseline": "d550eee07bfbcab5bae66075bf41a53f7d4b9380",
+      "current": "d550eee07bfbcab5bae66075bf41a53f7d4b9380",
+      "identical": true
+    },
+    "lib/features/customer_notifications/application/customer_notification_route_controller.dart": {
+      "baseline": "2dc30f45a2be7a682f4b313404fbee8a60731520",
+      "current": "2dc30f45a2be7a682f4b313404fbee8a60731520",
+      "identical": true
+    },
+    "lib/features/customer_notifications/presentation/customer_notification_inbox_screen.dart": {
+      "baseline": "a9ad4ff91d1aa3849259662ae938e476db33e37b",
+      "current": "a9ad4ff91d1aa3849259662ae938e476db33e37b",
+      "identical": true
+    },
+    "lib/features/checkout/application/checkout_controller.dart": {
+      "baseline": "c220e4ddc9f8012015868c10a24e2996b0d86f26",
+      "current": "c220e4ddc9f8012015868c10a24e2996b0d86f26",
+      "identical": true
+    },
+    "lib/features/checkout/presentation/checkout_screen.dart": {
+      "baseline": "d94978c5bbb687abdac1d177bcd312df32de0d8e",
+      "current": "d94978c5bbb687abdac1d177bcd312df32de0d8e",
+      "identical": true
+    },
+    "lib/features/checkout/presentation/checkout_payment_screen.dart": {
+      "baseline": "2b561843d4f1e52f261963f525a9a52ae8bb069a",
+      "current": "2b561843d4f1e52f261963f525a9a52ae8bb069a",
+      "identical": true
+    }
+  },
+  "reviews": [
+    {
+      "commit": "b820f826184f2dd5503f086576d228b15ca1be7a",
+      "result": "APPROVED",
+      "qualification": "SOURCE_CODE_ONLY",
+      "autonomous_passed": 69,
+      "receipt": "review/journal-source-review.json",
+      "receipt_sha256": "ec394be3b8fa88eedeadd78c6122da5b130f8343ebfbf3bf8c07639acbc75219"
+    },
+    {
+      "commit": "26713a4294f3976236e8e83f983950b8f281c6fc",
+      "result": "APPROVED",
+      "qualification": "SOURCE_CODE_ONLY",
+      "autonomous_passed": 41,
+      "baseline_red_poc": 3,
+      "receipt": "review/after-sales-source-review.json",
+      "receipt_sha256": "b800c1402dfc4ba57a2d829c8be38767ef166bb1975cf6052805c141dd8cf7e7"
+    }
+  ]
+}

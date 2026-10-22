@@ -1,0 +1,31 @@
+{
+  "schema": "task054-source-ci-reassociation-v1",
+  "source_head": "8fc7f8dc5221f22a393ffbe73c4f5827654e171f",
+  "release_proof_source": "f513330fbeef6139a5b9d278cc6824ce5c6bcc63",
+  "delta_only": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/task054-source-release.yml"
+  ],
+  "review": {
+    "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/review/quality-budget/concrete-workflow-review.json",
+    "sha256": "3d1598db59aeb3893d58aafcd7030ab8f6d13aa967019eaa424fe13bfad7860c"
+  },
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "e68c3cb61dcc52342ea52acc7f22d5094164a09cde970de05c3a6b38e7185dd2",
+      "review_match": true
+    },
+    {
+      "path": ".github/workflows/task054-source-release.yml",
+      "sha256": "c12bae4b1f82a69f7e27d5ef458fdd1370c91d4e1a04b2e3be5c77fe3f06e196",
+      "review_match": true
+    }
+  ],
+  "all_other_repository_bytes_unchanged": true,
+  "application_scripts_native_recipe_unchanged": true,
+  "source_association": "PASS",
+  "first_run": 37867138429,
+  "quality_only_run": 38001393798,
+  "reuse_scope": "Android/iOS unsigned release jobs PASS at f513; two release jobs SKIPPED on quality_only dispatch, not fresh release builds. Full source/config application suites execute in Quality at current head."
+}

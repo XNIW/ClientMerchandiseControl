@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "reviewer": "/root/ios_xcode265/ios_workflow_review",
+  "created_at": "2026-10-09T01:13:36.857693+00:00",
+  "verdict": "APPROVED",
+  "qualification": "APPROVED_ANDROID_TERMINAL_EVIDENCE_FIDELITY_ONLY",
+  "revision": "f513330fbeef6139a5b9d278cc6824ce5c6bcc63",
+  "run_id": 37867138429,
+  "job_id": 113616443203,
+  "checks": [
+    {
+      "name": "identity",
+      "result": "PASS"
+    },
+    {
+      "name": "terminal_success",
+      "result": "PASS"
+    },
+    {
+      "name": "receipt_times",
+      "result": "PASS"
+    },
+    {
+      "name": "all_steps_terminal_success",
+      "result": "PASS"
+    },
+    {
+      "name": "all_steps_exact",
+      "result": "PASS"
+    },
+    {
+      "name": "bytes:jobs/113616443203/metadata.json",
+      "result": "PASS"
+    },
+    {
+      "name": "sha:jobs/113616443203/metadata.json",
+      "result": "PASS"
+    },
+    {
+      "name": "bytes:jobs/113616443203/raw.log",
+      "result": "PASS"
+    },
+    {
+      "name": "sha:jobs/113616443203/raw.log",
+      "result": "PASS"
+    },
+    {
+      "name": "bytes:jobs/113616443203/annotations.json",
+      "result": "PASS"
+    },
+    {
+      "name": "sha:jobs/113616443203/annotations.json",
+      "result": "PASS"
+    },
+    {
+      "name": "checkout_actual_raw",
+      "result": "PASS"
+    },
+    {
+      "name": "aab_build",
+      "result": "PASS"
+    },
+    {
+      "name": "apk_build",
+      "result": "PASS"
+    },
+    {
+      "name": "unsigned_boundary",
+      "result": "PASS"
+    },
+    {
+      "name": "security_counts",
+      "result": "PASS"
+    },
+    {
+      "name": "twelve_individual_fixtures",
+      "result": "PASS"
+    },
+    {
+      "name": "one_summary_not_test",
+      "result": "PASS"
+    },
+    {
+      "name": "all_fixture_labels",
+      "result": "PASS"
+    },
+    {
+      "name": "notice_only_annotations",
+      "result": "PASS"
+    },
+    {
+      "name": "notice_sha",
+      "result": "PASS"
+    },
+    {
+      "name": "two_nonfatal_watcher_messages",
+      "result": "PASS"
+    },
+    {
+      "name": "app_link_limitation_retained",
+      "result": "PASS"
+    },
+    {
+      "name": "download_cli_negative_preserved",
+      "result": "PASS"
+    },
+    {
+      "name": "collector_fix_download_only",
+      "result": "PASS"
+    },
+    {
+      "name": "no_raw_workflow_error_annotations",
+      "result": "PASS"
+    },
+    {
+      "name": "build_hash_prints_wellformed",
+      "result": "PASS"
+    }
+  ],
+  "counts": {
+    "pass": 27,
+    "fail": 0,
+    "signature_fixture_checks": 12,
+    "summary_lines_not_tests": 1,
+    "annotations": {
+      "notice": 1,
+      "warning": 0,
+      "failure": 0
+    },
+    "nonfatal_file_watcher_exceptions": 2
+  },
+  "observed_outcome": {
+    "job": "PASS",
+    "aab_log_size_MB": 70.4,
+    "apk_log_size_MB": 73.2,
+    "signing": "UNSIGNED",
+    "source_security_tracked_files": 1032,
+    "artifact_security_files": 293,
+    "app_link": "BLOCKED_OWNED_HTTPS_DOMAIN_AND_ASSOCIATION_FILE_REQUIRED"
+  },
+  "reported_build_digests": {
+    "ANDROID_RELEASE_AAB_SHA256": "541558ee71f7dba811d7cafd5a28f2edcb4980198fb631f3ebfecf56043c9fc8",
+    "ANDROID_RELEASE_APK_SHA256": "dca954c5b0ae5f2c1d9522045ef85eb2239da55847c0b0ae44bd18b6ed253968"
+  },
+  "proofs": [
+    {
+      "path": "jobs/113616443203/metadata.json",
+      "sha256": "47654048f89b7dfc31f8f05fdc6a17607508c9b3db21595adf14f1aa764ccc2b"
+    },
+    {
+      "path": "jobs/113616443203/raw.log",
+      "sha256": "3874158bd84a84f0935f183bad1b0264c7c462286c44e5ff764082d8f56b608b"
+    },
+    {
+      "path": "jobs/113616443203/annotations.json",
+      "sha256": "7d98c1dff6fccc079fc6e910c9c605566b1e6ead9418c651a20b7cee4c0c9ccf"
+    },
+    {
+      "path": "jobs/113616443203/collection-receipt.json",
+      "sha256": "65f624dbbf57f13ad00fb4bd751b7f93a6c52e9a0867452ce037a2b3c9cc3904"
+    },
+    {
+      "path": "jobs/113616443203/log-fetch-error.json",
+      "sha256": "6213782f4f5827348423920170bd25a876bc1ad3671768d217513fac34c5fcfc"
+    },
+    {
+      "path": "jobs/113616443203/log-fetch-error.stderr",
+      "sha256": "8b6407b2fdbca54bf3d53fb93e79a3560dbe59567fa5044cfee4bed1b5b6e467"
+    }
+  ],
+  "collector_negative_history": {
+    "preserved_receipt": "exit1 CLI escape-sequence guard; no CI rerun",
+    "attempt_count": "executor reports two download attempts; a single diagnostic receipt is retained, count not independently reconstructed",
+    "resolution": "allow-escape-sequences only for captured bytes saved to protected local file"
+  },
+  "limitations": [
+    "No repeated GitHub API call; metadata/log/annotations collected by executor, independently checked for byte integrity and internal head/step association.",
+    "AAB/APK sizes and SHA256 are build/validator log outputs; artifact binaries were not downloaded or independently hashed by this reviewer.",
+    "Twelve fixture validation messages plus one summary, not thirteen tests.",
+    "Annotation warning/failure zero does not erase the two file-watcher exception messages; both builds and validator steps subsequently succeeded.",
+    "Only production-like unsigned release boundaries; no TEST install, signature distribution, native runtime, Auth, R24 or integrated approval.",
+    "Overall CI still pending in this scoped Android review; other jobs not inferred."
+  ],
+  "terminality": "all reviewer local commands terminal; no source/device/dispatch/push/cancel/retry changes"
+}

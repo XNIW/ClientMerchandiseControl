@@ -2,6 +2,43 @@
 
 Nuova revisione autorizzata dal mandato successivo del 2026-09-28. Non ricostruisce né certifica retroattivamente E2E-01…25: la loro provenance assente e lo stato storico BLOCKED restano nel task. Fonti: TASK-050–053, CA del nuovo emendamento TASK-054, test Client/Admin indicati. La ricerca mirata già registrata non è stata ripetuta. Questa matrice deve essere approvata dai reviewer prima del closeout.
 
+## Ripresa17ottobre — associazione parziale delle nuove regressioni
+
+| Requisito / casi esistenti | Prova deterministica | Risultato e limite |
+|---|---|---|
+| CA-O6/T-O6, R03/R08 e addendum carrello | cart_controller_test: sei test coda/dedup/ABA; RED947 → GREEN93ea | PASS su host; ordine/readback TEST e riavvio restano distinti |
+| CA-O6/T-O6, R21 | customer_after_sales_order_query_test: due test router/query/draft/risposta tardiva | PASS su host; case/Admin/server non attestati |
+| CA-05/T-05 | Quality e unsigned del commit finale | NOT_RUN al cutoff del documento, richiedono ricevuta terminale exact-SHA nei Checks PR29 |
+| CA-O5/T-O5, CA-06/T-06, R13/R14/R17/R24 | native, autenticazione, mappa, due origini N e acceptance | BLOCKED secondo i prerequisiti esistenti; nessun nuovo PASS |
+
+GREEN93ea7a8/run39077576033:514PASS/1SKIP,analyze0,format406/0; otto nuovi test.
+Review source distinte APPROVED scoped, non review integrata del train. Le30
+righe operative e i25 E2E storici sotto conservano criteri e risultato end-to-end.
+
+## CI eb0 e fix QUALITY-RR-01 — nuova associazione parziale
+
+[Dossier](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md): eb0 conserva QualityFAIL e
+iOS visual/journal FAIL distinti; Android journal/corpus137+4 PASS e unsigned
+Android12/iOS89 PASS. Fix21a source/focused497PASS/1SKIP/analyze0,14test governance
+compresi, con review distinta. Quality canonico del nuovo head PR NOT_RUN al
+cutoff; nessuna acceptance anticipata. R13/R14 ordine TEST, R17 reale, matrice
+native/AT e due origini R24 restano aperti. I30casi sotto non cambiano.
+
+## Addendum12ottobre — associazione delle prove precedenti
+
+Il [dossier carrello e tracking](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md) aggiorna
+le prove parziali di R03/R04/R08/R10–14/R17/R25. Source/widget APPROVED scoped,
+Quality1242/11performance e restart guest/journal Android PASS non chiudono
+l'end-to-end autenticato. R13/R14 mantengono il requisito ordine/server tra due
+processi; il journal indirizzi non lo sostituisce. R17 resta BLOCKED per chiavi
+native TEST ristrette, ordine assegnato e producer autorizzato. La matrice native
+4locale×2tema×200%/AT e la completezza export137 sono gate distinti dalle16card
+host; l'export076 contiene133/137; fix153+formatterec produce137Android. Il nuovo iOS1fb
+resta BLOCKED prima della cattura, senza trasferire la prova Android.
+Route/ETA dinamica/background hanno proposta owner separata, nessuna capability
+attivata. I30casi e le due origini R24 sotto restano invariati.
+
+
 ## Protocollo comune obbligatorio a ogni caso
 
 Piattaforme: Android e iOS, salvo confronto golden macOS e comandi SQL/CI esplicitamente indicati. Staging esclusivo `jpgoimipbothfgkokyvm`; locale isolato non lo attesta. Fixture: namespace univoco `cmc054r-<run UTC>-<caso>`, UUID generati per la run; nessuna identità reale nelle evidence. Setup: manifest degli ID creati fuori Git con permessi0600, owner A/B e shop S/T sintetici creati tramite percorso autorizzato, snapshot dei soli conteggi iniziali; nessun riuso di record preesistenti. Provider/device richiedono i prerequisiti specifici. Teardown di OGNI caso: annullare/rilasciare solo ordini/hold/casi della run attraverso API autorizzate, rimuovere sole fixture create in ordine dipendenze, revocare sessioni e svuotare namespace locali; ripetere cleanup e verificare zero residui e conteggi preesistenti invariati. Se un record audit è append-only, registrare ID e retention autorizzata senza cancellazione diretta. I test pgTAP usano transazione e ROLLBACK. Un mancato setup impedisce l’esecuzione: non si sostituisce un pilota/shop.

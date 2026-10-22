@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "sourceSha": "43fd7afc806404e667573734b2c4b3b3ffe8cc29",
+  "runId": 37839967964,
+  "jobId": 113526561762,
+  "uiTest": "FAIL",
+  "jobBudget": "BLOCKED",
+  "artifactDownload": "BLOCKED",
+  "scope": "Diagnosi checkpoint; nessun fix app o timeout",
+  "testName": "recensione submit busy failure retry edit conserva commento",
+  "failure": {
+    "hitTestableCount": 0,
+    "expected": 1,
+    "assertionSource": "integration_test/task054_next_integration_surfaces_test.dart:1418",
+    "callerSource": "integration_test/task054_next_integration_surfaces_test.dart:934",
+    "rendering": "RenderFlex overflow bottom24px",
+    "constraints": {
+      "width": 240,
+      "maxHeight": 123
+    },
+    "overflowOrigin": "NOT_VERIFIED; creatorchain DEFUNCT; reported in failure handling"
+  },
+  "fixture": {
+    "locale": "es_CL",
+    "brightness": "light",
+    "logicalViewport": [
+      320,
+      568
+    ],
+    "textScaler": 2,
+    "showKeyboardInvoked": true,
+    "physicalSize": "NOT_VERIFIED",
+    "devicePixelRatio": "NOT_VERIFIED",
+    "realViewInsets": "NOT_VERIFIED"
+  },
+  "simulator": {
+    "uuid": "D9C74CD3-43DA-47C0-865D-2416F3866D17",
+    "type": "iPhone17",
+    "model": "iPhone18,3",
+    "runtime": "iOS26.5",
+    "osBuild": "23F77"
+  },
+  "timing": {
+    "uiFailure": "2026-10-08T20:59:36Z",
+    "suiteSomeTestsFailed": "2026-10-08T21:00:15Z",
+    "driverFailureDetails": "2026-10-08T21:00:46Z",
+    "outerCancel": "2026-10-08T21:01:06Z"
+  },
+  "missingFirstCapture": "review-comment-focus-compact200 not reached at source943",
+  "limits": [
+    "Overflow timestamp is reporting time; origin not proven",
+    "No failure-stage screenshot",
+    "OSmetrics/artifact count pending download",
+    "No nativeiOS14/authenticatedTEST proof"
+  ],
+  "evidence": [
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ios/raw/final-ci-smoke-hosted.log",
+      "bytes": 3379797,
+      "sha256": "23de29d36553838d9a845d3da548a8d764274fd3effe78bb674d62a330913889"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ios/raw/final-ci-smoke-hosted.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ios/raw/final-ci-smoke-status.json",
+      "bytes": 3654,
+      "sha256": "a01a059937061473795916e596145f37e0acd7a95f9edbfb480ac99d91c47e49"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ios/raw/final-ci-smoke-annotations.json",
+      "bytes": 1564,
+      "sha256": "b06ee5651e5b3dcc04650d69af12defd9d56e42f6bf09590f1c5536e0a0885b6"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ios/raw/final-ci-artifacts.json",
+      "bytes": 2997,
+      "sha256": "822b6c387552230f3ad1c7ab40e33875e66a5eb7db2fb332f688b81a6c686f0d"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ios/raw/checkpoint-ci-37839967964-terminal.json",
+      "bytes": 19398,
+      "sha256": "92e27cf1a57a79a1ee9d3fc582a59c6ee697cfe327e4cdad4a977bc066c83486"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ios/raw/checkpoint43-fixture-source.dart",
+      "bytes": 60390,
+      "sha256": "18e3d20e1bbde38af14d1ba448f70256fbc09fc72b213c4b8410977b839ac658"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ios/raw/checkpoint43-customer-reviews-source.dart",
+      "bytes": 27258,
+      "sha256": "84adcbf5950bb9bcd4fca9e9498d3627bc8c89d7d248c4fc4d764911047e3e5d"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ios/raw/ci43-review-ui-failure-exact.log",
+      "sourceLineStart": 16332,
+      "sourceLineEnd": 16446,
+      "bytes": 22211,
+      "sha256": "5035c29c9812daf177052ec95ef3e564091d8dfc4256afd5db184b68235e9fbc"
+    }
+  ],
+  "artifactDownloadReason": "gh download >10min then SIGTERM/exit143; serial bounded APIblob transfer SIGTERM/exit143 at outer120s, 2MiB partial; no verifiedZIP/extraction"
+}

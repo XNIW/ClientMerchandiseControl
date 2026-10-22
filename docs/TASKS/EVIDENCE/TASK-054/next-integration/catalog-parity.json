@@ -1,0 +1,90 @@
+{
+  "views": {
+    "remote": {
+      "md5": "bbf322487f27ed376b15c524e978a8fd",
+      "count": 5
+    },
+    "local": {
+      "md5": "bbf322487f27ed376b15c524e978a8fd",
+      "count": 5
+    },
+    "match": true
+  },
+  "tables": {
+    "remote": {
+      "md5": "c6e3352466ef3d1e4592ed61c08fe931",
+      "count": 120
+    },
+    "local": {
+      "md5": "c6e3352466ef3d1e4592ed61c08fe931",
+      "count": 120
+    },
+    "match": true
+  },
+  "columns": {
+    "remote": {
+      "md5": "529aab4ac12263154d0bbec4dc07c3ac",
+      "count": 1616
+    },
+    "local": {
+      "md5": "529aab4ac12263154d0bbec4dc07c3ac",
+      "count": 1616
+    },
+    "match": true
+  },
+  "indexes": {
+    "remote": {
+      "md5": "172f8f40a682ce6a1debfd7d3cd3eb6f",
+      "count": 458
+    },
+    "local": {
+      "md5": "172f8f40a682ce6a1debfd7d3cd3eb6f",
+      "count": 458
+    },
+    "match": true
+  },
+  "policies": {
+    "remote": {
+      "md5": "9fc78e0577b8313b7efc651a00eb4c91",
+      "count": 86
+    },
+    "local": {
+      "md5": "9fc78e0577b8313b7efc651a00eb4c91",
+      "count": 86
+    },
+    "match": true
+  },
+  "triggers": {
+    "remote": {
+      "md5": "23d102c628134c944ea5d54bc83f6c60",
+      "count": 155
+    },
+    "local": {
+      "md5": "23d102c628134c944ea5d54bc83f6c60",
+      "count": 155
+    },
+    "match": true
+  },
+  "functions": {
+    "remote": {
+      "md5": "ea86ad5e9b2623801794641c17dad98a",
+      "count": 615
+    },
+    "local": {
+      "md5": "ea86ad5e9b2623801794641c17dad98a",
+      "count": 615
+    },
+    "match": true
+  },
+  "constraints": {
+    "remote": {
+      "md5": "083033a8b9983fc31d544b67728bb396",
+      "count": 1014
+    },
+    "local": {
+      "md5": "083033a8b9983fc31d544b67728bb396",
+      "count": 1014
+    },
+    "match": true
+  }
+}

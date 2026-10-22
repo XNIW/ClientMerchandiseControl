@@ -1,0 +1,41 @@
+{
+  "reviewer": "/root/review_evidence_ci",
+  "sourceRevision": "26b597471e2c8cf9b67b1737f2a0fd1a18d448d5",
+  "rootIntegrationRevision": "28d74aa author-provided cherry-pick, composed freeze still pending",
+  "technicalReReview": "PASS",
+  "finding": {
+    "id": "BECI-05",
+    "priority": "P2",
+    "status": "FIXED_VALIDATED",
+    "productionGuardsUnchanged": {
+      "scripts/run-task054-ios-owned.py": {
+        "byteIdentical": true,
+        "sha256": "bcfeace2cf3a82d55af313640f6b3e951e1c7424291075ba82ac27e3e0cd27e4"
+      },
+      "scripts/test-ios-shell-smoke.sh": {
+        "byteIdentical": true,
+        "sha256": "065f9f4670c99c8b2052d5fa2a4817e968b6ba27c052d0f8254bc875f281cd86"
+      }
+    }
+  },
+  "checks": [
+    {
+      "command": "GITHUB_RUN_ID=123456789 GITHUB_RUN_ATTEMPT=2 GITHUB_JOB=ios-build GITHUB_SHA=65487aee49e56fa724a903b2b5d8c0b0bc70c669 PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-owned.py",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-ios-owned-ci/ClientMerchandiseControl",
+      "tests": 33,
+      "exitCode": 0,
+      "durationSeconds": 48.449,
+      "scope": "synthetic CI environment, fake SDK/Flutter tools + real owned Python processes only"
+    },
+    {
+      "command": "same synthetic CI env python3 scripts/test-task054-ios-owned.py IosOwnedTest.test_cleanup_mismatched_name_or_runtime_never_mutates_device IosOwnedTest.test_receipt_from_another_run_cannot_cleanup_a_device IosOwnedTest.test_borrowed_smoke_rejects_receipt_from_another_owner_before_query",
+      "tests": 3,
+      "subcasesNameRuntime": 4,
+      "exitCode": 0,
+      "durationSeconds": 0.016
+    }
+  ],
+  "fix": "Fixture keeps ambient owner context for its mocked calls and explicit empty/nonnull name-runtime scopes match through prepare/load; foreign-owner negative guards retained. No skip/guard relaxation.",
+  "aggregateVerdict": "BLOCKED awaiting composed freeze/new real CI; OS findings remain separate",
+  "taskLiveVerdict": "BLOCKED"
+}

@@ -1,0 +1,63 @@
+{
+  "reviewer": "/root/review_evidence_ci",
+  "sourceComparisonCompletedAt": "2026-10-05T16:40:11.616235+00:00",
+  "providerReceiptObservedAt": "2026-10-05T16:28:58.545573+00:00",
+  "providerReceipt": "build/task054/config-next/worker-runtime-readonly-20261005.json",
+  "providerProducer": "/root/config_distribution",
+  "providerIndependentGet": "NOT_RUN no callable Cloudflare runtime API in reviewer tool catalog; authorized producer receipt checked, no duplicate credential discovery",
+  "deployment": "f726de06-fb79-46f5-a1b3-1d35fdc9de69",
+  "activeVersion": "22107a6f-f515-44c4-8392-a8e5653ff0b8",
+  "percentage": 100,
+  "testBackendBindingMatches": true,
+  "annotation": "1f0679b261dde089800a3bdef7888c1f7a7b8014",
+  "independentGitObjectType": "tree",
+  "remoteAdminAuthority": "82af13ef0005ecfb767809bd362327e91692b5ba",
+  "commands": [
+    "git cat-file -t 1f0679b261dde089800a3bdef7888c1f7a7b8014",
+    "git cat-file -e 82af13ef0005ecfb767809bd362327e91692b5ba:<each7path>",
+    "git cat-file -e 1f0679b261dde089800a3bdef7888c1f7a7b8014:<each7path>"
+  ],
+  "sourceBoundaryExit": 0,
+  "sevenCommerceFiles": [
+    {
+      "path": "src/app/shop/after-sales/actions.ts",
+      "authorityExistsExit": 0,
+      "workerExistsExit": 128
+    },
+    {
+      "path": "src/app/shop/after-sales/page.tsx",
+      "authorityExistsExit": 0,
+      "workerExistsExit": 128
+    },
+    {
+      "path": "src/app/shop/reviews/actions.ts",
+      "authorityExistsExit": 0,
+      "workerExistsExit": 128
+    },
+    {
+      "path": "src/app/shop/reviews/page.tsx",
+      "authorityExistsExit": 0,
+      "workerExistsExit": 128
+    },
+    {
+      "path": "src/server/shop-admin/customer-commerce-evidence.ts",
+      "authorityExistsExit": 0,
+      "workerExistsExit": 128
+    },
+    {
+      "path": "src/server/shop-admin/customer-commerce-mutations.ts",
+      "authorityExistsExit": 0,
+      "workerExistsExit": 128
+    },
+    {
+      "path": "src/server/shop-admin/customer-commerce-read-model.ts",
+      "authorityExistsExit": 0,
+      "workerExistsExit": 128
+    }
+  ],
+  "sourceToRemoteBinaryBytes": "NOT_RUN",
+  "liveCommerceBehavior": "NOT_RUN",
+  "remoteMutation": "NOT_RUN",
+  "taskLiveVerdict": "BLOCKED",
+  "deviceInventoryScope": "Current config lane says iPhone available=true over network; inventory only, not runtime/auth/capture/recovery/acceptance proof"
+}

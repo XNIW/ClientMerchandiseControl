@@ -1,0 +1,162 @@
+{
+  "schema": "task054.addendum.formal-re-review.v1",
+  "role": "CODEX_RE_REVIEWER",
+  "language": "it",
+  "review_outcome": "BLOCKED",
+  "handoff": "CODEX_REVIEW_BLOCKED",
+  "cutoff_utc": "2026-10-12T23:02:57Z",
+  "cutoff_boundary": "Prima commit documentale finale/fast-forward PR29 e relativi Checks head; nessuna futura CI anticipata",
+  "reviewed_worktree_head": "1fb6aecff5985a3d7b71b22cfeb475fcd4ee1fcb",
+  "overlay_scope": "Sole modifiche documentali/addendum/ledger/association presenti nel WT al cutoff; writer aggiornerà tracking/PR/CI separatamente",
+  "app_source_sha": "07649a1253db705091b915adf98b4a7b6028af90",
+  "fixture_source": "153646d5c48ca21d6fa579491c3649e5e3ac3467",
+  "formatter_integration": "ec0452e",
+  "qualified_native_tools_sha": "4b473764c7a98611a40119c7560a945067454329",
+  "CI_selector_sha": "1fb6aecff5985a3d7b71b22cfeb475fcd4ee1fcb",
+  "role_separation": {
+    "root_writer_distinct": true,
+    "WT_edits_by_reviewer": false,
+    "SDK_or_native_input_executed": false,
+    "app_source_widget_approval": "Approvals scoped del reviewer sorgente distinto source.69589dc +prepared076; questa re-review verifica digest/provenance e non autoapprova proposte precedenti del reviewer",
+    "scope_not_a_new_broad_audit": true
+  },
+  "governance_checks": {
+    "result": "PASS",
+    "project": "ACTIVE",
+    "task": "TASK-054 BLOCKED",
+    "phase": "REVIEW",
+    "responsible": "CODEX_RE_REVIEWER",
+    "incoming_indicator": "CODEX_FIX_BLOCKED_TO_RE_REVIEW",
+    "Master_Task_README_concordant": true,
+    "no_DONE_merge_new_task": true,
+    "ordinary_fix_returns_review_with_mandatory_gates_exposed": true
+  },
+  "read_only_validation": {
+    "result": "PASS",
+    "command_exit_codes": {
+      "source_and_raw_receipt_checks": 0,
+      "newlinks_diff_check": 0,
+      "original_workspace_status": 0,
+      "pr_metadata": 0
+    },
+    "app076_byte_identity_with_HEAD_including_native_config_assets_dependencies": true,
+    "scripts_fixtures_testdrivers_4b_to1fb_byte_identity": true,
+    "frozen_app_digest_checks": 26,
+    "private_refs_hashed_and_present": 24,
+    "ledger_runs": 37,
+    "ledger_provider_conclusions": {
+      "success": 9,
+      "failure": 25,
+      "cancelled": 3
+    },
+    "ledger_compact36_prefix_exact": true,
+    "original_protocol_and_all30acceptance_case_bodies_byte_identical": true,
+    "original_Rmatrix_rows_preserved": 30,
+    "new_local_links": 18,
+    "broken_links": 0,
+    "diff_check": "PASS"
+  },
+  "qualified_scoped_results": [
+    {
+      "gate": "source/widget codice app",
+      "result": "PASS",
+      "scope": "source695prepared076 reference approval scoped e26digest; host1242/1SKIP +11performance076,focused483/1SKIP153preparedec; noauthenticatedTEST"
+    },
+    {
+      "gate": "Androidvisual nativefixture",
+      "result": "PASS",
+      "source_sha": "4b473764c7a98611a40119c7560a945067454329",
+      "run_id": 38316402128,
+      "independent_raw_checks": "137Flutter+4OS tutti PNGdecodificabili; exit0/capture137/cleanupPASS; frozenAPKhash=installed/UID10209; body93driverterminal dai log primary; noIME/AT/liveproof"
+    },
+    {
+      "gate": "iOSguesttwo-process",
+      "result": "PASS",
+      "source_sha": "4b473764c7a98611a40119c7560a945067454329",
+      "run_id": 38315958950,
+      "independent_raw_checks": "seed19700→recover21193,runUUID/phase match; SQLitewrite/read,UIrestored,syntheticcleanup; backendNOT_RUN; ownerfinalcleanupPASS,runnerapp/simulatorNOT_RUN preservati"
+    },
+    {
+      "gate": "Androidguest/journalindirizzi",
+      "result": "PASS",
+      "source_sha": "07649a1253db705091b915adf98b4a7b6028af90",
+      "scope": "Capacita native qualificate da capsule terminali precedenti; nontrasferite adordineTEST/KeychainiOS"
+    },
+    {
+      "gate": "trackingpixel/golden/nativeQA subset",
+      "result": "PASS",
+      "scope": "host16card/goldenscoped e18Android4b+18iOS076 contentovisibile; matrice/revealgestures/AT/nativeprovider nonqualificati"
+    }
+  ],
+  "blocking_mandatory_gates": [
+    {
+      "gate": "nuovo corpus visualeiOS137Flutter+4OS",
+      "result": "BLOCKED",
+      "attempt": "run38317752110 source1fb",
+      "actual": "postboot ownlaunchctl-list probe entro30s FAIL124; smoke/visualNOT_RUN,0PNG,owncleanupPASS; vecchi076133/137FAILpreservati",
+      "unblock": "superficie hosted iOSstabile conadmissionqualificata e nuovo137/4 effettivo sul sourceverificato; GCRguestPASS non sostituiscevisual"
+    },
+    {
+      "gate": "journalindirizziiOSKeychain twoPID",
+      "result": "BLOCKED",
+      "attempts": [
+        38317759498,
+        38318672682
+      ],
+      "actual": "precreate runtimesinventory30sFAIL124,deviceNull/creationStartedfalse,Keychain/seed/recoverNOT_RUN;cleanup2PASS senzaresourcecreation",
+      "unblock": "inventory/creationpreflight iOSqualificato, stesso bundle/Keychainwrite→kill→nuovoPIDrecover→clear,owncleanup qualificato"
+    },
+    {
+      "gate": "R13/R14R17authenticatedTEST/backend/Auth/R24/C04",
+      "result": "BLOCKED",
+      "actual": "pilota/order/assignment/producer eauthorizedbackend policy/runtime gates privi direceipt,MapsTESTnativekeysrestrictions nonrecuperati",
+      "unblock": "prerequisitiowner autorizzati epercorsireali conreceipt; metadatapresenza/ledger161/fixture nonbastano"
+    },
+    {
+      "gate": "matriceUI4locale×2theme×200%/AT/IME/signingdistribution",
+      "result": "BLOCKED",
+      "actual": "proofscopedpartial/subset/unsignedonly; gesto revealRetry/names/footer/timestamps nonchiuso",
+      "unblock": "provereali delle superfici native/AT e firma/rollout autorizzati; nonimputare clippingirreversibile dai soliframe"
+    }
+  ],
+  "future_PR_head_checks": {
+    "result": "NOT_RUN",
+    "reason": "Al cutoff PR29OPENdraft head527c56e9b08ce937431b92b80707923109d0d590; nuovooverlay noncommitted/published. Dopo normallinearFF leggere headSHA/jobs/steps/annotations indipendentemente; nessunPASS anticipato",
+    "url": "https://github.com/XNIW/ClientMerchandiseControl/pull/29"
+  },
+  "findings": {
+    "new_application_findings": [],
+    "new_evidence_findings": [],
+    "P0_open": 0,
+    "P1_open": 0,
+    "P2_open": 0,
+    "P3_open": 0,
+    "earlier_documentary_findings": "Riallineamenti della re-review precedente closed dalwriter; fonte ehistorypreservati"
+  },
+  "preservation": {
+    "original_workspace_HEAD": "8423c868f345ee87eee7ed58ee9eb793d98412db",
+    "original_untracked": [
+      "supabase/"
+    ],
+    "no_destructive_actions": true,
+    "legacy80capsule13consumerdigest": "Nessun diff in capsule storiche; nonripetuto audit storico",
+    "source_NEGATIVEledger_and_nativecapsules": "FAIL/CANCELLED originali intatti, tutte11assignedrun terminali da receipts/API;0collectorcommands/downloads attivi"
+  },
+  "reviewed_overlay_sha256": {
+    "README.md": "e92541adeb855b1419b0b2e431811dae7886c045f0eab25015ced40129f83eb5",
+    "docs/MASTER-PLAN.md": "261efa8b48ada11d62b2603a7b8bc7d4672c8b2ec70fd1fb3695ecdfcf834798",
+    "docs/AI_WORKLOG.md": "988781bf3d92e7eb61c7c85b525c1450dfffe1c092d57af40cf33111cfd42dd6",
+    "docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md": "3de96c2c2a3f1c38abe2d4735edfe89b10dd3dd577ca3a36e94cc902b1120a65",
+    "docs/TASKS/EVIDENCE/TASK-054/README.md": "439050d3658abce951f6a5e54ab0f3d4c4594bd53f59a37aa3fcff12561a712a",
+    "docs/TASKS/EVIDENCE/TASK-054/validation.md": "0a1dd3da2c6f008649915390adef199fa244d24fc4c02ba6631cd4bda4df43e5",
+    "docs/TASKS/EVIDENCE/TASK-054/residuals.md": "da3e7701a667cb6cbfb9669cf3d9a0b09596ef731458486ba37adcd5d438f528",
+    "docs/TASKS/EVIDENCE/TASK-054/acceptance-revision.md": "e6f2fd8a5f8e19fb0fc4db7a2027db397d6a8130f236cf4b21e883086b359db9",
+    "docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md": "664d3e240173b474fc13f8ab4164d6d2f3d3706bb0aa2b3fb69924f0925b42d3",
+    "docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md": "f216d7c91a571fc332e16155c86a00b3c71905eba902b7a287bc09e2c2c701cf",
+    "docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_TRACKING_OWNER_PROPOSAL.md": "6a5d7895fbf145a104125325bb9eb93ead43faa50c17bf768624d373f1c9e1a3",
+    "docs/TASKS/EVIDENCE/TASK-054/next-integration/client-cart-tracking-host-run-ledger.json": "ea846d509eba33c9816b8229f91047b5fdfb01bbbfa46140c52e09a5a35970ee",
+    "docs/TASKS/EVIDENCE/TASK-054/next-integration/client-cart-tracking-review-association.json": "8a9adc5fa6c2cf00e76c68f80ae8737469ebb0273f3448fbf88a483688fb5312"
+  },
+  "separate_final_native_summary_sha256": "e39aa6a3b654c48ca1c92091ed8c54fdabda55473a347597a8f7cc1e0da85596",
+  "next_role_and_action": "Root trascrive verbale inReview, aggiornaindicatoreCODEX_REVIEW_BLOCKED eworklog, commitdocseletivo/PRdraftnormalFF. Successivamente raccoglieCIhead indipendente senza alterarecodice; gateesterni/iOSrestanoBLOCKED anche sehostchecksverdi."
+}

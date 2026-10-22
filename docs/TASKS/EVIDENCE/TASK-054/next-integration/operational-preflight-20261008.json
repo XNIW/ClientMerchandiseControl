@@ -1,0 +1,189 @@
+{
+  "scope": "TASK-054 mandato operativo 2026-10-08; checkpoint pre-implementazione",
+  "baseline": {
+    "client": "39624143955f0329b3ac85e27a51d722a6884ad8",
+    "app": "c796526a799c959408257f4c89c36a4439515b23",
+    "main": "bfbfc0b6a7122f29b8d8f6e2c2263d77b252749c",
+    "pr": 29,
+    "draft": true
+  },
+  "backend_metadata": {
+    "project_ref": "jpgoimipbothfgkokyvm",
+    "project_name": "merchandisecontrol-dev",
+    "manifest_sha256": "ea1ff64adac1ea08fede123efb4a92d1d3a36624cd9617b54dd90d38a2bef008",
+    "contract": {
+      "errors": [
+        "missing_rpc:customer_address_delete_v2",
+        "missing_rpc:customer_address_upsert_v2",
+        "missing_rpc:customer_addresses_read_v2",
+        "missing_rpc:customer_after_sales_cancel_v1",
+        "missing_rpc:customer_after_sales_create_v1",
+        "missing_rpc:customer_after_sales_evidence_register_v1",
+        "missing_rpc:customer_after_sales_evidence_upload_ticket_v1",
+        "missing_rpc:customer_after_sales_list_v1",
+        "missing_rpc:customer_after_sales_order_lines_v1",
+        "missing_rpc:customer_checkout_quote_create_v2",
+        "missing_rpc:customer_delivery_context_read_v1",
+        "missing_rpc:customer_delivery_context_select_v1",
+        "missing_rpc:customer_notification_mark_read_v1",
+        "missing_rpc:customer_notifications_list_v1",
+        "missing_rpc:customer_notifications_mark_all_read_v1",
+        "missing_rpc:customer_order_reorder_apply_v1",
+        "missing_rpc:customer_order_reorder_preview_v1",
+        "missing_rpc:customer_review_submit_v1",
+        "missing_rpc:customer_review_update_v1",
+        "missing_rpc:customer_reviews_list_v1",
+        "missing_rpc:storefront_delivery_context_preview_v1",
+        "missing_rpc:storefront_product_reviews_v1",
+        "missing_rpc:storefront_search_suggestions_v1",
+        "missing_migration:20260823023037",
+        "missing_migration:20260823150000",
+        "missing_migration:20260928200000",
+        "missing_index:customer_notification_events_safe_dedup_idx"
+      ],
+      "exit_code": 1,
+      "missing_rpcs": 23,
+      "observed_at": "2026-10-08T15:07:48.94473+00:00",
+      "other_rpc_drift": [],
+      "present_compatible_rpcs": 32,
+      "qualification": "Full signatures, parameter defaults, result type, anon/authenticated EXECUTE, security definer, settings and definition MD5. No authenticated customer behavior inferred.",
+      "required_rpcs": 55,
+      "result": "FAIL"
+    },
+    "rls": {
+      "force_rls": 6,
+      "policies_verified_metadata_only": true,
+      "tables": 6
+    },
+    "apply_preflight": {
+      "collisions_at_observation": 0,
+      "commerce_cron_active": 4,
+      "target_apply": "NOT_RUN",
+      "window_exclusion": "NOT_RUN"
+    },
+    "live_gate": {
+      "exit_code": 2,
+      "reason": "CMC_BACKEND_PGSERVICE_and_artifact_config absent; .pg_service.conf/.pgpass absent; historical config is not approved",
+      "result": "BLOCKED"
+    },
+    "authenticated_smokes": {
+      "reason": "3 canonical migrations absent and current approved TEST artifact config/pilot identities not referenced",
+      "result": "NOT_RUN"
+    }
+  },
+  "recovery": {
+    "observed_at": "2026-10-08T15:10:45.774850+00:00",
+    "backup_api": {
+      "backup_count": 0,
+      "backups_null": false,
+      "pitr_enabled": false,
+      "status": 200
+    },
+    "export": "PASS",
+    "export_scope": [
+      "public.customer_addresses",
+      "public.customer_checkout_quotes",
+      "public.customer_orders",
+      "public.customer_notification_events",
+      "public.customer_payment_events",
+      "public.storefront_settings",
+      "supabase_migrations.schema_migrations",
+      "storage bucket+object metadata for customer-after-sales-evidence"
+    ],
+    "rows": {
+      "customer_addresses": 0,
+      "customer_checkout_quotes": 0,
+      "customer_notification_events": 2,
+      "customer_orders": 6,
+      "customer_payment_events": 0,
+      "storefront_settings": 1
+    },
+    "history": 155,
+    "affected_storage_objects": 0,
+    "protection": "directory0700/file0600, esterno a Git; nessuna riga o secret nelle evidence",
+    "restore": "NOT_RUN",
+    "global_recovery": "NOT_RUN",
+    "window_refresh": "necessario nella finestra effettiva"
+  },
+  "canonical": {
+    "admin_observed_checkout": "553c4568b335ee95be31aaaea6735ed0a751879c",
+    "canonical_bytes_current_admin": [
+      {
+        "file": "20260823023037_client_commerce_journey_v1.sql",
+        "same": true,
+        "sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc"
+      },
+      {
+        "file": "20260823150000_customer_after_sales_order_lines_v1.sql",
+        "same": true,
+        "sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467"
+      },
+      {
+        "file": "20260928200000_customer_notification_hold_dedup.sql",
+        "same": true,
+        "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e"
+      }
+    ],
+    "catalog_parity_with_20261004": {
+      "columns": true,
+      "constraints": true,
+      "functions": true,
+      "indexes": true,
+      "policies": true,
+      "tables": true,
+      "triggers": true,
+      "views": true
+    },
+    "no_schema_tests_repeated": true,
+    "package_canonical_source": "82af13ef0005ecfb767809bd362327e91692b5ba",
+    "protected_scoped_export_is_not_restore_proof": true
+  },
+  "ci5": {
+    "run": 37369690043,
+    "head": "c796526a799c959408257f4c89c36a4439515b23",
+    "result": "failure",
+    "jobCount": 5,
+    "steps": 44,
+    "annotationCounts": {
+      "failure": 4,
+      "warning": 1,
+      "notice": 11
+    },
+    "androidDebug": {
+      "job": 111963462599,
+      "buildSecurity": "PASS",
+      "capture": "BLOCKED",
+      "lastObserved": "2026-10-05T20:45:41.0189545Z runner shutdown signal during drive assembleDebug; no tests or PNG",
+      "cleanup": "NOT_RUN",
+      "exclusiveCause": "unknown; no manual cancellation inferred"
+    },
+    "iosDebug": {
+      "job": 111963462747,
+      "buildSecurityGoldens": "PASS",
+      "prepare": "FAIL exit124 bootstatus300s locationd Data Migration",
+      "smokeVisual": "NOT_RUN",
+      "ownCleanup": "PASS two attempts"
+    },
+    "qualityAndroidRelease": "BLOCKED hosted runner not acquired; zero steps",
+    "iosRelease": "PASS unsigned build/archive and89fixtures"
+  },
+  "hosted": {
+    "observed_utc": "2026-10-08T15:14:03.348204+00:00",
+    "operational": true,
+    "unresolved_incidents": 0,
+    "source": "https://www.githubstatus.com/",
+    "incident": "https://www.githubstatus.com/incidents/3q1yb5m7ltvb",
+    "qualification": "Service operational does not promise capacity for next job; incident correlates hosted blockage, not proven exclusive Android shutdown cause"
+  },
+  "local_ios": {
+    "xcode": "27.0 27A266a",
+    "sdk_minimum_target": "15.0",
+    "target14_supported": false,
+    "simulator_app_present": false,
+    "build": "NOT_RUN",
+    "readiness": "BLOCKED"
+  },
+  "production": "NOT_RUN",
+  "shared_mutations": false,
+  "note": "Metadata privilegiati, export e readiness non qualificano runtime Client autenticato. Nuove RPC indirizzo v3 non ancora incluse nel manifest di questa osservazione."
+}

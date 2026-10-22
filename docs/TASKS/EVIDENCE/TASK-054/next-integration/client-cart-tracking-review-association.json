@@ -1,0 +1,269 @@
+{
+  "schema": "task054.cart-tracking-review-association.v1",
+  "app_source_sha": "07649a1253db705091b915adf98b4a7b6028af90",
+  "source_verdict": "APPROVED_SOURCE_WIDGET_SCOPED",
+  "integrated_verdict": "BLOCKED",
+  "reviewer_refs": {
+    "source": {
+      "private_relative_path": "re-review/source.69589dc.json",
+      "sha256": "93ec8d3f9dd842a8a854752b25c4379d851c41e2fc6d6bc46e2e4269a397d2a1"
+    },
+    "ios_readiness": {
+      "private_relative_path": "proposals/ios-owned-readiness/peer-review-resource-readiness.json",
+      "sha256": "90f2ad3aa5bb55f6d21de09b4efc96c2cc53b6f8da7a94923d1a77b0d68a311f"
+    },
+    "address_file_transport": {
+      "private_relative_path": "proposals/address-journal-file/independent-review-634f0a1.json",
+      "sha256": "1b6a30edd2882f05b291688bea747439391e999725349ab7742d912804629b46"
+    },
+    "tracking_pixels": {
+      "private_relative_path": "re-review/tracking-pixels.json",
+      "sha256": "d8e861f37d722d48ce3dfe4417c68b5284762148d1c1be0e7b2aeca0c3aeb767"
+    },
+    "golden_pixels": {
+      "private_relative_path": "golden34/pixel-review-34cc059.json",
+      "sha256": "dc8c630911844a904e5e30922ba054b64edca78968b9f92790e5ee5306e9fce6"
+    },
+    "guest_initial": {
+      "private_relative_path": "re-review/guest-native-38305914196/review.json",
+      "sha256": "ca00c066b3599e9755b9b03742f592609d795fd0c94cb7daf3d393e814fca206"
+    },
+    "canonical_initial": {
+      "private_relative_path": "re-review/canonical-38305914015/evaluation.json",
+      "sha256": "39226d7c7f4d753ecd4730939cbbdabdcf3bffd398702e1c5d51d57fe3796543"
+    },
+    "canonical_076_terminal": {
+      "private_relative_path": "re-review/final-07649a1/ci/evaluation.json",
+      "sha256": "6223db5a06ca7cbb37cd2aea2dfc79a94ea9903ea736396a615a40a146279221"
+    },
+    "guest_076_terminal": {
+      "private_relative_path": "re-review/final-07649a1/guest/evaluation.json",
+      "sha256": "c19ab0d7a70fcba0173326c4ac5180ed0ea687154fd79207b1368353e1f702d4"
+    },
+    "ios_descriptor_diagnostic": {
+      "private_relative_path": "re-review/diag-7a85a58/evaluation.json",
+      "sha256": "758b9666cb0ba1bd81b9adb6a69b32009391d4728f363e53d46998927098baf2"
+    },
+    "native_pixels_076_scoped": {
+      "private_relative_path": "re-review/final-07649a1/native-pixels-scoped.json",
+      "sha256": "0bb464a5f16fb305b796acbab6c0d34898b7ab4f63f1986aa70a90aff0633b17"
+    },
+    "android_prebuilt_admission": {
+      "private_relative_path": "proposals/android-visual-prebuilt/independent-re-review-admission-v3.json",
+      "sha256": "1bb54b1ff8ff1873fb77f8f99f03b5b6040a5d43e489448ff98ab27282e944ed"
+    },
+    "visual_corpus_preservation": {
+      "private_relative_path": "proposals/visual-corpus-preservation/independent-review-corpus-433d9d4.json",
+      "sha256": "6a56824d71cacb920462d690b1106b5f4040c99c19010b43dc16aeaa5b2a7a28"
+    },
+    "ios_descriptor_launchd_source": {
+      "private_relative_path": "proposals/ios-owned-descriptor-launchd/peer-review.json",
+      "sha256": "0865e34aa121df83fedd3eaed77120a80942923abd7ceb9dd28bd630e9be2410"
+    },
+    "gcr_38314239143_failed_probe": {
+      "private_relative_path": "re-review/gcr-38314239143/evaluation.json",
+      "sha256": "a672fa4bd5f79fa57e2d03fe4a09734ad85325f36a474c71b55494a60cf4b3b4"
+    },
+    "ios_probe_v2_source": {
+      "private_relative_path": "proposals/ios-owned-descriptor-launchd-v2/peer-review.json",
+      "sha256": "75029aae59f816655d15f36a661967f3263e96917c6d5eac39affe9e69dd5ae4"
+    },
+    "android_prebuilt_153_sdk_failure": {
+      "private_relative_path": "re-review/android-visual-38314869042/evaluation.json",
+      "sha256": "860b9835730d88de59c0e986ca81a1e82a1989c96332d569c8b6228ec333c705"
+    },
+    "guest_ios_v2_success": {
+      "private_relative_path": "re-review/gcr-38315958950/evaluation.json",
+      "sha256": "cf8f3d04da4e641596985e15c4da07290ba6df7563b2e60ec87a1aee5856092c"
+    },
+    "android_visual_4b_success": {
+      "private_relative_path": "re-review/android-visual-38316402128/evaluation.json",
+      "sha256": "2bbcb711b0027e05ed993f45eadfa8654042cf8769265ca147943cbcd5ffd788"
+    },
+    "ios_visual_1fb_blocked": {
+      "private_relative_path": "re-review/ios-visual-38317752110/collection.json",
+      "sha256": "390ebe70193eb87c91c2750d0df1314b7f76f7b21c8f952140d020238e112658"
+    },
+    "ios_journal_1fb_blocked": {
+      "private_relative_path": "re-review/ios-journal-38317759498/evaluation.json",
+      "sha256": "7a4bb002375d2c2ecb9bad7e235e2695094eddddddb0939f9d742ad9f676bbe9"
+    },
+    "ios_journal_repeat_blocked": {
+      "private_relative_path": "re-review/ios-journal-38318672682/evaluation.json",
+      "sha256": "0a56cee80da64703402ebabe7dc1d0641e1a26239b3c0683d12fcc71546dabad"
+    },
+    "android_pixels_4b_scoped": {
+      "private_relative_path": "re-review/android-visual-38316402128/native-pixels-scoped.json",
+      "sha256": "4a7f7209d12f3881fabfef564eaa9c8d9a9d377ca5e1b3c877caaa0371d56b6a"
+    },
+    "final_native_summary": {
+      "private_relative_path": "re-review/final-qualified-native-summary-1fb6aec.json",
+      "sha256": "e39aa6a3b654c48ca1c92091ed8c54fdabda55473a347597a8f7cc1e0da85596"
+    }
+  },
+  "source_digest_checks": [
+    {
+      "path": "lib/features/cart/application/cart_controller.dart",
+      "reviewed_sha256": "1aeb3a6783998e0e4829d493bf912ebcef55744e7bc6ddc5caeca4e04643e679",
+      "current_sha256": "1aeb3a6783998e0e4829d493bf912ebcef55744e7bc6ddc5caeca4e04643e679",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/cart/domain/cart_action_result.dart",
+      "reviewed_sha256": "61ee8bbfd9b968c49798ef002cd181df166324fd1ed3af9e92e7e8b4f92f6c29",
+      "current_sha256": "61ee8bbfd9b968c49798ef002cd181df166324fd1ed3af9e92e7e8b4f92f6c29",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/cart/presentation/add_to_cart_button.dart",
+      "reviewed_sha256": "f56271bef055e3ea5ee33d64cf90cb9e2a87e1e64065585de3b827c5e5fd62b3",
+      "current_sha256": "f56271bef055e3ea5ee33d64cf90cb9e2a87e1e64065585de3b827c5e5fd62b3",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/cart/presentation/cart_screen.dart",
+      "reviewed_sha256": "9a0ead497783abcc4a38c55d868ba1be6284f4c1cfd711cf18eb01acb5e5b422",
+      "current_sha256": "9a0ead497783abcc4a38c55d868ba1be6284f4c1cfd711cf18eb01acb5e5b422",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/delivery_tracking/application/delivery_tracking_controller.dart",
+      "reviewed_sha256": "fba559cd43cc9d4358f96792f2b4834a4150bee0b72baf8d2b1fcf2d77007c9f",
+      "current_sha256": "fba559cd43cc9d4358f96792f2b4834a4150bee0b72baf8d2b1fcf2d77007c9f",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/delivery_tracking/data/secure_delivery_tracking_cache.dart",
+      "reviewed_sha256": "59bb5ee22737424fe0945195c1ee794af546a48435eea9661ad3b323de6072b2",
+      "current_sha256": "59bb5ee22737424fe0945195c1ee794af546a48435eea9661ad3b323de6072b2",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/delivery_tracking/presentation/delivery_live_map.dart",
+      "reviewed_sha256": "f8a83dfb3a98e3cef2d964034b7eacf1e562fd3442f5902a7093162843c4350b",
+      "current_sha256": "f8a83dfb3a98e3cef2d964034b7eacf1e562fd3442f5902a7093162843c4350b",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/orders/presentation/customer_delivery_tracking_eta.dart",
+      "reviewed_sha256": "c91840ab3131350180b776f144fd33b186ef2d8a9e857c8265f06db65a1da36b",
+      "current_sha256": "c91840ab3131350180b776f144fd33b186ef2d8a9e857c8265f06db65a1da36b",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/orders/presentation/order_detail_screen.dart",
+      "reviewed_sha256": "09e5ed0ede1cd6b2715d39a078db6a717a4e8dbb58d2a9fce82f1d019b88d078",
+      "current_sha256": "09e5ed0ede1cd6b2715d39a078db6a717a4e8dbb58d2a9fce82f1d019b88d078",
+      "result": "PASS"
+    },
+    {
+      "path": "test/features/cart/application/cart_controller_test.dart",
+      "reviewed_sha256": "8ddb1868df0a437ad3619a3fbcfddd5a66de04cb77d82b4bcc55c5bc75a4f57e",
+      "current_sha256": "8ddb1868df0a437ad3619a3fbcfddd5a66de04cb77d82b4bcc55c5bc75a4f57e",
+      "result": "PASS"
+    },
+    {
+      "path": "test/features/cart/cart_action_scope_test.dart",
+      "reviewed_sha256": "bec3a903ec3c6a642bcd912c141d4155d5408386d144d4c113651e9f37bb766c",
+      "current_sha256": "bec3a903ec3c6a642bcd912c141d4155d5408386d144d4c113651e9f37bb766c",
+      "result": "PASS"
+    },
+    {
+      "path": "test/features/delivery_tracking/delivery_tracking_controller_test.dart",
+      "reviewed_sha256": "6e024ce9b52bec9e8ff83cddb572ef8346a63d6ca61179ea025ae40222d74d81",
+      "current_sha256": "6e024ce9b52bec9e8ff83cddb572ef8346a63d6ca61179ea025ae40222d74d81",
+      "result": "PASS"
+    },
+    {
+      "path": "test/features/delivery_tracking/secure_delivery_tracking_cache_test.dart",
+      "reviewed_sha256": "4e62b6a13208db96a44d551048d7e3baf9769c371f6c041067d5a80a3ee32cd3",
+      "current_sha256": "4e62b6a13208db96a44d551048d7e3baf9769c371f6c041067d5a80a3ee32cd3",
+      "result": "PASS"
+    },
+    {
+      "path": "test/features/delivery_tracking/google_delivery_map_adapter_test.dart",
+      "reviewed_sha256": "4441144658f9086b2209777490a475af20ebab6f4fa23fbd3005b23f4fedc2dd",
+      "current_sha256": "4441144658f9086b2209777490a475af20ebab6f4fa23fbd3005b23f4fedc2dd",
+      "result": "PASS"
+    },
+    {
+      "path": "test/features/orders/presentation/customer_delivery_tracking_eta_test.dart",
+      "reviewed_sha256": "e85cfac3c6a3609183307579a20ae6c499de4b8137b70d27e9306043469fe2f9",
+      "current_sha256": "e85cfac3c6a3609183307579a20ae6c499de4b8137b70d27e9306043469fe2f9",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/checkout/application/checkout_controller.dart",
+      "reviewed_sha256": "9789b200269765b627785bfb7581ab17c500f26500fbda74dc2343aefdddea32",
+      "current_sha256": "9789b200269765b627785bfb7581ab17c500f26500fbda74dc2343aefdddea32",
+      "result": "PASS"
+    },
+    {
+      "path": "test/features/checkout/application/checkout_controller_test.dart",
+      "reviewed_sha256": "78824a7cfa81029d1de1c6f223dd17706f1b1fa1a4c3d37573052e439282e0a0",
+      "current_sha256": "78824a7cfa81029d1de1c6f223dd17706f1b1fa1a4c3d37573052e439282e0a0",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/checkout/application/checkout_state.dart",
+      "reviewed_sha256": "8bc515750d1d27065403bdba3cc56d2fcf0aca901a1413d181858c7d3ef66fed",
+      "current_sha256": "8bc515750d1d27065403bdba3cc56d2fcf0aca901a1413d181858c7d3ef66fed",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/checkout/presentation/checkout_screen.dart",
+      "reviewed_sha256": "cd918d248d2c449ac2235739d20a54f75d71eecbe7a59d89683761b453109e0a",
+      "current_sha256": "cd918d248d2c449ac2235739d20a54f75d71eecbe7a59d89683761b453109e0a",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/features/checkout/domain/checkout_models.dart",
+      "reviewed_sha256": "54460287bdedd2dbbd7969eef94c0f574afb584be6e481924723977da2c21318",
+      "current_sha256": "54460287bdedd2dbbd7969eef94c0f574afb584be6e481924723977da2c21318",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/core/formatting/shop_date_time_formatter.dart",
+      "reviewed_sha256": "7d4c30626c76e0c2df52eb14184c4914d223392d89f8adf3f92afce85349ad0b",
+      "current_sha256": "7d4c30626c76e0c2df52eb14184c4914d223392d89f8adf3f92afce85349ad0b",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/core/config/app_config.dart",
+      "reviewed_sha256": "6e909f29086fc884fe8146f28dddc9a70306c684dc90755b0e3f7140189b3601",
+      "current_sha256": "6e909f29086fc884fe8146f28dddc9a70306c684dc90755b0e3f7140189b3601",
+      "result": "PASS"
+    },
+    {
+      "path": "test/features/checkout/presentation/checkout_screen_test.dart",
+      "reviewed_sha256": "83d0cf6d5a58afa36f74bff1c815fe7195b51405fdd6e80c2be02757bf08d8d6",
+      "current_sha256": "83d0cf6d5a58afa36f74bff1c815fe7195b51405fdd6e80c2be02757bf08d8d6",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/l10n/app_zh.arb",
+      "reviewed_sha256": "657a82183a518e135f79e43a53758bd5b80b9ea09003389fe00ddf1b555421f4",
+      "current_sha256": "657a82183a518e135f79e43a53758bd5b80b9ea09003389fe00ddf1b555421f4",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/l10n/generated/app_localizations_zh.dart",
+      "reviewed_sha256": "afdd06997b0595d30f7ddd21e2d52561b1a44944942239ddd8c9eb64367b1394",
+      "current_sha256": "afdd06997b0595d30f7ddd21e2d52561b1a44944942239ddd8c9eb64367b1394",
+      "result": "PASS"
+    },
+    {
+      "path": "test/features/product_detail/presentation/product_detail_screen_test.dart",
+      "reviewed_sha256": "a855dcbd168dc7939c9da29ce01bb36f5dcd99fa23807a4273e284c93bb00cf6",
+      "current_sha256": "a855dcbd168dc7939c9da29ce01bb36f5dcd99fa23807a4273e284c93bb00cf6",
+      "result": "PASS"
+    }
+  ],
+  "scope_limits": [
+    "source/widgets and separate infrastructure source/mock approvals; no native/live proof transferred",
+    "host card/golden pixels do not prove Google, OS, native fonts or AT",
+    "native initial receipts refer to ddba07a; canonical076/guest076 are terminal and separately associated; later native helper runs are not inferred",
+    "Corpus076 native133/137FAIL; source fixture153646d+formatterec0452e separates collected screenshots from business proof. Host483preparedPASS does not execute native fixture.",
+    "Latest assigned native attempts terminal: Android137/4 and guest iOS2PID PASS; iOSvisual probe and iOSjournal precreate inventory BLOCKED. All negative receipts preserved; no active downloads/commands at collector closeout."
+  ]
+}

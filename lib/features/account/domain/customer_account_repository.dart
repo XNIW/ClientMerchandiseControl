@@ -1,4 +1,5 @@
 import 'customer_account_models.dart';
+import 'address_creation_intent.dart';
 
 abstract interface class CustomerAccountRepository {
   Future<CustomerAccountSnapshot> load(String expectedSubjectId);
@@ -11,7 +12,15 @@ abstract interface class CustomerAccountRepository {
 
   Future<void> deleteProfile(String expectedSubjectId);
 
-  Future<CustomerAddress> createAddress(CustomerAddressDraft draft);
+  AddressCreationJournal get addressCreationJournal;
+
+  Future<CustomerAddress> createAddress(
+    CustomerAddressDraft draft, {
+    required String intentId,
+  });
+
+  /// Null indica nessun commit osservato. Non autorizza un nuovo intent.
+  Future<CustomerAddress?> reconcileAddressCreation(String intentId);
 
   Future<void> updateAddress(
     String addressId,

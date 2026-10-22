@@ -1,0 +1,238 @@
+{
+  "artifacts": {
+    "ROLLBACK-AND-APPLY.md": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/ROLLBACK-AND-APPLY.md",
+      "sha256": "410deef91b405dc10a152eabef464f8212c58a87f6d51ce347b58969fd56c3c8"
+    },
+    "canonical-package/manifest.json": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/canonical-package/manifest.json",
+      "sha256": "49ef380397c06140a51aa3b2f76b1fa288b632300fd8f00303b71a42893f6b98"
+    },
+    "hygiene.json": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/hygiene.json",
+      "sha256": "3667e824c34e13cca039b6b5200a71a6cdb3ed66daf8706fea21d1950a2355ec"
+    },
+    "notifications/diagnostic-supplemental-final.md": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/notifications/diagnostic-supplemental-final.md",
+      "sha256": "05a27b93927eb06854d354fe6dc9462bfa8bff2ffbc8e9b22f9f9218c36f6a62"
+    },
+    "notifications/diagnostic.md": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/notifications/diagnostic.md",
+      "sha256": "1e3bdf5bdf303489fe72010fdbd47ba7e8425b43b46036ee77c91ff51c3d1aba"
+    },
+    "notifications/direct-calls-receipt.json": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/notifications/direct-calls-receipt.json",
+      "sha256": "33d53926c35f3269bf24c398c80ce6893d4f54dd99a6e25ff0954e52e08bf253"
+    },
+    "notifications/original-batch-diagnosis.json": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/notifications/original-batch-diagnosis.json",
+      "sha256": "5b91db2a26c5ad5454effbc5b31ca5c5dd3dd118abc30904ee9112731a8d3806"
+    },
+    "notifications/reviewer-supplemental-receipt.json": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/notifications/reviewer-supplemental-receipt.json",
+      "sha256": "2476ba3bb6e375780d6c073e2d17db35d1c8bfec50cbf807b333eba60588acc2"
+    },
+    "notifications/separate-transactions-receipt.json": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/notifications/separate-transactions-receipt.json",
+      "sha256": "4ce0a5039721188405d4424fe479021e51505e3e87394776314492ce8eccecaf"
+    },
+    "populated-ledger/data-digests.json": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/populated-ledger/data-digests.json",
+      "sha256": "375cb84fb033a9c9b42575f4c081ffe05a1b9e77a69732909b808ed4d3ffa34e"
+    },
+    "populated-ledger/specific-inverse-proof/receipt.json": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/populated-ledger/specific-inverse-proof/receipt.json",
+      "sha256": "d3fe11b769e26581951e1d0719c472b1ac9e6340fcdd68d8cf868e29539009c7"
+    },
+    "populated-ledger/summary.json": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/populated-ledger/summary.json",
+      "sha256": "289bb7abe0e301b67c4bf6ad50e7f24fa3d3346da9a8632f43d024438c031845"
+    },
+    "populated-review/REVIEW.md": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/populated-review/REVIEW.md",
+      "sha256": "8cab782a3f0a8d146aac125309a14592b86118b956d2d5c4d976cec16cafe2cd"
+    },
+    "populated-review/review.json": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/populated-review/review.json",
+      "sha256": "57b60ec317990d1982c7ee6fa3d6bae545da37e875e4c33c934638f06384aa43"
+    },
+    "readiness.json": {
+      "persistent_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/readiness.json",
+      "sha256": "9dd3baa34bd03892a66dadcccf10eb49bb9bf789b9d3be7cea3b30a8b993ce8d"
+    }
+  },
+  "blockers": [
+    {
+      "owner": "backend/access operator W",
+      "prepared": "Verified host, role presence, current metadata, gate and connection diagnosis",
+      "required_action": "Provide approved protected DB access references and execute on IPv6-capable network/runner without changing TLS hostname/mode",
+      "requirement": "readonly PostgreSQL TLS"
+    },
+    {
+      "owner": "coordinator plus W/writers/cron operator",
+      "prepared": "Four exact canonical hashes, scoped populated recovery and independent approval, footprint/cron/readback runbook",
+      "required_action": "Confirm concrete start/end/operations/restore window after access inputs exist; refresh mutable inputs immediately before apply",
+      "requirement": "shared apply window"
+    },
+    {
+      "owner": "coordinator/pilot identity operator",
+      "prepared": "Backend contract and source fixtures; root prepares public Client config",
+      "required_action": "Complete approved pilot and real A/B session references through protected channel; no credentials in chat",
+      "requirement": "Client authenticated TEST proof"
+    },
+    {
+      "owner": "Admin W/data owner",
+      "prepared": "Namespace/provenance diagnosis, exact preserved rows, local RPC behavior and scoped repair proposal",
+      "required_action": "Decide separately on targeted synthetic-residue cleanup; until then preserve rows and integrity FAIL",
+      "requirement": "notification data integrity"
+    }
+  ],
+  "hygiene": {
+    "local_review_databases_retained": [
+      "task054_v3_populated_source",
+      "task054_v3_populated_restored",
+      "task054_notification_replay_probe"
+    ],
+    "original_clone_unchanged": true,
+    "raw_data_in_git": false,
+    "repository_changes": false,
+    "shared_cron_or_SQL_mutations": false,
+    "verification_processes_pending": false
+  },
+  "ids": [
+    "NI054-04",
+    "NI054-08",
+    "CA-C3",
+    "T-C3",
+    "R18",
+    "R29",
+    "R30"
+  ],
+  "lanes": {
+    "AUTH_LIVE": {
+      "cause": "Real approved TEST A/B sessions/config/pilot and backend update absent",
+      "status": "NOT_RUN"
+    },
+    "TEST_schema": {
+      "canonical_absent": [
+        "20260823023037",
+        "20260823150000",
+        "20260928200000",
+        "20261008151018"
+      ],
+      "history": 155,
+      "indexes_expected": 2,
+      "indexes_present": 1,
+      "observed_at_utc": "2026-10-08T19:59:38.840892+00:00",
+      "qualification": "Management API READ ONLY; not TLS gate.",
+      "rpcs_conformant": 32,
+      "rpcs_expected": 57,
+      "rpcs_missing": 25,
+      "rpcs_present": 32,
+      "status": "FAIL"
+    },
+    "TLS": {
+      "alias_itself_is_not_external_input": true,
+      "cause": "Verified target direct DNS AAAA-only, host IPv4-only; protected login/passfile/trust/service unavailable",
+      "gate_exit": 2,
+      "project_active_healthy": true,
+      "status": "BLOCKED"
+    },
+    "canonical_package": {
+      "independent_review": "APPROVED",
+      "migrations": [
+        {
+          "exact_at_authority": true,
+          "exact_at_integrated_authority": true,
+          "file": "20260823023037_client_commerce_journey_v1.sql",
+          "sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+          "version": "20260823023037"
+        },
+        {
+          "exact_at_authority": true,
+          "exact_at_integrated_authority": true,
+          "file": "20260823150000_customer_after_sales_order_lines_v1.sql",
+          "sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467",
+          "version": "20260823150000"
+        },
+        {
+          "exact_at_authority": true,
+          "exact_at_integrated_authority": true,
+          "file": "20260928200000_customer_notification_hold_dedup.sql",
+          "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e",
+          "version": "20260928200000"
+        },
+        {
+          "exact_at_authority": true,
+          "exact_at_integrated_authority": true,
+          "file": "20261008151018_customer_address_create_intent_v3.sql",
+          "sha256": "b290c6373d2d49a3c9fb4847e5ee8f47f2ce11f4eeeb17da4d3fc4086a615e56",
+          "version": "20261008151018"
+        }
+      ],
+      "review_scope": "local scoped only",
+      "status": "PASS"
+    },
+    "notification_diagnostic": {
+      "AUTH_LIVE": "NOT_RUN",
+      "exact_original_run": "NOT_RUN",
+      "foreign_context_list_count": 0,
+      "independent_review": "APPROVED",
+      "integrity_status": "FAIL",
+      "local_independent_calls": "PASS",
+      "local_same_transaction_double_update": "FAIL",
+      "local_separate_replay": "PASS",
+      "missing_references": 8,
+      "namespace": "canonical payment concurrency harness owner/shop/slug match",
+      "native_UI": "NOT_RUN",
+      "navigation_missing_order_status": "not_found",
+      "repair": "NOT_RUN",
+      "review_scope": "local scoped only",
+      "rows": 2,
+      "same_transaction_failed_occurrence": 2,
+      "same_transaction_sqlstate": "23503",
+      "status": "PASS",
+      "wrapper_assertion": "FAIL"
+    },
+    "populated_ledger_recovery": {
+      "executor_cases": 33,
+      "executor_commands": 54,
+      "export_rows": {
+        "addresses": 1,
+        "ledger": 2
+      },
+      "global_auth_restore": "NOT_RUN",
+      "independent_review_checks": 50,
+      "independent_review_commands": 39,
+      "inverse_specific_guard": "PASS",
+      "local_history": 159,
+      "local_indexes": 2,
+      "local_rpcs": 57,
+      "qualification": "Only canonical local synthetic Auth fixture prerequisites retained; no Client session proof.",
+      "status": "PASS"
+    },
+    "rollback_application": {
+      "policy": "Preserve additive v3 schema/ledger/history and v3 journal/reconcile capability; no physical inverse with populated ledger.",
+      "prepared_runbook": "ROLLBACK-AND-APPLY.md",
+      "sql_v2_edit_delete_compatibility": "PASS",
+      "status": "NOT_RUN"
+    },
+    "shared_apply": {
+      "cron_paused": false,
+      "migrations_applied": [],
+      "prerequisite_status": "BLOCKED",
+      "status": "NOT_RUN",
+      "window_confirmed": false
+    }
+  },
+  "overall_result": "BLOCKED",
+  "recorded_at_utc": "2026-10-08T20:07:15.882696+00:00",
+  "schema_version": 1,
+  "scope": "TASK054_BACKEND_OPERATIONAL_COMPLETION_TEST",
+  "source": {
+    "admin_authority": "f16c5f4f37051e7876a847fb1ae2e544c89377d2",
+    "application_freeze": "bb53892393710d3ed6d2574053fe1206561b87f0",
+    "client_manifest_sha256": "9eadce2cfddbb894dc6e018a26d5ff152dc69b05dd1c6d9fee9c83f83a9585b8",
+    "integrated_authority": "02ea44b95d4a05baddbf46f24251f0d5f0dea294"
+  }
+}

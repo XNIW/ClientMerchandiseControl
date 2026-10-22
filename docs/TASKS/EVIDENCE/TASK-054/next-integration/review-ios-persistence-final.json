@@ -1,0 +1,85 @@
+{
+  "schema": "task054-beci06-independent-closure-v1",
+  "created_utc": "2026-10-05T18:01:29.137495+00:00",
+  "reviewer": "/root/review_evidence_ci",
+  "source_sha": "20454e7a71942ea69d2cc21b585d0f05ffdb184e",
+  "root_source_sha": "d9da3c56845dc3ebab23d2d783edbffb795af927",
+  "final_freeze_sha": "a97778697051f93380ace9d6181a226c7f79ca77",
+  "finding": "BECI-06/P2",
+  "finding_status": "FIXED_VALIDATED",
+  "aggregate_review": "NOT_ASSEGNATA: nuova CI exact-SHA ancora pendente",
+  "task_complete_status": "BLOCKED",
+  "source_comparison": {
+    "scripts/run-task054-ios-owned.py": {
+      "identical": true,
+      "sha256": "f7594ff1511d7767dc1f9bb9de4c521f590ac41767de631a23ed43e54d5965e8",
+      "git_blob": "3c6b21b07534037b1b060438570e7af64bc17328"
+    },
+    "scripts/test-task054-ios-owned.py": {
+      "identical": true,
+      "sha256": "36db6878f90fe4861497b9de9c54c34715654f7da95c45477cfdde78a173c7c8",
+      "git_blob": "eac706e462bf15276f8b4b49e8bedc070b44e572"
+    }
+  },
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 GITHUB_RUN_ID=123456789 GITHUB_RUN_ATTEMPT=2 GITHUB_JOB=ios-build GITHUB_SHA=20454e7a71942ea69d2cc21b585d0f05ffdb184e python3 scripts/test-task054-ios-owned.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "tests": 37,
+      "seconds": 47.701,
+      "scope": "Fixture e processi Python propri; nessun simulatore/build Flutter"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 build/task054/review-evidence-ci/task054-ios-prepare-cleanup-persistence-repro-d9fcbfd9.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "observed": {
+        "prepareExit": 124,
+        "firstProcessCleanupFailed": true,
+        "firstCleanup": "FAIL",
+        "reopenCleanupExit": 1,
+        "finalProcessCleanupFailed": true,
+        "finalCleanup": "FAIL",
+        "syntheticDeviceStillPresent": false
+      }
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 build/task054/review-evidence-ci/task054-ios-beci06-final-write-reopen-99b6f21.py --repository /Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "exit_code": 0,
+      "status": "PASS",
+      "observed": [
+        {
+          "priorProcessFailure": false,
+          "firstMainExit": 1,
+          "firstDiskCleanup": "NOT_RUN",
+          "firstAttempt": "NOT_RUN",
+          "reopenMainExit": 1,
+          "combinedCleanup": "BLOCKED",
+          "secondResourceCleanup": "PASS",
+          "deviceAbsent": true
+        },
+        {
+          "priorProcessFailure": true,
+          "firstMainExit": 1,
+          "reopenMainExit": 1,
+          "combinedCleanup": "FAIL",
+          "secondResourceCleanup": "PASS",
+          "deviceAbsent": true
+        }
+      ]
+    }
+  ],
+  "child_receipt": "build/task054/review-beci06-20454e7a/receipt.json",
+  "retained_failure_receipts": [
+    "build/task054/review-evidence-ci/review_d9fcbfd9_beci06_changes_required.json",
+    "build/task054/review-evidence-ci/re_review_99b6f21_beci06_incomplete.json"
+  ],
+  "historical_statement": "Il nuovo retry non converte il primo tentativo NOT_RUN in PASS. Risorsa corrente PASS resta distinta dal risultato combinato storico BLOCKED/FAIL. CI d9fcbfd37346144008 resta FAIL; nessun runtime nativo promosso.",
+  "owned_verification_processes_pending": false,
+  "mutation_scope": "Solo questa receipt propria ignorata",
+  "proof_files": {
+    "task054-ios-prepare-cleanup-persistence-repro-d9fcbfd9.py": "02975d5c34f034427af9caa59c2bccacd0d1be9b3a9e11a85dc1811c61d7a053",
+    "task054-ios-beci06-final-write-reopen-99b6f21.py": "5f542f3914b7780c966b26f1751a1d4658c1141d609c94fc86cee587c808ee18"
+  }
+}

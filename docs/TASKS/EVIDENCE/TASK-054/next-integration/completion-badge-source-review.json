@@ -1,0 +1,284 @@
+{
+  "schema": "task054.scoped-source-review.v1",
+  "created_at_utc": "2026-10-08T21:11:55.199263+00:00",
+  "reviewer": "/root/client_ux/journal_source_review",
+  "independent_from_writer": true,
+  "revision": "9fe418a95defd0a5b595e4c2b5604d5c70ac509f",
+  "base": "26713a4294f3976236e8e83f983950b8f281c6fc",
+  "checkout": "/private/tmp/task054-badge-review-checkout-20261008",
+  "scope": "SOURCE_CODE_ONLY",
+  "outcome": "APPROVED",
+  "task_final_approval": false,
+  "finding_review": {
+    "id": "V054-PIXEL-01",
+    "priority": "P3",
+    "source_resolution": "PASS",
+    "status": "SOURCE_FIXED_NATIVE_PIXEL_PENDING",
+    "new_findings": []
+  },
+  "candidate_tests": {
+    "result": "PASS",
+    "pass": 59,
+    "fail": 0,
+    "breakdown": {
+      "focused": 35,
+      "independent_narrow_width_240_280": 16,
+      "host_journal_fixture_mirror": 8
+    }
+  },
+  "baseline_causal_checks": {
+    "commands": 2,
+    "each": {
+      "pass": 6,
+      "fail": 2,
+      "exit_code": 1
+    },
+    "expected_red": true,
+    "note": "Due esecuzioni distinte; non sommare ai test GREEN del candidato."
+  },
+  "production_review": {
+    "result": "PASS",
+    "only_default_badge_presentation_changes": true,
+    "reflow": "Wrap interno ed esterno, nessun clamp o altezza imposta",
+    "new_action_or_mutation": false,
+    "controller_or_l10n_change": false,
+    "semantics_full_label": "PASS_HOST_ONLY"
+  },
+  "fixture_assert_review": {
+    "result": "PASS",
+    "entire_label_selection_bounds": true,
+    "tolerance_logical_px": 0.5,
+    "tolerance_purpose": "Skia/subpixel bounds, non confronto immagine",
+    "fixture_equals_base_after_removing_only_new_import_and_assert": true,
+    "capture_call_sites_before": 29,
+    "capture_call_sites_after": 29,
+    "capture_names_unchanged": true,
+    "scroll_and_recovery_unchanged": true,
+    "expected_full_harness_capture_count": 137,
+    "count_contract_unchanged": true,
+    "actual_native_capture_after_fix": "NOT_RUN",
+    "mirror": "Binding host, font Roboto fissati, import locator assoluti, capture disabilitate; nessun PNG generato."
+  },
+  "independent_geometry_review": {
+    "result": "PASS",
+    "widths_logical_px": [
+      240,
+      280
+    ],
+    "text_scale": 2,
+    "locales": [
+      "es-CL",
+      "it",
+      "en",
+      "zh-Hans"
+    ],
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "entire_label_glyph_boxes_within_paragraph_and_decorated_badge": true,
+    "ancestor_bounds_tolerance_logical_px": 0.5
+  },
+  "changed_files": [
+    {
+      "path": "lib/features/account/presentation/customer_account_panel.dart",
+      "sha256": "795e1a184b387f6989ef04e52d4548a6c3efe8503e8f6cfee23bfe9b0a3c06d5"
+    },
+    {
+      "path": "test/features/account/customer_address_default_badge_test.dart",
+      "sha256": "7e8aa6f229341d6d5e89f04e0cdfa21c9a37c270906158ac59225a178eb02a02"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "sha256": "0fabb98e535fda3252ded76a8e4c8764bf4c05a51144a4d8934ee778e5727564"
+    }
+  ],
+  "external_review_tests": [
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge_baseline_review_test.dart",
+      "sha256": "241bb2407d52ecee8eb3ec5b4dcdd5dc27fb6d2a5874a21c8856c37623fdbabe"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge_narrow_geometry_review_test.dart",
+      "sha256": "576490764e1a70471d45e5e152339e68e18f794ccda938cbb82af0c678d19403"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge_host_harness_review_test.dart",
+      "sha256": "b7117e69da630f53466614712696417e51a5eb7b6e0921788a88d58c61573978"
+    }
+  ],
+  "commands": [
+    {
+      "lane": "dependencies",
+      "cwd": "/private/tmp/task054-badge-review-checkout-20261008",
+      "command": "flutter pub get --offline",
+      "result": "PASS",
+      "exit_code": 0,
+      "log": "badge-review-pub-get.log"
+    },
+    {
+      "lane": "candidate_focused",
+      "cwd": "/private/tmp/task054-badge-review-checkout-20261008",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded test/features/account/customer_address_default_badge_test.dart test/features/account/customer_account_panel_test.dart test/features/account/account_dialog_scope_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "pass": 35,
+      "fail": 0,
+      "log": "badge-review-focused.log"
+    },
+    {
+      "lane": "candidate_independent_narrow",
+      "cwd": "/private/tmp/task054-badge-review-checkout-20261008",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded /Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge_narrow_geometry_review_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "pass": 16,
+      "fail": 0,
+      "log": "badge-review-narrow.log"
+    },
+    {
+      "lane": "candidate_host_fixture_mirror",
+      "cwd": "/private/tmp/task054-badge-review-checkout-20261008",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded /Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge_host_harness_review_test.dart --plain-name 'journal illeggibile'",
+      "result": "PASS",
+      "exit_code": 0,
+      "pass": 8,
+      "fail": 0,
+      "log": "badge-review-host-matrix.log"
+    },
+    {
+      "lane": "baseline_red_badge",
+      "cwd": "/private/tmp/task054-after-sales-review-checkout-20261008",
+      "revision": "26713a4294f3976236e8e83f983950b8f281c6fc",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded /Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge_baseline_review_test.dart",
+      "result": "FAIL",
+      "expected_red": true,
+      "exit_code": 1,
+      "pass": 6,
+      "fail": 2,
+      "failing_cases": [
+        "es-CL dark",
+        "es-CL light"
+      ],
+      "log": "badge-review-red-baseline.log"
+    },
+    {
+      "lane": "baseline_red_fixture_assert",
+      "cwd": "/private/tmp/task054-after-sales-review-checkout-20261008",
+      "revision": "26713a4294f3976236e8e83f983950b8f281c6fc",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded /Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge_host_harness_review_test.dart --plain-name 'journal illeggibile'",
+      "result": "FAIL",
+      "expected_red": true,
+      "exit_code": 1,
+      "pass": 6,
+      "fail": 2,
+      "failing_cases": [
+        "es-CL dark",
+        "es-CL light"
+      ],
+      "log": "badge-review-host-red-baseline.log"
+    },
+    {
+      "lane": "analysis",
+      "cwd": "/private/tmp/task054-badge-review-checkout-20261008",
+      "command": "flutter analyze --no-pub lib/features/account/presentation/customer_account_panel.dart test/features/account/customer_address_default_badge_test.dart integration_test/task054_next_integration_surfaces_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "log": "badge-review-analyze.log"
+    },
+    {
+      "lane": "format",
+      "cwd": "/private/tmp/task054-badge-review-checkout-20261008",
+      "command": "dart format --output=none --set-exit-if-changed lib/features/account/presentation/customer_account_panel.dart test/features/account/customer_address_default_badge_test.dart integration_test/task054_next_integration_surfaces_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "files": 3,
+      "changed": 0,
+      "log": "badge-review-format.log"
+    },
+    {
+      "lane": "diff_check",
+      "cwd": "/private/tmp/task054-badge-review-checkout-20261008",
+      "command": "git diff --check 26713a4294f3976236e8e83f983950b8f281c6fc 9fe418a95defd0a5b595e4c2b5604d5c70ac509f",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "lane": "working_tree",
+      "cwd": "/private/tmp/task054-badge-review-checkout-20261008",
+      "command": "git status --porcelain=v1",
+      "result": "PASS",
+      "exit_code": 0,
+      "output": ""
+    }
+  ],
+  "logs": {
+    "badge-review-pub-get.log": {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge-review-pub-get.log",
+      "sha256": "aa1812eea2efe25dcdc83af7e5a242e3434dce5c1fe2756d0e49059d1b5bc837"
+    },
+    "badge-review-focused.log": {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge-review-focused.log",
+      "sha256": "ef27eafca2293bc92fc29a22683de108a6539b01e0e93142bc84f947c5fe82de"
+    },
+    "badge-review-narrow.log": {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge-review-narrow.log",
+      "sha256": "e858d00fe77c6e07c72984438c958011624b2703043ef0e72abb27ff8e6a34d9"
+    },
+    "badge-review-host-matrix.log": {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge-review-host-matrix.log",
+      "sha256": "2d69445bc94bd40d939584786b86cb2022e6eb5405a828a59280867ba8629b93"
+    },
+    "badge-review-red-baseline.log": {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge-review-red-baseline.log",
+      "sha256": "35e72be4bef872bec9ac698f2a5a7f8b0cf18e37def5e3ddf35552569bf7d7c3"
+    },
+    "badge-review-host-red-baseline.log": {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge-review-host-red-baseline.log",
+      "sha256": "c0a9a94ddc70ce91571568ddc8edc0ad74aacc5bff58c5d3d238537111d43237"
+    },
+    "badge-review-analyze.log": {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge-review-analyze.log",
+      "sha256": "7816f1ffa787f80105dce77f6544167db39444c8c941ed09849fa91047359b31"
+    },
+    "badge-review-format.log": {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge-review-format.log",
+      "sha256": "40dda0d6720d5d81c116c7d712e568c462af50b3eb2133b082b66cd05745759b"
+    }
+  },
+  "warning": "Le fixture account_dialog_scope emettono un warning Drift per istanze multiple; i35test terminano PASS. Nessun warning soppresso.",
+  "remaining_lanes": [
+    {
+      "lane": "native_pixel_after_fix",
+      "result": "NOT_RUN",
+      "reason": "Occorre un artifact nativo associato alla composizione contenente9fe; questa review non esegue CI/native."
+    },
+    {
+      "lane": "Android_iOS_native_runtime",
+      "result": "NOT_RUN",
+      "reason": "Fuori dallo scope SOURCE_CODE_ONLY."
+    },
+    {
+      "lane": "IME_acceptance",
+      "result": "NOT_RUN",
+      "reason": "Assert host e semantica non sono acceptance IME."
+    },
+    {
+      "lane": "assistive_technology_and_physical_profile",
+      "result": "NOT_RUN",
+      "reason": "Non eseguita interazione assistiva o su dispositivo fisico."
+    },
+    {
+      "lane": "AUTH_TEST_and_live",
+      "result": "NOT_RUN",
+      "reason": "Fixture sintetiche; nessuna autenticazione o backend live."
+    }
+  ],
+  "prior_pixel_review_preserved": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/native-pixel-review-43fd7af.json",
+  "reviewer_source_edits": false,
+  "unresolved_processes": false,
+  "permissions": {
+    "directory": "0700",
+    "files": "0600"
+  }
+}

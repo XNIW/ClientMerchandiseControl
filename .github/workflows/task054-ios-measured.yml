@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Preflight o catena completa; corsie recensione, matrice e journal con cleanup proprio
+        description: Preflight, catena completa o singola query HOST runtime
         required: true
         default: preflight
         type: choice
@@ -22,8 +22,9 @@ on:
           - review
           - matrix
           - journal
+          - runtime-query
       surface:
-        description: Superficie storica, alternativa o canonical cold solo preflight
+        description: Superficie storica, alternativa o canonical per preflight/query HOST
         required: true
         default: historical
         type: choice
@@ -38,7 +39,7 @@ permissions:
 jobs:
   measured-ios:
     name: Owned iOS measured preflight and native
-    if: inputs.surface != 'canonical' || inputs.mode == 'preflight'
+    if: (inputs.mode == 'runtime-query' && inputs.surface == 'canonical') || (inputs.mode != 'runtime-query' && (inputs.surface != 'canonical' || inputs.mode == 'preflight'))
     runs-on: ${{ inputs.surface == 'compatible' && 'macos-15' || 'macos-26' }}
     timeout-minutes: 35
     env:
@@ -50,6 +51,7 @@ jobs:
         with:
           ref: ${{ github.sha }}
       - name: Validate measured transport
+        if: inputs.mode != 'runtime-query'
         run: |
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-canonical-cold.py
@@ -64,10 +66,15 @@ jobs:
           python3 scripts/run-ios-preflight-measured.py \
             --output build/task054/ios-measured "${cmc_keep_ready[@]}"
       - name: Cold canonical owned preflight without Flutter or app
-        if: inputs.surface == 'canonical'
+        if: inputs.surface == 'canonical' && inputs.mode != 'runtime-query'
         run: |
           python3 scripts/run-ios-preflight-measured.py \
             --profile canonical --output build/task054/ios-measured
+      - name: Observe one canonical HOST runtime query
+        if: inputs.mode == 'runtime-query' && inputs.surface == 'canonical'
+        run: |
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/run-ios-preflight-measured.py \
+            --profile runtime-query --output build/task054/ios-runtime-query
       - name: Prepare alternative installed iOS surface headless
         if: inputs.surface == 'compatible'
         run: |
@@ -144,7 +151,7 @@ jobs:
               --receipt build/task054/ios-measured/owner.json
           fi
       - name: Save measurements and native receipts
-        if: always()
+        if: always() && inputs.mode != 'runtime-query'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: task054-ios-measured
@@ -156,12 +163,22 @@ jobs:
             build/task054/os-visual/*.json
           retention-days: 7
           if-no-files-found: error
+      - name: Save HOST query metadata only
+        if: always() && inputs.mode == 'runtime-query' && inputs.surface == 'canonical'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-ios-runtime-query
+          path: |
+            build/task054/ios-runtime-query/result.json
+            build/task054/ios-runtime-query/processes.jsonl
+          retention-days: 7
+          if-no-files-found: error
       - name: Create separate iOS PNG previews
-        if: always()
+        if: always() && inputs.mode != 'runtime-query'
         timeout-minutes: 1
         run: python3 scripts/create-task054-ios-preview.py
       - name: Save separate iOS PNG previews
-        if: always()
+        if: always() && inputs.mode != 'runtime-query'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: task054-ios-measured-previews

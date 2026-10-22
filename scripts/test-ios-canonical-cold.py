@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Cold profile host tests: SDK commands fully mocked, filesystem synthetic."""
 import contextlib
+import hashlib
 import importlib.util
 import io
 import json
@@ -8,6 +9,8 @@ import os
 from pathlib import Path
 import plistlib
 import re
+import signal
+import subprocess
 import tempfile
 import unittest
 from types import SimpleNamespace
@@ -218,6 +221,7 @@ class CanonicalColdTest(unittest.TestCase):
             return eval(expression.replace('&&', ' and ').replace('||', ' or '),
                 {'__builtins__': {}}, {'inputs': SimpleNamespace(surface='canonical', mode=mode)})
         self.assertTrue(evaluate(job_condition, 'preflight'))
+        self.assertTrue(evaluate(job_condition, 'runtime-query'))
         for mode in ('native', 'review', 'matrix', 'journal'):
             self.assertFalse(evaluate(job_condition, mode))
         for block in re.split(r'^      - name:', workflow, flags=re.M)[1:]:
@@ -228,6 +232,294 @@ class CanonicalColdTest(unittest.TestCase):
                 conditional = re.search(r'^        if: (.+)$', block, re.M)
                 if conditional and 'always()' not in conditional.group(1):
                     self.assertFalse(evaluate(conditional.group(1), 'preflight'), title)
+
+
+class RuntimeQueryTest(unittest.TestCase):
+    QUERY = ['xcrun', 'simctl', 'list', 'runtimes', '--json']
+
+    def execute(self, output, failure=None, trace_failure=False, trace_content=None):
+        self.calls, self.signals = [], []
+        payload = '{"runtimes": [], "SECRET_CATALOG": "PRIVATE_PATH"}'
+        current = self
+
+        class FakePopen:
+            def __init__(self, arguments, **kwargs):
+                current.calls.append(('spawn', arguments, kwargs))
+                self.pid, self.returncode = 321, None
+                self.stdin = self.stderr = None
+                self.stdout = io.StringIO(payload)
+
+            def communicate(self, timeout=None):
+                current.calls.append(('communicate', timeout))
+                if failure in ('timeout', 'cleanup'):
+                    raise subprocess.TimeoutExpired('SECRET_ARGV', timeout,
+                                                    output=b'SECRET_PARTIAL{')
+                if failure == 'signal':
+                    raise M.IOS.Failure(143, 'SECRET_SIGNAL')
+                self.returncode = 7 if failure == 'exit' else 0
+                self.stdout.close()
+                return payload, None
+
+            def poll(self):
+                current.calls.append(('poll',))
+                return self.returncode
+
+            def wait(self, timeout=None):
+                current.calls.append(('wait', timeout))
+                self.returncode = -15
+                return self.returncode
+
+        original_trace = M.TRACE.trace_processes
+
+        @contextlib.contextmanager
+        def measured(path):
+            if trace_failure == 'enter':
+                raise OSError('SECRET_TRACE_ENTER')
+            with original_trace(path) as emit:
+                yield emit
+            if trace_content is not None:
+                Path(path).write_bytes(trace_content)
+            if trace_failure:
+                raise OSError('SECRET_TRACE_FAILURE')
+
+        def killpg(group, sig):
+            self.signals.append((group, sig))
+            if failure == 'cleanup' and sig == signal.SIGKILL:
+                raise PermissionError(1, 'SECRET_EPERM')
+
+        handlers = {sig: M.signal.getsignal(sig) for sig in (signal.SIGINT, signal.SIGTERM)}
+        with patch.object(subprocess, 'Popen', FakePopen), \
+             patch.object(M.IOS, 'group_has_live_members',
+                side_effect=PermissionError(1, 'SECRET_PROBE') if failure == 'cleanup' else None,
+                return_value=False), \
+             patch.object(os, 'getpgid', return_value=321), \
+             patch.object(os, 'killpg', side_effect=killpg), \
+             patch.object(M.TRACE, 'trace_processes', measured), \
+             patch.object(M.Path, 'is_dir', return_value=True), \
+             patch.dict(os.environ, {'DEVELOPER_DIR': DEVELOPER}, clear=True), \
+             patch.object(M.IOS.IosOwnedRunner, 'prepare', side_effect=AssertionError('prepare')), \
+             patch.object(M.IOS.IosOwnedRunner, 'cleanup', side_effect=AssertionError('cleanup')), \
+             contextlib.redirect_stdout(io.StringIO()):
+            original_popen, original_killpg = subprocess.Popen, os.killpg
+            code = M.main(['--profile', 'runtime-query', '--output', str(output)])
+            self.assertIs(subprocess.Popen, original_popen)
+            self.assertIs(os.killpg, original_killpg)
+        for sig, handler in handlers.items():
+            self.assertIs(M.signal.getsignal(sig), handler)
+        result_path = output / 'result.json'
+        return code, json.loads(result_path.read_text()) if result_path.exists() else None
+
+    def test_success_stops_after_one_query_and_retains_only_private_metadata(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'query'
+            code, result = self.execute(output)
+            self.assertEqual(code, 0)
+            self.assertEqual(result['query'], 'PASS')
+            self.assertEqual(result['commandCount'], 1)
+            self.assertEqual(result['trace'], 'PASS')
+            self.assertEqual(result['traceRetention'], 'PASS')
+            self.assertTrue(result['stdoutComplete'])
+            self.assertEqual(result['stdout']['json'], 'valid')
+            self.assertEqual(result['resourceCleanup'], 'NOT_RUN')
+            self.assertFalse(result['resourceCreated'])
+            self.assertEqual(result['stderr'], 'inherited_not_captured')
+            self.assertEqual(sorted(p.name for p in output.iterdir()),
+                             ['processes.jsonl', 'result.json'])
+            self.assertEqual(output.stat().st_mode & 0o777, 0o700)
+            for path in output.iterdir():
+                self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+                self.assertNotIn('SECRET', path.read_text())
+                self.assertNotIn('PRIVATE_PATH', path.read_text())
+            self.assertLessEqual((output / 'result.json').stat().st_size, 4096)
+            self.assertEqual([entry for entry in self.calls if entry[0] == 'spawn'],
+                [('spawn', self.QUERY, {'start_new_session': True,
+                  'stdout': subprocess.PIPE, 'text': True})])
+            self.assertEqual([entry for entry in self.calls if entry[0] == 'communicate'],
+                             [('communicate', 30)])
+            self.assertEqual(self.signals, [])
+
+    def test_timeout_preserves_124_partial_hash_stop_wait_and_unknown_eof(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'query'
+            code, result = self.execute(output, failure='timeout')
+            self.assertEqual(code, 124)
+            self.assertEqual(result['query'], 'FAIL')
+            self.assertIsNone(result['stdoutComplete'])
+            self.assertEqual(result['stdout']['sha256'],
+                             hashlib.sha256(b'SECRET_PARTIAL{').hexdigest())
+            self.assertEqual(self.signals, [(321, signal.SIGTERM)])
+            self.assertIn(('wait', 2), self.calls)
+            rows = [json.loads(line) for line in (output / 'processes.jsonl').read_text().splitlines()]
+            timeout = next(row for row in rows if row['event'] == 'communicate-timeout')
+            self.assertEqual(timeout['timeout_seconds'], 30)
+            self.assertTrue(timeout['observer_poll_may_reap'])
+            self.assertFalse(timeout['output_complete'])
+            self.assertTrue(any(row.get('reaped') for row in rows))
+            self.assertNotIn('SECRET', (output / 'processes.jsonl').read_text())
+            self.assertEqual(sum(entry[0] == 'spawn' for entry in self.calls), 1)
+            self.assertEqual(sum(entry[0] == 'communicate' for entry in self.calls), 1)
+
+    def test_nonzero_signal_and_cleanup_error_keep_primary_and_do_not_retry(self):
+        for failure, expected in (('exit', 7), ('signal', 143), ('cleanup', 124)):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / 'query'
+                code, result = self.execute(output, failure=failure)
+                self.assertEqual(code, expected)
+                self.assertEqual(result['exit_code'], expected)
+                self.assertEqual(result['query'], 'FAIL')
+                self.assertEqual(result['processCleanupFailed'], failure == 'cleanup')
+                self.assertEqual(sum(entry[0] == 'spawn' for entry in self.calls), 1)
+                self.assertEqual(sum(entry[0] == 'communicate' for entry in self.calls), 1)
+                self.assertNotIn('SECRET', (output / 'result.json').read_text())
+                if failure == 'cleanup':
+                    self.assertEqual(self.signals, [(321, signal.SIGTERM), (321, signal.SIGKILL)])
+
+    def test_trace_exit_failure_keeps_query_primary_or_marks_incomplete_diagnostic(self):
+        for failure, expected in ((None, 2), ('timeout', 124)):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as directory:
+                code, result = self.execute(Path(directory) / 'query', failure=failure,
+                                            trace_failure=True)
+                self.assertEqual(code, expected)
+                self.assertEqual(result['trace'], 'FAIL')
+                self.assertEqual(result['query'], 'PASS' if failure is None else 'FAIL')
+
+    def test_trace_enter_failure_does_not_run_query(self):
+        with tempfile.TemporaryDirectory() as directory:
+            code, result = self.execute(Path(directory) / 'query', trace_failure='enter')
+            self.assertEqual(code, 2)
+            self.assertEqual(result['commandCount'], 0)
+            self.assertEqual(result['query'], 'NOT_RUN')
+            self.assertEqual(result['trace'], 'FAIL')
+            self.assertEqual(self.calls, [])
+
+    def test_result_write_failure_preserves_primary(self):
+        actual_open = os.open
+        def deny_result(path, flags, mode=0o777):
+            if Path(path).name == 'result.json':
+                raise PermissionError(1, 'SECRET_RESULT_WRITE')
+            return actual_open(path, flags, mode)
+        for failure, expected in ((None, 2), ('timeout', 124)):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as directory, \
+                 patch.object(os, 'open', side_effect=deny_result):
+                output = Path(directory) / 'query'
+                code, result = self.execute(output, failure=failure)
+                self.assertEqual(code, expected)
+                self.assertIsNone(result)
+                self.assertFalse((output / 'result.json').exists())
+
+    def test_trace_write_failure_preserves_primary(self):
+        @contextlib.contextmanager
+        def broken_stream(path):
+            class Stream:
+                def write(self, _):
+                    raise OSError('SECRET_TRACE_WRITE')
+            yield Stream()
+        for failure, expected in ((None, 2), ('timeout', 124)):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as directory, \
+                 patch.object(M.TRACE, 'exclusive_trace_stream', broken_stream):
+                code, result = self.execute(Path(directory) / 'query', failure=failure)
+                self.assertEqual(code, expected)
+                self.assertEqual(result['trace'], 'FAIL')
+                self.assertEqual(result['query'], 'PASS' if failure is None else 'FAIL')
+
+    def test_trace_retention_read_failure_preserves_primary(self):
+        actual_open = Path.open
+        def deny_trace(path, mode='r', *args, **kwargs):
+            if path.name == 'processes-pending.local' and mode == 'rb':
+                raise OSError('SECRET_TRACE_READ')
+            return actual_open(path, mode, *args, **kwargs)
+        with tempfile.TemporaryDirectory() as directory, patch.object(Path, 'open', deny_trace):
+            code, result = self.execute(Path(directory) / 'query', failure='timeout')
+            self.assertEqual(code, 124)
+            self.assertEqual(result['traceRetention'], 'FAIL')
+
+    def test_trace_retention_caps_preserve_local_file_and_primary(self):
+        for content in (b'x' * 2097153, b'{}\n' * 2049):
+            with self.subTest(size=len(content)), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / 'query'
+                code, result = self.execute(output, failure='timeout', trace_content=content)
+                self.assertEqual(code, 124)
+                self.assertEqual(result['traceRetention'], 'FAIL')
+                self.assertFalse((output / 'processes.jsonl').exists())
+                self.assertEqual((output / 'processes-retention-blocked.local').read_bytes(), content)
+
+    def test_existing_output_keep_ready_and_wrong_surface_never_invoke_query(self):
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(M.IOS.IosOwnedRunner, 'command') as command, \
+             contextlib.redirect_stderr(io.StringIO()):
+            existing = Path(directory) / 'existing'
+            existing.mkdir()
+            sentinel = existing / 'result.json'
+            sentinel.write_text('preserve')
+            with self.assertRaises(FileExistsError):
+                M.main(['--profile', 'runtime-query', '--output', str(existing)])
+            self.assertEqual(sentinel.read_text(), 'preserve')
+            unused = Path(directory) / 'unused'
+            with self.assertRaises(SystemExit) as caught:
+                M.main(['--profile', 'runtime-query', '--keep-ready', '--output', str(unused)])
+            self.assertEqual(caught.exception.code, 2)
+            self.assertFalse(unused.exists())
+            with patch.dict(os.environ, {'DEVELOPER_DIR': 'SECRET_WRONG_SURFACE'}, clear=True):
+                self.assertEqual(M.main(['--profile', 'runtime-query', '--output', str(unused)]), 2)
+            result = json.loads((unused / 'result.json').read_text())
+            self.assertEqual(result['commandCount'], 0)
+            self.assertEqual(result['query'], 'NOT_RUN')
+            self.assertEqual(result['trace'], 'NOT_RUN')
+            self.assertNotIn('SECRET', json.dumps(result))
+            command.assert_not_called()
+
+    def test_workflow_routes_exact_steps_and_preserves_all_legacy_combinations(self):
+        workflow = (ROOT.parent / '.github/workflows/task054-ios-measured.yml').read_text()
+        blocks = re.split(r'^      - name:', workflow, flags=re.M)[1:]
+        conditions = {block.splitlines()[0].strip():
+            re.search(r'^        if: (.+)$', block, re.M) for block in blocks}
+        job = re.search(r'^    if: (.+)$', workflow, re.M).group(1)
+        def evaluate(expression, mode, surface):
+            return eval(expression.replace('&&', ' and ').replace('||', ' or '),
+                {'__builtins__': {}}, {'inputs': SimpleNamespace(surface=surface, mode=mode),
+                                      'always': lambda: True})
+        base = {'Checkout exact candidate', 'Validate measured transport',
+                'Save measurements and native receipts', 'Create separate iOS PNG previews',
+                'Save separate iOS PNG previews'}
+        for mode in ('preflight', 'native', 'review', 'matrix', 'journal', 'runtime-query'):
+            for surface in ('historical', 'compatible', 'canonical'):
+                with self.subTest(mode=mode, surface=surface):
+                    actual = {title for title, match in conditions.items() if
+                        match is None or evaluate(match.group(1), mode, surface)} if evaluate(
+                            job, mode, surface) else set()
+                    expected = set(base)
+                    if mode == 'runtime-query':
+                        expected = {'Checkout exact candidate', 'Observe one canonical HOST runtime query',
+                                    'Save HOST query metadata only'} if surface == 'canonical' else set()
+                    elif surface == 'canonical':
+                        expected = expected | {'Cold canonical owned preflight without Flutter or app'} \
+                            if mode == 'preflight' else set()
+                    else:
+                        expected.add('Minimal owned preflight' if surface == 'historical' else
+                                     'Prepare alternative installed iOS surface headless')
+                        if surface == 'compatible' or mode != 'preflight':
+                            expected.add('Final owned cleanup')
+                        if mode != 'preflight':
+                            expected.update(('Set up Flutter', 'Validate Flutter toolchain and dependencies'))
+                        if mode in ('native', 'review'):
+                            expected.update(('Critical review alone on the same owned Simulator',
+                                             'Review after the two preceding inbox cases'))
+                            if surface == 'compatible':
+                                expected.update(('Build compatible iOS Simulator app before critical review',
+                                    'Validate compatible iOS bundle security',
+                                    'Smoke compatible app before critical review'))
+                        if mode in ('native', 'journal'):
+                            expected.add('Existing journal runner on the same owned Simulator')
+                        if mode in ('native', 'matrix'):
+                            expected.update(('Build normal iOS Simulator app for matrix',
+                                'Validate normal iOS bundle security', 'Smoke normal app before matrix',
+                                'Capture full fixture matrix after smoke'))
+                    self.assertEqual(actual, expected)
+        upload = next(block for block in blocks if block.startswith(' Save HOST query metadata only\n'))
+        paths = re.search(r'          path: \|\n(.*?)          retention-days:', upload, re.S).group(1)
+        self.assertEqual(paths.split(), ['build/task054/ios-runtime-query/result.json',
+                                       'build/task054/ios-runtime-query/processes.jsonl'])
+        self.assertIn('retention-days: 7', upload)
 
 
 if __name__ == '__main__':

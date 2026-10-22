@@ -21,6 +21,84 @@ IOS = module('ios_preflight_owner', 'run-task054-ios-owned.py')
 TRACE = module('ios_preflight_trace', 'trace-ios-owned-process.py')
 
 
+def runtime_query(output):
+    """Una query HOST30s, senza creare risorse; non qualifica readiness o app."""
+    output = Path(output)
+    output.mkdir(mode=0o700, parents=True, exist_ok=False)
+    owner = IOS.IosOwnedRunner()
+    result = {'schemaVersion': 1, 'scope': 'canonical_host_runtime_query',
+              'query': 'NOT_RUN', 'trace': 'NOT_RUN', 'commandCount': 0,
+              'timeoutSeconds': 30, 'app': 'NOT_RUN', 'preflight': 'NOT_RUN',
+              'resourceCleanup': 'NOT_RUN', 'resourceCreated': False,
+              'stderr': 'inherited_not_captured', 'cause': 'UNKNOWN',
+              'traceRetention': 'NOT_RUN', 'traceByteCap': 2097152,
+              'traceEventCap': 2048}
+    handlers = {sig: signal.getsignal(sig) for sig in (signal.SIGTERM, signal.SIGINT)}
+    primary = 0
+    try:
+        for sig in handlers:
+            signal.signal(sig, owner.interrupted)
+        developer = '/Applications/Xcode_26.6.app/Contents/Developer'
+        if os.environ.get('DEVELOPER_DIR') != developer or not Path(developer).is_dir():
+            raise IOS.Failure(2, 'Superficie canonical richiesta')
+        result['trace'] = 'FAIL'
+        with TRACE.trace_processes(output / 'processes-pending.local'):
+            result.update(query='FAIL', commandCount=1)
+            try:
+                value = owner.command(['xcrun', 'simctl', 'list', 'runtimes', '--json'],
+                                      30, capture=True)
+            except IOS.Failure as error:
+                primary = error.code
+                result.update(errorType='Failure', stdout=TRACE.output_metadata(error.output),
+                              stdoutComplete=None)
+            else:
+                result.update(query='PASS', stdout=TRACE.output_metadata(value),
+                              stdoutComplete=True)
+        result['trace'] = 'PASS'
+    except (IOS.Failure, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
+        # Un errore diagnostico non sostituisce il primo errore della query.
+        primary = primary or (error.code if isinstance(error, IOS.Failure) else 2)
+        result['errorType'] = next(name for kind, name in (
+            (IOS.Failure, 'Failure'), (OSError, 'OSError'), (ValueError, 'ValueError'),
+            (KeyError, 'KeyError'), (TypeError, 'TypeError'),
+            (AttributeError, 'AttributeError')) if isinstance(error, kind))
+    finally:
+        for sig, handler in handlers.items():
+            signal.signal(sig, handler)
+        result['processCleanupFailed'] = bool(owner.process_cleanup_failed)
+        if result['processCleanupFailed']:
+            primary = primary or 1
+        trace_path = output / 'processes-pending.local'
+        try:
+            if trace_path.is_file():
+                with trace_path.open('rb') as trace:
+                    retained = trace.read(result['traceByteCap'] + 1)
+                over_cap = (len(retained) > result['traceByteCap'] or
+                            retained.count(b'\n') > result['traceEventCap'])
+                result['traceRetention'] = 'FAIL' if over_cap else 'PASS'
+                if over_cap:
+                    # Preservare il file sul runner, fuori dai due path pubblicabili.
+                    trace_path.rename(output / 'processes-retention-blocked.local')
+                    primary = primary or 2
+                else:
+                    trace_path.rename(output / 'processes.jsonl')
+        except OSError:
+            result['traceRetention'] = 'FAIL'
+            primary = primary or 2
+        result['exit_code'] = primary
+        try:
+            encoded = json.dumps(result, indent=2) + '\n'
+            if len(encoded.encode()) > 4096:
+                raise ValueError('result metadata cap')
+            with os.fdopen(os.open(output / 'result.json',
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'w') as saved:
+                saved.write(encoded)
+        except (OSError, ValueError):
+            print('FAIL: runtime-query result retention', flush=True)
+            primary = primary or 2
+    return primary
+
+
 def canonical_cold_preflight(output):
     """Ricetta minima osservabile; nessuna app, warm-up o query aggiuntiva."""
     output = Path(output)
@@ -139,8 +217,13 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True)
     parser.add_argument('--keep-ready', action='store_true')
-    parser.add_argument('--profile', choices=('historical', 'canonical'), default='historical')
+    parser.add_argument('--profile', choices=('historical', 'canonical', 'runtime-query'),
+                        default='historical')
     options = parser.parse_args(argv)
+    if options.profile == 'runtime-query':
+        if options.keep_ready:
+            parser.error('runtime-query vieta keep-ready e non crea risorse')
+        return runtime_query(options.output)
     if options.profile == 'canonical':
         if options.keep_ready:
             parser.error('canonical preflight vieta keep-ready e non esegue app')
